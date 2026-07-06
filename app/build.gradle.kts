@@ -32,6 +32,13 @@ android {
             }
         }
     }
+
+    lint {
+        checkDependencies = true
+        ignoreTestSources = true
+        abortOnError = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

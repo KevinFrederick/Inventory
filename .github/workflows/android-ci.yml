@@ -34,7 +34,7 @@ jobs:
 
       # Scans code for errors, bugs, and performance issues
       - name: Run Android Lint
-        run: ./gradlew lint
+        run: ./gradlew :app:lintDebug
 
       # Executes all local tests in test folder
       - name: Run Unit Tests
