@@ -24,3 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Inventory"
 include(":app")
+include(":core:database")
+include(":features:product")
