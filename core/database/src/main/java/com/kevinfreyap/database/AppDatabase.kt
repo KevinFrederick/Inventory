@@ -8,12 +8,14 @@ import com.kevinfreyap.database.dao.TransactionDao
 import com.kevinfreyap.database.entity.CategoryEntity
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.TransactionEntity
+import com.kevinfreyap.database.entity.TransactionItemEntity
 
 @Database(
     entities = [
         CategoryEntity::class,
         ProductEntity::class,
-        TransactionEntity::class
+        TransactionEntity::class,
+        TransactionItemEntity::class
     ],
     version = 1,
     exportSchema = false

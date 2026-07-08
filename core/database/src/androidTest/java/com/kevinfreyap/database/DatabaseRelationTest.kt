@@ -11,6 +11,7 @@ import com.kevinfreyap.database.dao.TransactionDao
 import com.kevinfreyap.database.entity.CategoryEntity
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.TransactionEntity
+import com.kevinfreyap.database.entity.TransactionItemEntity
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.first
@@ -71,10 +72,15 @@ class DatabaseRelationTest {
 
     val transaction = TransactionEntity(
         transactionId = "trans-01",
-        productId = "prod-01",
-        note = "restock",
-        amount = 100,
+        note = "test",
         timeStamp = 1000L
+    )
+
+    val transactionItem = TransactionItemEntity(
+        transactionItemId = "item-01",
+        transactionId = "trans-01",
+        productId = "prod-01",
+        amount = 2
     )
 
     @Test
@@ -94,25 +100,19 @@ class DatabaseRelationTest {
     }
 
     @Test
-    fun deleteProduct_cascadesToTransactions() = runTest {
+    fun insertAndRetrieveTransaction_withItems() = runTest {
         categoryDao.insertCategory(category)
         productDao.insertProduct(product)
+
         transactionDao.insertTransaction(transaction)
+        transactionDao.insertTransactionItems(listOf(transactionItem))
 
-        // Verify transaction exist
-        var savedTransaction = transactionDao.getAllTransaction().first()
-        assertEquals(1, savedTransaction.size)
+        // Fetch data
+        val result = transactionDao.getTransaction("trans-01")
 
-        // Delete product
-        val result = runCatching {
-            productDao.deleteProduct(product.productId)
-        }
-
-        // Ensure product deletion didn't crash
-        assertTrue(result.isSuccess)
-
-        // Transaction must be gone
-        savedTransaction = transactionDao.getAllTransaction().first()
-        assertTrue(savedTransaction.isEmpty())
+        // Assert relations correct
+        assertEquals(transaction.transactionId, result.first().transaction.transactionId)
+        assertEquals(1, result.first().items.size)
+        assertEquals(product.name, result.first().items.first().product.name)
     }
 }
