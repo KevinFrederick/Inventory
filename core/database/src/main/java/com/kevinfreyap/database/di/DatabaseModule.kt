@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.dao.CategoryDao
+import com.kevinfreyap.database.dao.LocationDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.dao.TransactionDao
 import dagger.Module
@@ -34,4 +35,7 @@ class DatabaseModule {
 
     @Provides
     fun provideTransactionDao(db: AppDatabase): TransactionDao = db.transactionDao()
+
+    @Provides
+    fun provideLocationDao(db: AppDatabase): LocationDao = db.locationDao()
 }

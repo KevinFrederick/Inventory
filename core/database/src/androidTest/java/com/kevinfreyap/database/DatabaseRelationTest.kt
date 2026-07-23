@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kevinfreyap.database.dao.CategoryDao
+import com.kevinfreyap.database.dao.LocationDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.dao.TransactionDao
 import com.kevinfreyap.database.entity.CategoryEntity
+import com.kevinfreyap.database.entity.LocationEntity
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.TransactionEntity
 import com.kevinfreyap.database.entity.TransactionItemEntity
@@ -28,6 +30,7 @@ class DatabaseRelationTest {
     private lateinit var categoryDao: CategoryDao
     private lateinit var productDao: ProductDao
     private lateinit var transactionDao: TransactionDao
+    private lateinit var locationDao: LocationDao
 
     @Before
     fun createDb() {
@@ -41,6 +44,7 @@ class DatabaseRelationTest {
         categoryDao = db.categoryDao()
         productDao = db.productDao()
         transactionDao = db.transactionDao()
+        locationDao = db.locationDao()
     }
 
     @After
@@ -60,12 +64,17 @@ class DatabaseRelationTest {
     val product = ProductEntity(
         productId = "prod-01",
         categoryId = "cat-01",
+        locationId = "loc-01",
         name = "Burger",
         description = null,
+        barcode = "123456789",
         sku = "bgr-01",
         quantity = 10,
         price = 99.0,
+        imageUri = null,
+        expirationDate = null,
         minimumQuantity = 2,
+        supplier = null,
         createdAt = 1000L,
         lastUpdated = 1000L
     )
@@ -83,10 +92,20 @@ class DatabaseRelationTest {
         amount = 2
     )
 
+    val location = LocationEntity(
+        locationId = "loc-01",
+        name = "Garage",
+        description = null,
+        locationBarcode = null,
+        createdAt = 1000L,
+        lastUpdated = 1000L,
+    )
+
     @Test
     fun deleteCategory_withLinkedProduct_isRestricted() = runTest{
         // Insert a category and product linked to it
         categoryDao.insertCategory(category)
+        locationDao.insertLocation(location)
         productDao.insertProduct(product)
 
         // Catch whatever happens when deleting
@@ -102,6 +121,7 @@ class DatabaseRelationTest {
     @Test
     fun insertAndRetrieveTransaction_withItems() = runTest {
         categoryDao.insertCategory(category)
+        locationDao.insertLocation(location)
         productDao.insertProduct(product)
 
         transactionDao.insertTransaction(transaction)
