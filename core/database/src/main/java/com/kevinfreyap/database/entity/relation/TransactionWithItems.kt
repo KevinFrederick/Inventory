@@ -6,6 +6,7 @@ import com.kevinfreyap.database.entity.TransactionEntity
 import com.kevinfreyap.database.entity.TransactionItemEntity
 
 data class TransactionWithItems(
+    // The receipt
     @Embedded
     val transaction: TransactionEntity,
 
@@ -14,5 +15,5 @@ data class TransactionWithItems(
         parentColumn = "transactionId",
         entityColumn = "transactionId"
     )
-    val items: List<TransactionWithProduct>
+    val items: List<TransactionItemWithProduct>
 )

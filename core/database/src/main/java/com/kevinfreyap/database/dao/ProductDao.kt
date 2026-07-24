@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.kevinfreyap.database.entity.ProductEntity
-import com.kevinfreyap.database.entity.relation.ProductWithCategory
+import com.kevinfreyap.database.entity.relation.ProductWithDetails
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,11 +17,11 @@ interface ProductDao {
 
     @Transaction
     @Query("SELECT * FROM product")
-    fun getAllProduct(): Flow<List<ProductWithCategory>>
+    fun getAllProduct(): Flow<List<ProductWithDetails>>
 
     @Transaction
     @Query("SELECT * FROM product WHERE productId = :id")
-    fun getProduct(id: String): Flow<ProductWithCategory>
+    fun getProduct(id: String): Flow<ProductWithDetails>
 
     @Update
     suspend fun updateProduct(product: ProductEntity)

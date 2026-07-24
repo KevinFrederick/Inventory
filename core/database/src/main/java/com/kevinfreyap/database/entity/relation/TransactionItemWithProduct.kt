@@ -5,7 +5,8 @@ import androidx.room.Relation
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.TransactionItemEntity
 
-data class TransactionWithProduct(
+data class TransactionItemWithProduct(
+    // 1 line inside a receipt
     @Embedded
     val transactionItem: TransactionItemEntity,
 
