@@ -20,6 +20,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -36,8 +37,11 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.paging)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
