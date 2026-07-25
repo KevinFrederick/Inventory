@@ -57,8 +57,8 @@ class DatabaseRelationTest {
         categoryId = "cat-01",
         name = "Food",
         description = null,
-        createdAt = System.currentTimeMillis(),
-        lastUpdated = System.currentTimeMillis()
+        createdAt = 1000L,
+        lastUpdated = 1000L
     )
 
     val product = ProductEntity(

@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+.idea/deploymentTargetSelector.xml
+.idea/androidTestResultsUserPreferences.xml
