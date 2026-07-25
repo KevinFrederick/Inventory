@@ -26,3 +26,4 @@ rootProject.name = "Inventory"
 include(":app")
 include(":core:database")
 include(":features:product")
+include(":core:ui")
