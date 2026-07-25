@@ -1,4 +1,4 @@
-package com.kevinfreyap.inventory.ui.theme
+package com.kevinfreyap.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

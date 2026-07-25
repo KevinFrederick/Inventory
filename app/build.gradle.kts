@@ -55,6 +55,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":core:ui"))
+
     // Android Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
