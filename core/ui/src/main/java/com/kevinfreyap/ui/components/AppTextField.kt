@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -33,6 +34,7 @@ fun AppTextField(
     label: String,
     modifier: Modifier = Modifier,
     minLines: Int = 1,
+    unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
     isError: Boolean = false,
     errorMessage: String? = null,
@@ -76,13 +78,13 @@ fun AppTextField(
         readOnly = readOnly,
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Theme.custom.hint,
+            unfocusedBorderColor = unfocusedColor,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
 
-            unfocusedLabelColor = Theme.custom.hint,
+            unfocusedLabelColor = unfocusedColor,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
 
-            unfocusedTrailingIconColor = Theme.custom.hint,
+            unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),

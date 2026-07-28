@@ -1,4 +1,4 @@
-package com.kevinfreyap.ui.components
+package com.kevinfreyap.product.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

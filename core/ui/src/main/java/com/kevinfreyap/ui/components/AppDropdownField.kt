@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
+import com.kevinfreyap.ui.theme.Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +32,7 @@ fun AppDropdownField(
     filteredOptions: List<String>,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
+    unfocusedColor: Color = Theme.custom.hint,
     isError: Boolean = false,
     errorMessage: String? = null,
     customTrailingIcon: @Composable (() -> Unit)? = null
@@ -64,6 +66,7 @@ fun AppDropdownField(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 }
             },
+            unfocusedColor = unfocusedColor,
             readOnly = readOnly,
             isError = isError,
             errorMessage = errorMessage
@@ -126,7 +129,8 @@ fun AppDropdownFieldPreview() {
             onValueChange = { newValue -> previewValue = newValue },
             label = "Category",
             filteredOptions = filteredOptions,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            unfocusedColor = Theme.custom.primaryText
         )
     }
 }
