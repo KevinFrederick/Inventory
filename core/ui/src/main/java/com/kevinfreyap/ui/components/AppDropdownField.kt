@@ -31,8 +31,9 @@ fun AppDropdownField(
     label: String,
     filteredOptions: List<String>,
     modifier: Modifier = Modifier,
-    readOnly: Boolean = false,
     unfocusedColor: Color = Theme.custom.hint,
+    readOnly: Boolean = false,
+    floatingLabel: Boolean = true,
     isError: Boolean = false,
     errorMessage: String? = null,
     customTrailingIcon: @Composable (() -> Unit)? = null
@@ -68,6 +69,7 @@ fun AppDropdownField(
             },
             unfocusedColor = unfocusedColor,
             readOnly = readOnly,
+            floatingLabel = floatingLabel,
             isError = isError,
             errorMessage = errorMessage
         )
