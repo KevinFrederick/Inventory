@@ -1,4 +1,4 @@
-package com.kevinfreyap.ui.components
+package com.kevinfreyap.product.presentation.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding

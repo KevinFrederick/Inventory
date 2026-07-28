@@ -37,6 +37,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:ui"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
