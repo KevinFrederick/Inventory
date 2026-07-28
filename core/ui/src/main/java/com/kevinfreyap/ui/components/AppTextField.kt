@@ -36,6 +36,7 @@ fun AppTextField(
     minLines: Int = 1,
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
+    floatingLabel: Boolean = true,
     isError: Boolean = false,
     errorMessage: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -49,12 +50,22 @@ fun AppTextField(
         value = value,
         onValueChange = onValueChange,
         trailingIcon = trailingIcon,
-        label = {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Medium,
-            )
-        },
+        label = if (floatingLabel) {
+            {
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        } else null,
+        placeholder = if (!floatingLabel) {
+            {
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        } else null,
         isError = isError,
         supportingText = errorMessage?.let {
             {
@@ -110,8 +121,7 @@ fun AppTextFieldPreview() {
             value = previewValue,
             onValueChange = { newValue -> previewValue = newValue },
             label = "Product Name",
-            isError = true,
-            errorMessage = "Something wrong here",
+            isError = false,
             modifier = Modifier.padding(8.dp),
             minLines = 1,
             keyboardType = KeyboardType.Text,
