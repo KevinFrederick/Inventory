@@ -25,11 +25,13 @@ import com.kevinfreyap.ui.theme.Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppDropdownField(
+fun <T> AppDropdownField(
     value: String,
-    onValueChange: (String) -> Unit,
     label: String,
-    filteredOptions: List<String>,
+    options: List<T>,
+    optionText: (T) -> String,
+    onSearchQueryChange: (String) -> Unit,
+    onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
@@ -48,7 +50,7 @@ fun AppDropdownField(
         AppTextField(
             value = value,
             onValueChange = { newValue ->
-                onValueChange(newValue)
+                onSearchQueryChange(newValue)
                 expanded = true
             },
             label = label,
@@ -83,12 +85,12 @@ fun AppDropdownField(
                 .heightIn(max = 200.dp)
                 .background(Color.Transparent)
         ) {
-            if (filteredOptions.isNotEmpty()) {
-                filteredOptions.forEach { selectionOption ->
+            if (options.isNotEmpty()) {
+                options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(selectionOption) },
+                        text = { Text(optionText(option)) },
                         onClick = {
-                            onValueChange(selectionOption)
+                            onOptionSelected(option)
                             expanded = false
                         }
                     )
@@ -128,9 +130,11 @@ fun AppDropdownFieldPreview() {
 
         AppDropdownField(
             value = previewValue,
-            onValueChange = { newValue -> previewValue = newValue },
             label = "Category",
-            filteredOptions = filteredOptions,
+            options = filteredOptions,
+            optionText = { it },
+            onSearchQueryChange = { newValue -> previewValue = newValue },
+            onOptionSelected = { selectedOption -> previewValue = selectedOption },
             modifier = Modifier.padding(8.dp),
             unfocusedColor = Theme.custom.primaryText
         )
