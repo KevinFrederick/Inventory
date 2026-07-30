@@ -31,6 +31,9 @@ paging = "3.5.0"
 # Desugar
 desugar_jdk_libs = "2.1.5"
 
+# Navigation
+navigationCompose = "2.9.8"
+
 [libraries]
 # Core Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,6 +78,9 @@ androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", 
 
 # Desugar
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+
+# Navigation
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 # Project Plugins
