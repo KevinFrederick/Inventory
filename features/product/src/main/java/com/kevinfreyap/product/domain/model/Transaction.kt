@@ -1,9 +1,11 @@
 package com.kevinfreyap.product.domain.model
 
+@JvmInline
+value class TransactionId (val value: String)
+
 data class Transaction(
-    val transactionId: String,
-    val product: Product,
+    val transactionId: TransactionId,
     val note: String?,
-    val amount: Int,
+    val items: List<TransactionItem>,
     val timeStamp: Long
 )

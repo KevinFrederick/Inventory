@@ -31,7 +31,7 @@ fun CheckboxSelectionItem(
             .clickable {
                 onClick()
             }
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
     ) {
         if (isSelected) {
             Icon(
