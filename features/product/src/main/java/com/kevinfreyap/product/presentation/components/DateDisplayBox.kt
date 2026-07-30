@@ -2,7 +2,9 @@ package com.kevinfreyap.product.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -12,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -32,7 +35,8 @@ fun DateDisplayBox(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         modifier = modifier
-            .fillMaxWidth()
+            .heightIn(min = 70.dp)
+            .widthIn(min = 150.dp)
     ) {
         Column(
             modifier = Modifier
@@ -42,16 +46,17 @@ fun DateDisplayBox(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = Theme.custom.secondaryText
+                color = Theme.custom.secondaryText,
             )
             Text(
                 text = dateString,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
                 color = if (isPlaceholder) Theme.custom.secondaryText else Theme.custom.primaryText,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(16.dp)
+                    .padding(vertical = 12.dp, horizontal = 8.dp)
             )
         }
     }

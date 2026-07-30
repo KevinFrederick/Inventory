@@ -32,8 +32,8 @@ fun RadioSelectionRow(
                 onClick()
             }
             .padding(
-                top = 8.dp,
-                bottom = 8.dp,
+                top = 4.dp,
+                bottom = 4.dp,
                 end = 8.dp
             )
     ) {
