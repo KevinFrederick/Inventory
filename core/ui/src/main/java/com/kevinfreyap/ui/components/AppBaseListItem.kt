@@ -37,20 +37,19 @@ import com.kevinfreyap.ui.util.shimmerEffect
 @Composable
 fun AppBaseListItem(
     itemName: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: @Composable (() -> Unit)? = null,
     trailingData: @Composable (() -> Unit)? = null
 ) {
     Card(
+        onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp
-            )
             .heightIn(min = 48.dp)
     ) {
         Row(
@@ -108,9 +107,6 @@ fun AppBaseListItemPlaceholder(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp
-            )
             .heightIn(min = 48.dp)
     ) {
         Row(
@@ -203,6 +199,7 @@ fun AppBaseListItemPreview() {
     InventoryTheme {
         AppBaseListItem(
             itemName = "Product Name",
+            onClick = {},
             subtitle = {
                 Text(
                     text = "#SKU-1234-B",
@@ -248,6 +245,7 @@ fun AppBaseListItemPreviewDark() {
     InventoryTheme {
         AppBaseListItem(
             itemName = "Product Name",
+            onClick = {},
             subtitle = {
                 Text(
                     text = "#SKU-1234-B",
