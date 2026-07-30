@@ -48,9 +48,6 @@ fun AppBaseListItem(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp
-            )
             .heightIn(min = 48.dp)
     ) {
         Row(
@@ -108,9 +105,6 @@ fun AppBaseListItemPlaceholder(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp
-            )
             .heightIn(min = 48.dp)
     ) {
         Row(
