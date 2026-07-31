@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.StockBatchEntity
 import com.kevinfreyap.database.entity.relation.BatchWithProductAndLocation
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BatchDao {
     @Insert(onConflict = REPLACE)
-    suspend fun insertProduct(product: ProductEntity)
+    suspend fun insertBatch(batch: StockBatchEntity)
 
     @Transaction
     @Query("SELECT * FROM stock_batch WHERE batchId = :id")
@@ -27,8 +26,8 @@ interface BatchDao {
     fun getBatchesByLocation(locationId: String): Flow<List<StockBatchEntity>>
 
     @Update
-    suspend fun updateProduct(product: ProductEntity)
+    suspend fun updateBatch(batch: StockBatchEntity)
 
-    @Query("DELETE FROM product WHERE productId = :id")
-    suspend fun deleteProduct(id: String)
+    @Query("DELETE FROM stock_batch WHERE batchId = :id")
+    suspend fun deleteBatch(id: String)
 }

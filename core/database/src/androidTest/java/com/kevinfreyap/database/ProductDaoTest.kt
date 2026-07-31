@@ -87,17 +87,12 @@ class ProductDaoTest {
             ProductEntity(
                 productId = "prod-01",
                 categoryId = "electronic",
-                locationId = "loc-01",
                 name = "Laptop",
                 description = null,
                 barcode = "123456789",
                 sku = "bgr-01",
-                quantity = 10,
-                price = 99.0,
                 imageUri = null,
-                expirationDate = null,
                 minimumQuantity = 2,
-                supplier = null,
                 createdAt = 1000L,
                 lastUpdated = 1000L
             )
@@ -106,17 +101,12 @@ class ProductDaoTest {
             ProductEntity(
                 productId = "prod-02",
                 categoryId = "furniture",
-                locationId = "loc-01",
                 name = "Desk",
                 description = null,
                 barcode = "123456789",
-                sku = "bgr-01",
-                quantity = 10,
-                price = 99.0,
+                sku = "bgr-02",
                 imageUri = null,
-                expirationDate = null,
                 minimumQuantity = 2,
-                supplier = null,
                 createdAt = 1000L,
                 lastUpdated = 1000L
             )
@@ -125,17 +115,12 @@ class ProductDaoTest {
             ProductEntity(
                 productId = "prod-03",
                 categoryId = "food",
-                locationId = "loc-01",
                 name = "Chip",
                 description = null,
                 barcode = "123456789",
-                sku = "bgr-01",
-                quantity = 10,
-                price = 99.0,
+                sku = null,
                 imageUri = null,
-                expirationDate = null,
                 minimumQuantity = 2,
-                supplier = null,
                 createdAt = 1000L,
                 lastUpdated = 1000L
             )

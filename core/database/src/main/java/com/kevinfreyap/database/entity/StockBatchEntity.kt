@@ -33,7 +33,7 @@ data class StockBatchEntity(
     val locationId: String,
     val quantity: Int,
     val expirationDate: Long?,
-    val price: Double?,
+    val price: Double,
     val supplier: String?,
     val lastUpdated: Long
 )
