@@ -19,3 +19,4 @@ keystore.properties
 google-services.json
 .idea/deploymentTargetSelector.xml
 .idea/androidTestResultsUserPreferences.xml
+.idea/
