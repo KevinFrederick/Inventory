@@ -2,8 +2,10 @@ package com.kevinfreyap.inventory
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,6 +72,11 @@ fun BottomBar(
 
         val navigationItems = listOf(
             BottomTabItem(
+                route = Screen.Dashboard.route,
+                title = stringResource(R.string.bottom_tab_dashboard),
+                icon = R.drawable.dashboard_24
+            ),
+            BottomTabItem(
                 route = Screen.ProductList.route,
                 title = stringResource(R.string.bottom_tab_product_list),
                 icon = R.drawable.format_list_bulleted_24
@@ -88,6 +95,10 @@ fun BottomBar(
                 label = {
                     Text(item.title)
                 },
+                colors = NavigationBarItemDefaults.colors(
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                ),
                 onClick = {
                     navController.navigate(item.route){
                         val startRoute = navController.graph.startDestinationRoute

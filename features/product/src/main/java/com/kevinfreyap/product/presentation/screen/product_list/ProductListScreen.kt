@@ -2,6 +2,7 @@ package com.kevinfreyap.product.presentation.screen.product_list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +10,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
@@ -103,8 +107,7 @@ fun ProductListContent(
 ) {
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(top = 0.dp)
+        contentWindowInsets = WindowInsets(top = 16.dp)
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -172,50 +175,72 @@ fun ProductListContent(
                         val isSearchOrFilterActive = searchQuery.isNotEmpty() || draftFilter.hasActiveFilter
 
                         if (isSearchOrFilterActive) {
-                            AppStateBanner(
-                                bannerIcon = R.drawable.custom_no_result_icon,
-                                bannerTitle = stringResource(R.string.title_banner_no_result),
-                                bannerSubtitle = stringResource(R.string.subtitle_banner_no_result),
-                                actionButton = {
-                                    AppPrimaryButton(
-                                        text = stringResource(R.string.btn_label_clear_filters),
-                                        onClick = {
-                                            onFilterAction(FilterQueryAction.ClearAll)
-                                            onFilterAction(FilterQueryAction.UpdateSearchQuery(""))
-                                        },
-                                        icon = {
-                                            Icon(
-                                                painter = painterResource(coreR.drawable.delete_24),
-                                                contentDescription = stringResource(R.string.btn_label_clear_filters),
+                            BoxWithConstraints(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(rememberScrollState())
+                                        .heightIn(min = minHeight)
+                                ) {
+                                    AppStateBanner(
+                                        bannerIcon = R.drawable.custom_no_result_icon,
+                                        bannerTitle = stringResource(R.string.title_banner_no_result),
+                                        bannerSubtitle = stringResource(R.string.subtitle_banner_no_result),
+                                        actionButton = {
+                                            AppPrimaryButton(
+                                                text = stringResource(R.string.btn_label_clear_filters),
+                                                onClick = {
+                                                    onFilterAction(FilterQueryAction.ClearAll)
+                                                    onFilterAction(FilterQueryAction.UpdateSearchQuery(""))
+                                                },
+                                                icon = {
+                                                    Icon(
+                                                        painter = painterResource(coreR.drawable.delete_24),
+                                                        contentDescription = stringResource(R.string.btn_label_clear_filters),
+                                                    )
+                                                },
                                             )
                                         },
                                     )
-                                },
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
+                                }
+                            }
                         } else {
-                            AppStateBanner(
-                                bannerIcon = R.drawable.custom_empty_storage_icon,
-                                bannerTitle = stringResource(R.string.title_banner_empty_inventory),
-                                bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
-                                actionButton = {
-                                    AppPrimaryButton(
-                                        text = stringResource(R.string.btn_label_add_first_item),
-                                        onClick = {
-                                            onNavigate(ProductListNavigation.AddProduct)
-                                        },
-                                        icon = {
-                                            Icon(
-                                                painter = painterResource(coreR.drawable.add_24),
-                                                contentDescription = stringResource(R.string.btn_label_add_first_item),
+                            BoxWithConstraints(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(rememberScrollState())
+                                        .heightIn(min = minHeight)
+                                ) {
+                                    AppStateBanner(
+                                        bannerIcon = R.drawable.custom_empty_storage_icon,
+                                        bannerTitle = stringResource(R.string.title_banner_empty_inventory),
+                                        bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
+                                        actionButton = {
+                                            AppPrimaryButton(
+                                                text = stringResource(R.string.btn_label_add_first_item),
+                                                onClick = {
+                                                    onNavigate(ProductListNavigation.AddProduct)
+                                                },
+                                                icon = {
+                                                    Icon(
+                                                        painter = painterResource(coreR.drawable.add_24),
+                                                        contentDescription = stringResource(R.string.btn_label_add_first_item),
+                                                    )
+                                                },
                                             )
                                         },
                                     )
-                                },
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
+                                }
+                            }
                         }
 
                     } else {
@@ -268,6 +293,7 @@ fun ProductListContent(
                                 }
                             }
 
+
                             when (products.loadState.append) {
                                 LoadState.Loading -> {
                                     item {
@@ -279,6 +305,7 @@ fun ProductListContent(
                                         }
                                     }
                                 }
+
                                 is LoadState.Error -> {
                                     item {
                                         TextButton(
@@ -292,35 +319,49 @@ fun ProductListContent(
                                         }
                                     }
                                 }
+
                                 is LoadState.NotLoading -> Unit
                             }
                         }
+
                     }
                 }
                 is LoadState.Error -> {
-                    AppStateBanner(
-                        bannerIcon = R.drawable.custom_error_load_icon,
-                        bannerTitle = stringResource(R.string.title_banner_load_error),
-                        bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
-                        actionButton = {
-                            AppPrimaryButton(
-                                text = stringResource(R.string.btn_label_try_again),
-                                onClick = {
-                                    products.retry()
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(coreR.drawable.refresh_24),
-                                        contentDescription = stringResource(R.string.btn_label_try_again),
+                    BoxWithConstraints(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .heightIn(min = minHeight)
+                        ) {
+                            AppStateBanner(
+                                bannerIcon = R.drawable.custom_error_load_icon,
+                                bannerTitle = stringResource(R.string.title_banner_load_error),
+                                bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
+                                actionButton = {
+                                    AppPrimaryButton(
+                                        text = stringResource(R.string.btn_label_try_again),
+                                        onClick = {
+                                            products.retry()
+                                        },
+                                        icon = {
+                                            Icon(
+                                                painter = painterResource(coreR.drawable.refresh_24),
+                                                contentDescription = stringResource(R.string.btn_label_try_again),
+                                            )
+                                        },
                                     )
                                 },
                             )
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
+                        }
+                    }
                 }
             }
+
         }
     }
 
