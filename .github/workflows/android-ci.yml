@@ -32,14 +32,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Scans code for errors, bugs, and performance issues
-      - name: Run Android Lint
-        run: ./gradlew :app:lintDebug
-
-      # Executes all local tests in test folder
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
-
-      # Compile the entire App
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      # Runs Lint, Unit Tests, and compiles the APK together
+      - name: Build and Test Multi Module App
+        run: ./gradlew lintDebug testDebugUnitTest assembleDebug --parallel --build-cache
