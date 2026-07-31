@@ -3,6 +3,7 @@ package com.kevinfreyap.database.di
 import android.content.Context
 import androidx.room.Room
 import com.kevinfreyap.database.AppDatabase
+import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.CategoryDao
 import com.kevinfreyap.database.dao.LocationDao
 import com.kevinfreyap.database.dao.ProductDao
@@ -38,4 +39,7 @@ class DatabaseModule {
 
     @Provides
     fun provideLocationDao(db: AppDatabase): LocationDao = db.locationDao()
+
+    @Provides
+    fun provideBatchDao(db: AppDatabase): BatchDao = db.batchDao()
 }

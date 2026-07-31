@@ -5,6 +5,7 @@ import androidx.room.Relation
 import com.kevinfreyap.database.entity.CategoryEntity
 import com.kevinfreyap.database.entity.LocationEntity
 import com.kevinfreyap.database.entity.ProductEntity
+import com.kevinfreyap.database.entity.StockBatchEntity
 
 data class ProductWithDetails(
     @Embedded
@@ -16,9 +17,11 @@ data class ProductWithDetails(
     )
     val category: CategoryEntity,
 
+    // Fetch batches
     @Relation(
-        parentColumn = "locationId",
-        entityColumn = "locationId",
+        entity = StockBatchEntity::class,
+        parentColumn = "productId",
+        entityColumn = "productId",
     )
-    val location: LocationEntity,
+    val batches: List<BatchWithLocation>,
 )

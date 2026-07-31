@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.kevinfreyap.database.entity.CategoryEntity
 import com.kevinfreyap.database.entity.LocationEntity
 import com.kevinfreyap.database.entity.ProductEntity
+import com.kevinfreyap.database.entity.StockBatchEntity
 import com.kevinfreyap.database.entity.relation.ProductWithDetails
 import kotlinx.coroutines.flow.Flow
 
@@ -24,7 +25,8 @@ interface ProductDao {
     @RawQuery(observedEntities = [
         ProductEntity::class,
         CategoryEntity::class,
-        LocationEntity::class
+        LocationEntity::class,
+        StockBatchEntity::class
     ])
     fun getAllProduct(query: SupportSQLiteQuery): PagingSource<Int, ProductWithDetails>
 

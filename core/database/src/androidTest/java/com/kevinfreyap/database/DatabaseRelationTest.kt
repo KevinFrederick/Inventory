@@ -64,17 +64,12 @@ class DatabaseRelationTest {
     val product = ProductEntity(
         productId = "prod-01",
         categoryId = "cat-01",
-        locationId = "loc-01",
         name = "Burger",
         description = null,
         barcode = "123456789",
         sku = "bgr-01",
-        quantity = 10,
-        price = 99.0,
         imageUri = null,
-        expirationDate = null,
         minimumQuantity = 2,
-        supplier = null,
         createdAt = 1000L,
         lastUpdated = 1000L
     )
