@@ -2,21 +2,17 @@ package com.kevinfreyap.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
 // --- Base ---
 val White = Color(0xFFFFFFFF)
 
 // --- Primary (Brand Colors) ---
 val Primary100 = Color(0xFFF3E8DD) // Light surface accent
+val Primary200 = Color(0xFFE6CEB1)
 val Primary300 = Color(0xFFDAB486) // Dark primary
+val Primary400 = Color(0xFFD1A46D)
 val Primary500 = Color(0xFFC89454) // Light primary
+val Primary600 = Color(0xFF9E713E)
+val Primary700 = Color(0xFF6A4B27)
 val Primary800 = Color(0xFF2A221B) // Dark surface accent
 val Primary900 = Color(0xFF2A1D0E) // Dark on-primary
 
@@ -35,6 +31,7 @@ val Gray900 = Color(0xFF4B5563)
 // --- Dark Neutrals (Charcoals/Blacks) ---
 val DarkGray100 = Color(0xFF2A2A2A) // Shimmer / Variant
 val DarkGray200 = Color(0xFF1E1E1E) // Dark Surface
+val DarkGray250 = Color(0xFF1A1A1A)
 val DarkGray300 = Color(0xFF121212) // Dark Background
 val DarkGray400 = Color(0xFF111827) // Primary Text
 

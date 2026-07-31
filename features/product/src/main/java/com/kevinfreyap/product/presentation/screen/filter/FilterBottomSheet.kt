@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -52,6 +54,7 @@ fun FilterBottomSheet(
     )
 
     ModalBottomSheet(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
@@ -72,77 +75,86 @@ fun FilterBottomSheetContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .navigationBarsPadding()
     ) {
-        Text(
-            text = stringResource(R.string.title_filter_sort),
-            style = MaterialTheme.typography.titleMedium,
-            color = Theme.custom.primaryText,
-        )
-
-        SectionSort(
-            selectedOption = filterState.sortConfig.option,
-            onSelectOption = { option ->
-                onAction(FilterQueryAction.UpdateSortOption(option))
-            },
-            sortDirectionButton = {
-                SortDirectionButton(
-                    sortDirection = filterState.sortConfig.direction,
-                    sortLabelRes = filterState.sortConfig.getDirectionLabelRes(),
-                    onClick = {
-                        onAction(FilterQueryAction.ToggleSortDirection)
-                    },
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .weight(
+                    weight = 1f,
+                    fill = false
                 )
-            }
-        )
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.title_filter_sort),
+                style = MaterialTheme.typography.titleMedium,
+                color = Theme.custom.primaryText,
+            )
 
-        SectionCategory(
-            categories = filterOptionListList.categories,
-            selectedCategories = filterState.categorySet,
-            onCategoryToggled = { categoryUi ->
-                onAction(FilterQueryAction.ToggleCategory(category = categoryUi))
-            }
-        )
+            SectionSort(
+                selectedOption = filterState.sortConfig.option,
+                onSelectOption = { option ->
+                    onAction(FilterQueryAction.UpdateSortOption(option))
+                },
+                sortDirectionButton = {
+                    SortDirectionButton(
+                        sortDirection = filterState.sortConfig.direction,
+                        sortLabelRes = filterState.sortConfig.getDirectionLabelRes(),
+                        onClick = {
+                            onAction(FilterQueryAction.ToggleSortDirection)
+                        },
+                    )
+                }
+            )
 
-        SectionLocation(
-            locationList = filterOptionListList.locations,
-            selectedLocation = filterState.location,
-            onSelectLocation = { location ->
-                onAction(FilterQueryAction.UpdateLocation(location))
-            },
-        )
+            SectionCategory(
+                categories = filterOptionListList.categories,
+                selectedCategories = filterState.categorySet,
+                onCategoryToggled = { categoryUi ->
+                    onAction(FilterQueryAction.ToggleCategory(category = categoryUi))
+                }
+            )
 
-        SectionDateAdded(
-            selectedDateOption = filterState.filterDateOption,
-            onSelectDateOption = { dateOption ->
-                onAction(FilterQueryAction.UpdateDateOption(dateOption))
-            },
-            customDateRow = {
-                DateDisplayBoxRow(
-                    startDateState = filterState.startDateBoxState,
-                    endDateState = filterState.endDateBoxState,
-                    onStartDateClicked = {
-                        onAction(
-                            FilterQueryAction.OpenDatePicker(
-                                ActiveDatePicker.START
+            SectionLocation(
+                locationList = filterOptionListList.locations,
+                selectedLocation = filterState.location,
+                onSelectLocation = { location ->
+                    onAction(FilterQueryAction.UpdateLocation(location))
+                },
+            )
+
+            SectionDateAdded(
+                selectedDateOption = filterState.filterDateOption,
+                onSelectDateOption = { dateOption ->
+                    onAction(FilterQueryAction.UpdateDateOption(dateOption))
+                },
+                customDateRow = {
+                    DateDisplayBoxRow(
+                        startDateState = filterState.startDateBoxState,
+                        endDateState = filterState.endDateBoxState,
+                        onStartDateClicked = {
+                            onAction(
+                                FilterQueryAction.OpenDatePicker(
+                                    ActiveDatePicker.START
+                                )
                             )
-                        )
-                    },
-                    onEndDateClicked = {
-                        onAction(
-                            FilterQueryAction.OpenDatePicker(
-                                ActiveDatePicker.END
+                        },
+                        onEndDateClicked = {
+                            onAction(
+                                FilterQueryAction.OpenDatePicker(
+                                    ActiveDatePicker.END
+                                )
                             )
-                        )
-                    }
-                )
-            },
-        )
+                        }
+                    )
+                },
+            )
+        }
 
         SectionFilterButtons(
             onNegativeButtonClicked = {
@@ -152,7 +164,12 @@ fun FilterBottomSheetContent(
                 onAction(FilterQueryAction.ApplyFilter)
             },
             modifier = Modifier
-                .padding(top = 8.dp)
+                .padding(
+                    top = 8.dp,
+                    bottom = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
         )
     }
 
