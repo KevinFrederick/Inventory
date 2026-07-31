@@ -8,8 +8,8 @@ fun Product.toUiModel(): ProductListItemUi {
     return ProductListItemUi(
         id = this.productId.value,
         name = this.name,
-        quantity = this.quantity,
-        stockLevel = calculateStockLevel(qty = this.quantity, minQty = this.minimumQuantity),
+        quantity = this.totalQuantity,
+        stockLevel = calculateStockLevel(qty = this.totalQuantity, minQty = this.minimumQuantity),
         category = this.category.name,
         imageUri = this.imageUri,
         sku = this.sku

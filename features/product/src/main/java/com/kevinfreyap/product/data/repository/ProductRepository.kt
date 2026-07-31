@@ -4,11 +4,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import androidx.room.withTransaction
+import com.kevinfreyap.database.AppDatabase
+import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.query.ProductDbFilter
 import com.kevinfreyap.database.query.ProductQueryBuilder
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toDomainList
+import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.query.FilterDateOption
@@ -20,10 +24,20 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ProductRepository @Inject constructor(
-    private val productDao: ProductDao
+    private val database: AppDatabase,
+    private val productDao: ProductDao,
+    private val batchDao: BatchDao
 ): IProductRepository {
     override suspend fun insertProduct(product: Product) {
-        TODO("Not yet implemented")
+        val productEntity = product.toEntity()
+        val batchEntities = product.batches.map { it.toEntity() }
+
+        database.withTransaction {
+            productDao.insertProduct(productEntity)
+            batchEntities.forEach { batchEntity ->
+                batchDao.insertBatch(batchEntity)
+            }
+        }
     }
 
     override fun getAllProduct(filterQuery: ProductQueryFilter): Flow<PagingData<Product>> {
