@@ -14,30 +14,22 @@ import androidx.room.PrimaryKey
             childColumns = ["categoryId"],
             onDelete = ForeignKey.RESTRICT
         ),
-        ForeignKey(
-            entity = LocationEntity::class,
-            parentColumns = ["locationId"],
-            childColumns = ["locationId"],
-            onDelete = ForeignKey.RESTRICT
-        )
     ],
-    indices = [Index(value = ["categoryId"]), Index(value = ["locationId"])]
+    indices = [
+        Index(value = ["categoryId"]),
+        Index(value = ["sku"], unique = true)
+    ]
 )
 data class ProductEntity (
     @PrimaryKey (autoGenerate = false)
     val productId: String,
     val categoryId: String,
-    val locationId: String,
     val name: String,
     val description: String?,
     val barcode: String?,
     val sku: String?,
-    val quantity: Int,
-    val price: Double,
     val imageUri: String?,
-    val expirationDate: Long?,
     val minimumQuantity: Int,
-    val supplier: String?,
     val createdAt: Long,
     val lastUpdated: Long
 )
