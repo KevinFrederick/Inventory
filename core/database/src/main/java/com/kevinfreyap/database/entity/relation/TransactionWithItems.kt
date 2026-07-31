@@ -15,5 +15,5 @@ data class TransactionWithItems(
         parentColumn = "transactionId",
         entityColumn = "transactionId"
     )
-    val items: List<TransactionItemWithProduct>
+    val items: List<TransactionItemWithDetails>
 )

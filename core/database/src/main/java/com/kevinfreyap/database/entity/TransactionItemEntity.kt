@@ -15,18 +15,21 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE // If transaction deleted, delete transaction_item too
         ),
         ForeignKey(
-            entity = ProductEntity::class,
-            parentColumns = ["productId"],
-            childColumns = ["productId"],
+            entity = StockBatchEntity::class,
+            parentColumns = ["batchId"],
+            childColumns = ["batchId"],
             onDelete = ForeignKey.RESTRICT // Can't delete product, if still in transaction_item
         )
     ],
-    indices = [Index("transactionId"), Index("productId")]
+    indices = [
+        Index("transactionId"),
+        Index("batchId")
+    ]
 )
 data class TransactionItemEntity(
     @PrimaryKey(autoGenerate = false)
     val transactionItemId: String,
     val transactionId: String,
-    val productId: String,
+    val batchId: String,
     val amount: Int
 )
