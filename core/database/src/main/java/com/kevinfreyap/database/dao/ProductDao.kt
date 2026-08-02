@@ -38,6 +38,22 @@ interface ProductDao {
     @Query("SELECT * FROM product WHERE productId = :id")
     fun getProduct(id: String): Flow<ProductWithDetails>
 
+    @Query("SELECT COUNT(*) FROM product")
+    fun getProductCount(): Flow<Int>
+
+    @Query(
+        """
+            SELECT COUNT(*) FROM (
+                SELECT p.productId
+                FROM product as p
+                LEFT JOIN stock_batch as b ON p.productId == b.productId
+                GROUP BY p.productId
+                HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity
+            )
+        """
+    )
+    fun getLowStockProductCount(): Flow<Int>
+
     @Update
     suspend fun updateProduct(product: ProductEntity)
 
