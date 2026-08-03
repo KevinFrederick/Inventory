@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                 ) {
                     MainAppScreen(
-                        startDestination = Screen.ProductList.route
+                        startDestination = Screen.Dashboard.route
                     )
                 }
             }

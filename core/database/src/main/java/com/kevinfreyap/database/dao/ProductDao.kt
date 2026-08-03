@@ -31,12 +31,25 @@ interface ProductDao {
     fun getAllProduct(query: SupportSQLiteQuery): PagingSource<Int, ProductWithDetails>
 
     @Transaction
-    @Query("SELECT * FROM product ORDER BY createdAt DESC LIMIT :qty")
-    fun getRecentProduct(qty: Int): Flow<List<ProductWithDetails>>
+    @Query("SELECT * FROM product ORDER BY lastUpdated DESC LIMIT :limit")
+    fun getRecentProduct(limit: Int): Flow<List<ProductWithDetails>>
+
+    @Transaction
+    @Query("""
+        SELECT *
+        FROM product as p
+        LEFT JOIN stock_batch as b ON p.productId == b.productId
+        GROUP BY p.productId
+        HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity
+    """)
+    fun getLowStockProducts(): Flow<List<ProductWithDetails>>
 
     @Transaction
     @Query("SELECT * FROM product WHERE productId = :id")
     fun getProduct(id: String): Flow<ProductWithDetails>
+
+    @Query("SELECT COUNT(*) FROM product")
+    fun getProductCount(): Flow<Int>
 
     @Update
     suspend fun updateProduct(product: ProductEntity)

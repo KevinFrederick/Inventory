@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -132,11 +133,15 @@ fun AppBaseListItemPlaceholder(
                     .weight(1f)
                     .fillMaxHeight()
             ) {
-                Box(
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Transparent,
                     modifier = Modifier
+                        .clearAndSetSemantics {}
                         .fillMaxWidth(0.7f)
-                        .height(20.dp)
-                        .clip(RoundedCornerShape(100))
+                        .clip(RoundedCornerShape(50))
                         .shimmerEffect(shimmerColor)
                 )
 
@@ -146,11 +151,14 @@ fun AppBaseListItemPlaceholder(
                             .height(4.dp)
                     )
 
-                    Box(
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Transparent,
                         modifier = Modifier
+                            .clearAndSetSemantics {}
                             .fillMaxWidth(0.4f)
-                            .height(16.dp)
-                            .clip(RoundedCornerShape(100))
+                            .clip(RoundedCornerShape(50))
                             .shimmerEffect(shimmerColor)
                     )
                 }
@@ -164,11 +172,14 @@ fun AppBaseListItemPlaceholder(
                         .padding(4.dp)
                 ) {
                     if (isTrailingDataLabelExist) {
-                        Box(
+                        Text(
+                            text = "",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.Transparent,
                             modifier = Modifier
-                                .width(56.dp)
-                                .height(14.dp)
-                                .clip(RoundedCornerShape(100))
+                                .clearAndSetSemantics {}
+                                .fillMaxWidth(0.17f)
+                                .clip(RoundedCornerShape(50))
                                 .shimmerEffect(shimmerColor)
                         )
 
@@ -177,11 +188,15 @@ fun AppBaseListItemPlaceholder(
                                 .height(4.dp)
                         )
                     }
-                    Box(
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Transparent,
                         modifier = Modifier
-                            .width(40.dp)
-                            .height(22.dp)
-                            .clip(RoundedCornerShape(100))
+                            .clearAndSetSemantics {}
+                            .fillMaxWidth(0.12f)
+                            .clip(RoundedCornerShape(50))
                             .shimmerEffect(shimmerColor)
                     )
                 }
