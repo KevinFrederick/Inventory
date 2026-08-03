@@ -7,12 +7,14 @@ import com.kevinfreyap.product.domain.usecase.GetLowStockProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetRecentProductListUseCase
 import com.kevinfreyap.product.domain.usecase.GetTotalProductCountUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
+import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.state.DashboardState
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -20,14 +22,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    getLowStockProduct: GetLowStockProductUseCase,
     private val getTotalProductCount: GetTotalProductCountUseCase,
     private val getRecentProductList: GetRecentProductListUseCase,
-    private val getLowStockProduct: GetLowStockProductUseCase
 ): ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val alertListFlow: Flow<AlertListUi> = getLowStockProduct()
@@ -39,7 +42,8 @@ class DashboardViewModel @Inject constructor(
                     title = R.string.label_low_stock_product,
                     textButton = R.string.btn_label_view_all_low_stock_product,
                     products = uiProducts,
-                    textButtonArg = lowStock.size
+                    textButtonArg = lowStock.size,
+                    activeList = ActiveAlertList.LOW_STOCK
                 )
 
                 flowOf(alertListUi)
@@ -52,32 +56,44 @@ class DashboardViewModel @Inject constructor(
                             title = R.string.label_recently_updated,
                             textButton = R.string.btn_label_view_all_product,
                             products = uiProducts,
-                            textButtonArg = null
+                            textButtonArg = null,
+                            activeList = ActiveAlertList.RECENTLY_UPDATED
                         )
                     }
             }
         }
 
-    val uiState: StateFlow<UiState<DashboardState>> = combine(
-        flow = getTotalProductCount(),
-        flow2 = alertListFlow
-    ) { totalProductCount, alertList ->
-        if (totalProductCount == 0) return@combine UiState.Empty
+    private val retryTrigger = MutableStateFlow(0)
 
-        UiState.Success(
-            DashboardState(
-                totalProductCount = totalProductCount,
-                lowStockProductCount = alertList.products.size,
-                alertList = alertList
-            )
-        )
-    }
-        .catch { exception ->
-            emit(UiState.Error(exception.message ?: "An unexpected error occurred"))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<UiState<DashboardState>> = retryTrigger
+        .flatMapLatest { _ ->
+            combine(
+                flow = getTotalProductCount(),
+                flow2 = alertListFlow
+            ) { totalProductCount, alertList ->
+                if (totalProductCount == 0) return@combine UiState.Empty
+
+                UiState.Success(
+                    DashboardState(
+                        totalProductCount = totalProductCount,
+                        lowStockProductCount = alertList.products.size,
+                        alertList = alertList
+                    )
+                )
+            }
+                .onStart { emit(UiState.Loading) }
+                .catch { exception ->
+                    emit(UiState.Error(exception.message ?: "An unexpected error occurred"))
+                }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UiState.Loading
         )
+
+    fun onRetryClicked() {
+        retryTrigger.value += 1
+    }
 }

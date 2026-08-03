@@ -53,6 +53,12 @@ fun MainAppScreen(
                                     Screen.ProductDetail.createRoute(destination.productId)
                                 )
                             }
+                            is DashboardNavigation.AllProduct -> {
+
+                            }
+                            is DashboardNavigation.LowStockProduct -> {
+
+                            }
                         }
                     }
                 )
