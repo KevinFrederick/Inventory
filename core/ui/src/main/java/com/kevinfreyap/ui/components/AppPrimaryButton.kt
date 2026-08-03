@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
+import com.kevinfreyap.ui.util.debouncedClick
 
 @Composable
 fun AppPrimaryButton(
@@ -26,8 +27,10 @@ fun AppPrimaryButton(
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
+    val debouncedClick = debouncedClick(onClick = onClick)
+
     Button(
-        onClick = onClick,
+        onClick = debouncedClick,
         enabled = enabled,
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
