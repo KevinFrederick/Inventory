@@ -15,3 +15,9 @@ fun Product.toUiModel(): ProductListItemUi {
         sku = this.sku
     )
 }
+
+fun List<Product>.toUiModel(): List<ProductListItemUi> {
+    return this.map { product ->
+        product.toUiModel()
+    }
+}

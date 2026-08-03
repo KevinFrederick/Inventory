@@ -17,6 +17,9 @@
 
     <string name="label_to">To</string>
     <string name="label_quantity">Quantity</string>
+    <string name="label_total_product">Total Products</string>
+    <string name="label_low_stock_product">Low Stock Products</string>
+    <string name="label_recently_updated">Recently Updated</string>
 
     <!--  BUTTON LABEL  -->
     <string name="btn_label_confirm">Confirm</string>
@@ -26,6 +29,8 @@
     <string name="btn_label_try_again">Try Again</string>
     <string name="btn_label_add_first_item">Add First Product</string>
     <string name="btn_label_clear_filters">Clear Filters &amp; Query</string>
+    <string name="btn_label_view_all_low_stock_product">View all %1$d products</string>
+    <string name="btn_label_view_all_product">View all products</string>
 
     <string name="txt_btn_label_tap_to_retry_load_more">Tap to retry loading more</string>
 

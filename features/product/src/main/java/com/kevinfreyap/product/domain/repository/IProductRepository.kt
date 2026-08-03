@@ -11,7 +11,11 @@ interface IProductRepository {
 
     fun getAllProduct(filterQuery: ProductQueryFilter): Flow<PagingData<Product>>
 
+    fun getProductCount(): Flow<Int>
+
     fun getRecentProduct(limit: Int = 3): Flow<List<Product>>
+
+    fun getLowStockProduct(): Flow<List<Product>>
 
     fun getProductById(productId: ProductId): Flow<Product?>
 

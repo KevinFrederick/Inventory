@@ -81,8 +81,18 @@ class ProductRepository @Inject constructor(
         }
     }
 
+    override fun getProductCount(): Flow<Int> {
+        return productDao.getProductCount()
+    }
+
     override fun getRecentProduct(limit: Int): Flow<List<Product>> {
         return productDao.getRecentProduct(limit).map { productWithDetails ->
+            productWithDetails.toDomainList()
+        }
+    }
+
+    override fun getLowStockProduct(): Flow<List<Product>> {
+        return productDao.getLowStockProducts().map { productWithDetails ->
             productWithDetails.toDomainList()
         }
     }
