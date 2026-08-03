@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
-import com.kevinfreyap.ui.theme.Theme
 
 fun Modifier.shimmerEffect(shimmerColor: Color): Modifier = composed {
     var size by remember { mutableStateOf(IntSize.Zero) }
