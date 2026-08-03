@@ -18,7 +18,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.kevinfreyap.product.presentation.action.DashboardNavigation
 import com.kevinfreyap.product.presentation.action.ProductListNavigation
+import com.kevinfreyap.product.presentation.screen.dashboard.DashboardScreen
 import com.kevinfreyap.product.presentation.screen.product_list.ProductListScreen
 
 @Composable
@@ -39,6 +41,23 @@ fun MainAppScreen(
             modifier = modifier
                 .padding(innerPadding)
         ) {
+            composable(Screen.Dashboard.route) {
+                DashboardScreen(
+                    onNavigate = {destination ->
+                        when(destination) {
+                            is DashboardNavigation.AddProduct -> {
+                                navController.navigate(Screen.AddProduct.route)
+                            }
+                            is DashboardNavigation.ProductDetail -> {
+                                navController.navigate(
+                                    Screen.ProductDetail.createRoute(destination.productId)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+
             composable(Screen.ProductList.route) {
                 ProductListScreen(
                     onNavigate = { destination ->
