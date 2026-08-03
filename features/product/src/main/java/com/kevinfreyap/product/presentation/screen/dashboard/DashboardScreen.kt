@@ -33,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.DashboardNavigation
 import com.kevinfreyap.product.presentation.mapper.color
+import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
@@ -60,6 +61,9 @@ fun DashboardScreen(
     DashboardContent(
         state = state,
         onNavigate = onNavigate,
+        onRetryClicked = {
+            viewModel.onRetryClicked()
+        },
         modifier = modifier
     )
 }
@@ -68,6 +72,7 @@ fun DashboardScreen(
 fun DashboardContent(
     state: UiState<DashboardState>,
     onNavigate: (DashboardNavigation) -> Unit,
+    onRetryClicked: () ->  Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -159,9 +164,7 @@ fun DashboardContent(
                         actionButton = {
                             AppPrimaryButton(
                                 text = stringResource(R.string.btn_label_try_again),
-                                onClick = {
-
-                                },
+                                onClick = onRetryClicked,
                                 icon = {
                                     Icon(
                                         painter = painterResource(coreR.drawable.refresh_24),
@@ -203,7 +206,14 @@ fun DashboardContent(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(50))
                                     .clickable  {
-
+                                        when(listData.activeList) {
+                                            ActiveAlertList.LOW_STOCK -> {
+                                                onNavigate(DashboardNavigation.LowStockProduct)
+                                            }
+                                            ActiveAlertList.RECENTLY_UPDATED -> {
+                                                onNavigate(DashboardNavigation.AllProduct)
+                                            }
+                                        }
                                     }
                                     .padding(
                                         vertical = 8.dp,
@@ -298,13 +308,13 @@ fun DashboardScreenPreview() {
                                 sku = "#SKU-1234-B"
                             ),
                         ),
+                        activeList = ActiveAlertList.LOW_STOCK,
                         textButtonArg = 7
                     )
                 )
             ),
-//            state = UiState.Empty,
-//            state = UiState.Error(""),
-            onNavigate = {}
+            onNavigate = {},
+            onRetryClicked = {}
         )
     }
 }
@@ -319,9 +329,8 @@ fun DashboardScreenPreview_StateLoading() {
     InventoryTheme {
         DashboardContent(
             state = UiState.Loading,
-//            state = UiState.Empty,
-//            state = UiState.Error(""),
-            onNavigate = {}
+            onNavigate = {},
+            onRetryClicked = {}
         )
     }
 }
@@ -336,7 +345,8 @@ fun DashboardScreenPreview_StateEmpty() {
     InventoryTheme {
         DashboardContent(
             state = UiState.Empty,
-            onNavigate = {}
+            onNavigate = {},
+            onRetryClicked = {}
         )
     }
 }
@@ -351,7 +361,8 @@ fun DashboardScreenPreview_StateError() {
     InventoryTheme {
         DashboardContent(
             state = UiState.Error(""),
-            onNavigate = {}
+            onNavigate = {},
+            onRetryClicked = {}
         )
     }
 }
