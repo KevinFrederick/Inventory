@@ -109,15 +109,6 @@ fun MainAppScreen(
                             AddProductNavigation.NavigateUp -> {
                                 navController.navigateUp()
                             }
-                            AddProductNavigation.AllProduct -> {
-                                navController.navigate(Screen.ProductList.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
                         }
                     }
                 )
