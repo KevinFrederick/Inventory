@@ -76,7 +76,7 @@ fun CurrencyTextField(
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Done
         ),
         singleLine = true,
         visualTransformation = visualTransformation,
