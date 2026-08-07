@@ -43,6 +43,9 @@ dependencies {
     api(libs.androidx.compose.ui.tooling.preview)
     debugApi(libs.androidx.compose.ui.tooling)
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 

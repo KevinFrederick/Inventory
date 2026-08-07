@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,8 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kevinfreyap.ui.R
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
@@ -36,24 +40,42 @@ fun <T> AppDropdownField(
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
     floatingLabel: Boolean = true,
+    enableAddNew: Boolean = false,
     isError: Boolean = false,
     errorMessage: String? = null,
+    onAddNewOption: (() -> Unit)? = null,
+    addNewText: String? = null,
     customTrailingIcon: @Composable (() -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    val isMenuVisible = if (readOnly) {
+        expanded
+    } else {
+        expanded && value.isNotBlank()
+    }
+
     ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        expanded = isMenuVisible,
+        onExpandedChange = { newExpand ->
+            expanded = newExpand
+        },
         modifier = modifier
     ) {
         AppTextField(
             value = value,
             onValueChange = { newValue ->
                 onSearchQueryChange(newValue)
-                expanded = true
+                if (!readOnly) {
+                    expanded = true
+                }
             },
-            label = label,
+            label = if (floatingLabel) {
+                label
+            } else null,
+            placeholder = if (!floatingLabel){
+                label
+            } else null,
             modifier = Modifier.menuAnchor(
                 type = if (readOnly) {
                     ExposedDropdownMenuAnchorType.PrimaryNotEditable
@@ -66,18 +88,17 @@ fun <T> AppDropdownField(
                 if (customTrailingIcon != null) {
                     customTrailingIcon()
                 } else {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isMenuVisible)
                 }
             },
             unfocusedColor = unfocusedColor,
             readOnly = readOnly,
-            floatingLabel = floatingLabel,
             isError = isError,
             errorMessage = errorMessage
         )
 
         ExposedDropdownMenu (
-            expanded = expanded,
+            expanded = isMenuVisible,
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             shape = RoundedCornerShape(16.dp),
@@ -96,16 +117,38 @@ fun <T> AppDropdownField(
                     )
                 }
             } else {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = "No results found",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    onClick = {},
-                    enabled = false
-                )
+                if (enableAddNew) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = addNewText ?: stringResource(R.string.dropdown_item_add_new, value),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.add_24),
+                                contentDescription = "Add",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        onClick = {
+                            onAddNewOption?.invoke()
+                            expanded = false
+                        }
+                    )
+                } else {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string.dropdown_item_no_result_found),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        onClick = {},
+                        enabled = false
+                    )
+                }
             }
         }
     }

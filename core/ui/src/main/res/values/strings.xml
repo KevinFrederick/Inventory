@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Inventory</string>
+
+    <!--  BUTTON  -->
+    <string name="btn_label_cancel">Cancel</string>
+    <string name="btn_label_confirm">Confirm</string>
+
+    <!--  DROPDOWN  -->
+    <string name="dropdown_item_no_result_found">No results found</string>
+    <string name="dropdown_item_add_new">Add new %1$s</string>
 </resources>
