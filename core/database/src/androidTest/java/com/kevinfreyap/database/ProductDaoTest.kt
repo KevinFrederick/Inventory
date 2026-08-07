@@ -70,8 +70,8 @@ class ProductDaoTest {
     fun countLowStockProduct_returnCorrectCount() = runTest {
         database.populateWithData()
 
-        val result = productDao.getLowStockProductCount()
+        val result = productDao.getLowStockProducts()
 
-        assertEquals(1, result.first())
+        assertEquals(1, result.first().size)
     }
 }

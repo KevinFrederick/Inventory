@@ -10,14 +10,17 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocationDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLocation(location: LocationEntity)
 
     @Query("SELECT * FROM location")
     fun getAllLocation(): Flow<List<LocationEntity>>
 
     @Query("SELECT * FROM location WHERE locationId = :id")
-    fun getLocation(id: String): Flow<LocationEntity>
+    fun getLocationById(id: String): Flow<LocationEntity>
+
+    @Query("SELECT * FROM location WHERE name = :name LIMIT 1")
+    suspend fun getLocationByName(name: String): LocationEntity?
 
     @Update
     suspend fun updateLocation(location: LocationEntity)
