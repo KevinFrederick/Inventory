@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
-import com.kevinfreyap.product.presentation.action.DashboardNavigation
+import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
 import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
@@ -114,6 +114,7 @@ fun DashboardContent(
                 .verticalScroll(rememberScrollState())
         ) {
             when (state) {
+                UiState.Idle -> {}
                 UiState.Empty -> {
                     SectionGreetings(
                         title = "Good Morning, User",

@@ -34,6 +34,9 @@ desugar_jdk_libs = "2.1.5"
 # Navigation
 navigationCompose = "2.9.8"
 
+# Coil
+coil = "3.5.0"
+
 [libraries]
 # Core Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -81,6 +84,10 @@ desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", ver
 
 # Navigation
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref="coil" }
+coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref="coil" }
 
 [plugins]
 # Project Plugins

@@ -40,6 +40,10 @@ class ProductRepository @Inject constructor(
         }
     }
 
+    override suspend fun isSkuDuplicate(sku: String): Boolean {
+        return productDao.isSkuDuplicate(sku)
+    }
+
     override fun getAllProduct(filterQuery: ProductQueryFilter): Flow<PagingData<Product>> {
         val calculatedDate = calculateDateRange(filterQuery.filterDateOption)
 

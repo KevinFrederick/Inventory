@@ -1,9 +1,15 @@
 package com.kevinfreyap.database.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "location")
+@Entity(
+    tableName = "location",
+    indices = [
+        Index(value = ["name"], unique = true)
+    ]
+)
 data class LocationEntity(
     @PrimaryKey(autoGenerate = false)
     val locationId: String,

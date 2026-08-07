@@ -2,6 +2,7 @@ package com.kevinfreyap.product.data.repository
 
 import com.kevinfreyap.database.dao.CategoryDao
 import com.kevinfreyap.product.data.mapper.toDomain
+import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.Category
 import com.kevinfreyap.product.domain.repository.ICategoryRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,5 +16,13 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getAllCategory().map { categoryEntities ->
             categoryEntities.toDomain()
         }
+    }
+
+    override suspend fun getCategoryByName(name: String): Category? {
+        return categoryDao.getCategoryByName(name)?.toDomain()
+    }
+
+    override suspend fun insertCategory(category: Category) {
+        categoryDao.insertCategory(category.toEntity())
     }
 }

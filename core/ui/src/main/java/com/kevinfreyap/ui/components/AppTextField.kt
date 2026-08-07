@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -31,17 +33,19 @@ import com.kevinfreyap.ui.theme.Theme
 fun AppTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
     modifier: Modifier = Modifier,
     minLines: Int = 1,
+    maxLines: Int = 1,
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
-    floatingLabel: Boolean = true,
+    label: String? = null,
+    placeholder: String? = null,
     isError: Boolean = false,
     errorMessage: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
@@ -50,7 +54,7 @@ fun AppTextField(
         value = value,
         onValueChange = onValueChange,
         trailingIcon = trailingIcon,
-        label = if (floatingLabel) {
+        label = if (label != null) {
             {
                 Text(
                     text = label,
@@ -58,10 +62,10 @@ fun AppTextField(
                 )
             }
         } else null,
-        placeholder = if (!floatingLabel) {
+        placeholder = if (placeholder != null) {
             {
                 Text(
-                    text = label,
+                    text = placeholder,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -84,8 +88,8 @@ fun AppTextField(
                 focusManager.clearFocus()
             }
         ),
-        singleLine = minLines == 1,
         minLines = minLines,
+        maxLines = maxLines,
         readOnly = readOnly,
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
@@ -99,6 +103,87 @@ fun AppTextField(
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
+        visualTransformation = visualTransformation,
+        modifier = modifier
+            .fillMaxWidth()
+    )
+}
+
+@Composable
+fun AppTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    unfocusedColor: Color = Theme.custom.hint,
+    readOnly: Boolean = false,
+    label: String? = null,
+    placeholder: String? = null,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Next,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    trailingIcon: @Composable (() -> Unit)? = null
+) {
+    val focusManager = LocalFocusManager.current
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        trailingIcon = trailingIcon,
+        label = if (label != null) {
+            {
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        } else null,
+        placeholder = if (placeholder != null) {
+            {
+                Text(
+                    text = placeholder,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        } else null,
+        isError = isError,
+        supportingText = errorMessage?.let {
+            {
+                Text(
+                    text = it
+                )
+            }
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            capitalization = capitalization
+        ),
+        keyboardActions = KeyboardActions (
+            onDone = {
+                focusManager.clearFocus()
+            }
+        ),
+        minLines = minLines,
+        maxLines = maxLines,
+        readOnly = readOnly,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = unfocusedColor,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+
+            unfocusedLabelColor = unfocusedColor,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+
+            unfocusedTrailingIconColor = unfocusedColor,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            errorTrailingIconColor = MaterialTheme.colorScheme.error
+        ),
+        visualTransformation = visualTransformation,
         modifier = modifier
             .fillMaxWidth()
     )

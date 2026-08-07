@@ -21,6 +21,9 @@ interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: ProductEntity)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE sku = :sku)")
+    suspend fun isSkuDuplicate(sku: String): Boolean
+
     @Transaction
     @RawQuery(observedEntities = [
         ProductEntity::class,

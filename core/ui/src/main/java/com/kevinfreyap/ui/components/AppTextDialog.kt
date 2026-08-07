@@ -1,0 +1,143 @@
+package com.kevinfreyap.ui.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.kevinfreyap.ui.theme.InventoryTheme
+import com.kevinfreyap.ui.theme.Theme
+
+@Composable
+fun AppTextDialog(
+    title: String,
+    subtitle: String,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    positiveBtn: @Composable (() -> Unit)? = null,
+    negativeBtn: @Composable (() -> Unit)? = null
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        AppTextDialogContent(
+            title = title,
+            subtitle = subtitle,
+            positiveBtn = positiveBtn,
+            negativeBtn = negativeBtn,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+fun AppTextDialogContent(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    positiveBtn: @Composable (() -> Unit)? = null,
+    negativeBtn: @Composable (() -> Unit)? = null
+) {
+    val hasBothButton = positiveBtn != null && negativeBtn != null
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .widthIn(max = 312.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Theme.custom.primaryText
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Theme.custom.secondaryText
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = if (hasBothButton) Arrangement.spacedBy(8.dp) else Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (negativeBtn != null) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = if (hasBothButton) Modifier.weight(1f) else Modifier
+                    ) {
+                        negativeBtn()
+                    }
+                }
+
+                if (positiveBtn != null) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = if (hasBothButton) Modifier.weight(1f) else Modifier
+                    ) {
+                        positiveBtn()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0x000000
+)
+@Composable
+fun AppTextDialogPreview() {
+    InventoryTheme {
+        AppTextDialogContent(
+            title = "Discard unsaved changes?",
+            subtitle = "Any information you entered will be lost",
+            negativeBtn = {
+                AppOutlinedButton(
+                    text = "cancel",
+                    onClick = {  },
+                    borderColor = Theme.custom.hint,
+                    contentColor = Theme.custom.hint,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            positiveBtn = {
+                AppPrimaryButton(
+                    text = "Discard",
+                    onClick = {  },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        )
+    }
+}
