@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.presentation.screen.filter.section
+package com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

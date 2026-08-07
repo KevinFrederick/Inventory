@@ -47,12 +47,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
-import com.kevinfreyap.product.presentation.action.ProductListNavigation
+import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
 import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
-import com.kevinfreyap.product.presentation.screen.filter.FilterBottomSheet
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.FilterBottomSheet
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.ui.components.AppBaseListItem

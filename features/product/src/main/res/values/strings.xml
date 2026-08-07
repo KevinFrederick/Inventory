@@ -2,10 +2,13 @@
 <resources>
     <!--  PAGE TITLE  -->
     <string name="title_filter_sort">Filter &amp; Sort</string>
+    <string name="title_add_product">Add Product</string>
+    <string name="title_image_picker">Select Image Source</string>
 
     <!--  PLACEHOLDER  -->
     <string name="placeholder_search_inventory">Search inventory…</string>
     <string name="placeholder_select_location">Select location</string>
+    <string name="placeholder_date_input">DD/MM/YYYY</string>
 
     <!--  LABELS  -->
     <string name="label_sort_by">Sort By</string>
@@ -20,6 +23,28 @@
     <string name="label_total_product">Total Products</string>
     <string name="label_low_stock_product">Low Stock Products</string>
     <string name="label_recently_updated">Recently Updated</string>
+    <string name="label_add_initial_stock">Add initial stock</string>
+    <string name="label_initial_stock_subtitle">You can always add or adjust stock later.</string>
+
+    <string name="label_product_detail">Product Details</string>
+    <string name="label_product_identification">Product Identification (Optional)</string>
+    <string name="label_batch_stock_detail">Stock Details</string>
+    <string name="label_batch_stock_information">Stock Information (Optional)</string>
+
+    <string name="label_field_product_name">Product Name</string>
+    <string name="label_field_product_category">Category</string>
+    <string name="label_field_product_min_quantity">Min. Quantity</string>
+    <string name="label_field_product_description">Description (Optional)</string>
+    <string name="label_field_product_sku">SKU</string>
+    <string name="label_field_product_barcode">Barcode</string>
+    <string name="label_field_batch_quantity">Quantity</string>
+    <string name="label_field_batch_location">Storage Location</string>
+    <string name="label_field_batch_price">Unit Cost (Optional)</string>
+    <string name="label_field_batch_supplier">Supplier</string>
+    <string name="label_field_batch_expiration">Expiration Date</string>
+    
+    <string name="label_image_picker_camera">Take a photo</string>
+    <string name="label_image_picker_gallery">Choose from gallery</string>
 
     <!--  BUTTON LABEL  -->
     <string name="btn_label_confirm">Confirm</string>
@@ -31,6 +56,13 @@
     <string name="btn_label_clear_filters">Clear Filters &amp; Query</string>
     <string name="btn_label_view_all_low_stock_product">View all %1$d products</string>
     <string name="btn_label_view_all_product">View all products</string>
+    <string name="btn_label_upload_image">Upload Image\n(Optional)</string>
+    <string name="btn_label_save_product">Save Product</string>
+    <string name="btn_label_confirm_all">Confirm All</string>
+    <string name="btn_label_edit">Edit</string>
+    <string name="btn_label_discard">Discard</string>
+    <string name="btn_label_keep_edit">Keep Editing</string>
+    <string name="btn_label_close">Close</string>
 
     <string name="txt_btn_label_tap_to_retry_load_more">Tap to retry loading more</string>
 
@@ -52,6 +84,10 @@
     <string name="sort_direction_desc_product_name">Z to A</string>
     <string name="sort_direction_desc_quantity_price">High to Low</string>
 
+    <!--  DROPDOWN  -->
+    <string name="dropdown_new_category">Add new category \"%1$s\"</string>
+    <string name="dropdown_new_location">Add new location \"%1$s\"</string>
+
     <!--  STATE BANNER  -->
     <string name="title_banner_load_error">Unable to load inventory</string>
     <string name="subtitle_banner_load_error">There was a problem reading your data.\nPlease try again</string>
@@ -61,4 +97,68 @@
 
     <string name="title_banner_empty_inventory">Your inventory is empty</string>
     <string name="subtitle_banner_empty_inventory">Add your first product to start tracking your inventory</string>
+
+    <!--  CURRENCY  -->
+    <string name="currency_idr_rp">Rp</string>
+
+    <!--  DIALOG  -->
+    <string name="dialog_title_remove_image">Remove Image?</string>
+    <string name="dialog_title_review_value">Review Required!</string>
+    <string name="dialog_title_discard_changes">Discard Changes?</string>
+    <string name="dialog_title_save_failed">Save Failed</string>
+
+    <string name="dialog_subtitle_remove_image">Are you sure you want to remove this product image?</string>
+    <string name="dialog_subtitle_review_value">Please verify these values before saving:</string>
+    <string name="dialog_subtitle_discard_changes">You have unsaved changes. If you go back now, all your progress will be lost.</string>
+    <string name="dialog_subtitle_save_failed">An unexpected error occurred while saving the product. Please try again.</string>
+
+    <string name="dialog_summary_list_min_quantity">"• Minimum Quantity is set to %1$s"</string>
+    <string name="dialog_summary_list_quantity">"• Quantity is set to %1$s"</string>
+    <string name="dialog_summary_list_price">"• Price is set to %1$s"</string>
+
+    <!--  SUCCESS  -->
+    <string name="success_product_saved">Product saved successfully!</string>
+
+    <!--  ERROR  -->
+    <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
+    <string name="error_product_image_path_too_long">The image file path or name is too long</string>
+    <string name="error_product_image_file_too_large">This image is too large\nMax file size is 2 MB</string>
+
+    <string name="error_product_name_empty">Product name is required</string>
+    <string name="error_product_name_too_long">Product name cannot exceed 100 characters</string>
+    <string name="error_product_name_contains_newline">Product name must be on a single line</string>
+
+    <string name="error_product_category_empty">Please select or create a category</string>
+    <string name="error_product_category_too_long">Category cannot exceed 50 characters</string>
+    <string name="error_product_category_contains_newline">Category must be on a single line</string>
+    
+    <string name="error_product_min_qty_invalid_format">Invalid number</string>
+    <string name="error_product_min_qty_cannot_negative">Cannot be negative</string>
+
+    <string name="error_product_description_too_long">Description cannot exceed 500 characters</string>
+
+    <string name="error_product_sku_too_long">SKU cannot exceed 50 characters</string>
+    <string name="error_product_sku_contains_spaces">Spaces are not allowed</string>
+    <string name="error_product_sku_invalid_characters">Special characters are not allowed</string>
+    <string name="error_product_sku_already_exists">This SKU already exists</string>
+    
+    <string name="error_product_barcode_too_long">Barcode cannot exceed 50 characters</string>
+    <string name="error_product_barcode_invalid_characters">Barcode contains invalid characters</string>
+    <string name="error_product_barcode_contains_spaces">Spaces are not allowed</string>
+    
+    <string name="error_batch_quantity_empty">Quantity is required</string>
+    <string name="error_batch_quantity_invalid_format">Please enter a valid number</string>
+    <string name="error_batch_quantity_cannot_be_negative">Quantity cannot be negative</string>
+    <string name="error_batch_quantity_cannot_be_zero">Quantity must be greater than 0</string>
+
+    <string name="error_batch_location_empty">Location is required</string>
+    <string name="error_batch_location_too_long">Location name cannot exceed 50 characters</string>
+    <string name="error_batch_location_contains_newline">Location must be on a single line</string>
+
+    <string name="error_batch_price_invalid_format">Please enter a valid price format</string>
+    <string name="error_batch_price_cannot_be_negative">Price cannot be negative</string>
+
+    <string name="error_batch_expiration_cannot_be_past">Expiration date cannot be in the past</string>
+
+    <string name="error_batch_supplier_too_long">Supplier name cannot exceed 100 characters</string>
 </resources>

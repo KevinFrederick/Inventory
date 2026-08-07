@@ -20,3 +20,14 @@ fun List<LocationEntity>.toDomain(): List<Location> {
         entity.toDomain()
     }
 }
+
+fun Location.toEntity(): LocationEntity {
+    return LocationEntity(
+        locationId = this.locationId.value,
+        name = this.name,
+        description = this.description,
+        locationBarcode = this.locationBarcode,
+        createdAt = this.createdAt,
+        lastUpdated = this.lastUpdated
+    )
+}

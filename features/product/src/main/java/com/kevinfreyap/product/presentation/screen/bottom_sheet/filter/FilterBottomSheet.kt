@@ -1,5 +1,6 @@
-package com.kevinfreyap.product.presentation.screen.filter
+package com.kevinfreyap.product.presentation.screen.bottom_sheet.filter
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,18 +26,18 @@ import com.kevinfreyap.product.domain.model.query.sort.SortConfig
 import com.kevinfreyap.product.domain.model.query.sort.SortDirection
 import com.kevinfreyap.product.domain.model.query.sort.SortOption
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
-import com.kevinfreyap.product.presentation.components.AppDatePickerDialog
+import com.kevinfreyap.ui.components.AppDatePickerDialog
 import com.kevinfreyap.product.presentation.components.DateDisplayBoxRow
 import com.kevinfreyap.product.presentation.components.SortDirectionButton
 import com.kevinfreyap.product.presentation.mapper.getDirectionLabelRes
 import com.kevinfreyap.product.presentation.model.ActiveDatePicker
 import com.kevinfreyap.product.presentation.model.CategoryUi
 import com.kevinfreyap.product.presentation.model.LocationUi
-import com.kevinfreyap.product.presentation.screen.filter.section.SectionCategory
-import com.kevinfreyap.product.presentation.screen.filter.section.SectionDateAdded
-import com.kevinfreyap.product.presentation.screen.filter.section.SectionFilterButtons
-import com.kevinfreyap.product.presentation.screen.filter.section.SectionLocation
-import com.kevinfreyap.product.presentation.screen.filter.section.SectionSort
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionCategory
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionDateAdded
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionFilterButtons
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionLocation
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionSort
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -74,9 +77,18 @@ fun FilterBottomSheetContent(
     onAction: (FilterQueryAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        focusManager.clearFocus()
+                    }
+                )
+            }
             .navigationBarsPadding()
     ) {
         Column(
@@ -88,7 +100,11 @@ fun FilterBottomSheetContent(
                     fill = false
                 )
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
         ) {
             Text(
                 text = stringResource(R.string.title_filter_sort),

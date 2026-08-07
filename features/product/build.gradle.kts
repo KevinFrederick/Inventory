@@ -38,6 +38,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:domain"))
     implementation(project(":core:ui"))
 
     implementation(libs.hilt.android)

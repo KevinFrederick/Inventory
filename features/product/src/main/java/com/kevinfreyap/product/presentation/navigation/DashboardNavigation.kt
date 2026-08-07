@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.presentation.action
+package com.kevinfreyap.product.presentation.navigation
 
 sealed interface DashboardNavigation {
     object AddProduct: DashboardNavigation

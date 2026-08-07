@@ -15,7 +15,7 @@ import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.model.DateUi
 import com.kevinfreyap.product.presentation.state.FilterState
-import com.kevinfreyap.product.presentation.util.DateFormatter.formatDayMonthYearDate
+import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -133,7 +133,7 @@ class ProductListViewModel @Inject constructor(
             }
             is FilterQueryAction.UpdateStartDate -> {
                 val startModel = DateUi(
-                    displayText = formatDayMonthYearDate(action.startDateMillis),
+                    displayText = formatDatePickerDate(action.startDateMillis),
                     rawMillis = action.startDateMillis
                 )
 
@@ -146,7 +146,7 @@ class ProductListViewModel @Inject constructor(
             }
             is FilterQueryAction.UpdateEndDate -> {
                 val endModel = DateUi(
-                    displayText = formatDayMonthYearDate(action.endDateMillis),
+                    displayText = formatDatePickerDate(action.endDateMillis),
                     rawMillis = action.endDateMillis
                 )
 

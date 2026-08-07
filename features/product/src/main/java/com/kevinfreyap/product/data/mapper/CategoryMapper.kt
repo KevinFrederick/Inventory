@@ -19,3 +19,13 @@ fun List<CategoryEntity>.toDomain(): List<Category> {
         entity.toDomain()
     }
 }
+
+fun Category.toEntity(): CategoryEntity {
+    return CategoryEntity(
+        categoryId = this.categoryId.value,
+        name = this.name,
+        description = this.description,
+        createdAt = this.createdAt,
+        lastUpdated = this.lastUpdated
+    )
+}

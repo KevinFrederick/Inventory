@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 interface IProductRepository {
     suspend fun insertProduct(product: Product)
 
+    suspend fun isSkuDuplicate(sku: String): Boolean
+
     fun getAllProduct(filterQuery: ProductQueryFilter): Flow<PagingData<Product>>
 
     fun getProductCount(): Flow<Int>
