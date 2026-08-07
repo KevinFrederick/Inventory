@@ -16,7 +16,7 @@ class ProductQueryBuilderTest {
         val query = builder.build(filter) as SimpleSQLiteQuery
 
         assertEquals(
-            "SELECT * FROM product ORDER BY createdAt DESC",
+            "SELECT p.* FROM product AS p ORDER BY p.createdAt DESC",
             query.sql
         )
     }
@@ -33,7 +33,13 @@ class ProductQueryBuilderTest {
         val query = builder.build(filter) as SimpleSQLiteQuery
 
         assertEquals(
-            "SELECT * FROM product WHERE name LIKE ? AND locationId = ? ORDER BY name ASC",
+            "SELECT p.*" +
+            " FROM product AS p" +
+            " INNER JOIN stock_batch AS b ON p.productId = b.productId" +
+            " WHERE p.name LIKE ? AND b.locationId = ?" +
+            " GROUP BY p.productId" +
+            " ORDER BY p.name" +
+            " ASC",
             query.sql
         )
     }
@@ -51,7 +57,32 @@ class ProductQueryBuilderTest {
 
         // Assert
         assertEquals(
-            "SELECT * FROM product WHERE createdAt BETWEEN ? AND ? ORDER BY createdAt DESC",
+            "SELECT p.* FROM product AS p" +
+            " WHERE p.createdAt BETWEEN ? AND ?" +
+            " ORDER BY p.createdAt" +
+            " DESC",
+            query.sql
+        )
+    }
+
+    @Test
+    fun `when sorting by batch column, generates JOIN, GROUP BY, and aggregate ORDER BY`() {
+        // Arrange
+        val filter = ProductDbFilter(
+            sortBy = "price",
+            sortDirection = "ASC"
+        )
+
+        // Act
+        val query = builder.build(filter) as SimpleSQLiteQuery
+
+        // Assert
+        assertEquals(
+            "SELECT p.*" +
+                    " FROM product AS p" +
+                    " INNER JOIN stock_batch AS b ON p.productId = b.productId" +
+                    " GROUP BY p.productId" +
+                    " ORDER BY MIN(b.price) ASC",
             query.sql
         )
     }
