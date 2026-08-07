@@ -49,7 +49,9 @@ fun <T> SectionListWithHeader(
             itemContent(item)
         }
 
-        textButton?.invoke()
+        if (list.size > 3) {
+            textButton?.invoke()
+        }
     }
 }
 

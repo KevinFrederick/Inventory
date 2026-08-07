@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -107,7 +108,21 @@ fun ProductListContent(
 ) {
 
     Scaffold(
-        contentWindowInsets = WindowInsets(top = 16.dp)
+        contentWindowInsets = WindowInsets(top = 24.dp),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onNavigate(ProductListNavigation.AddProduct)
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    painter = painterResource(coreR.drawable.add_24),
+                    contentDescription = "Add Product"
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = modifier
