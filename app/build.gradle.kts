@@ -57,6 +57,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(project(":core:domain"))
     implementation(project(":features:product"))
 
     // Android Core

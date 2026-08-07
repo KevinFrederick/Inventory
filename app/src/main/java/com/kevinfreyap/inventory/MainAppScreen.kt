@@ -14,12 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.kevinfreyap.product.presentation.action.DashboardNavigation
-import com.kevinfreyap.product.presentation.action.ProductListNavigation
+import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
+import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
+import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
+import com.kevinfreyap.product.presentation.screen.add_product.AddProductScreen
 import com.kevinfreyap.product.presentation.screen.dashboard.DashboardScreen
 import com.kevinfreyap.product.presentation.screen.product_list.ProductListScreen
 
@@ -30,9 +33,21 @@ fun MainAppScreen(
 ) {
     val navController = rememberNavController()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val bottomBarRoutes = listOf(
+        Screen.Dashboard.route,
+        Screen.ProductList.route,
+    )
+
+    val showBottomBar = currentRoute in bottomBarRoutes
+
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController)
+            if (showBottomBar) {
+                BottomBar(navController = navController)
+            }
         }
     ) { innerPadding ->
         NavHost (
@@ -54,7 +69,13 @@ fun MainAppScreen(
                                 )
                             }
                             is DashboardNavigation.AllProduct -> {
-
+                                navController.navigate(Screen.ProductList.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                             is DashboardNavigation.LowStockProduct -> {
 
@@ -78,6 +99,27 @@ fun MainAppScreen(
                             }
                         }
                     },
+                )
+            }
+
+            composable(Screen.AddProduct.route) {
+                AddProductScreen(
+                    onNavigate = { destination ->
+                        when (destination) {
+                            AddProductNavigation.NavigateUp -> {
+                                navController.navigateUp()
+                            }
+                            AddProductNavigation.AllProduct -> {
+                                navController.navigate(Screen.ProductList.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                    }
                 )
             }
         }
