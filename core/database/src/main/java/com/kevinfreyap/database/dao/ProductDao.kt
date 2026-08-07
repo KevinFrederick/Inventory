@@ -39,9 +39,9 @@ interface ProductDao {
 
     @Transaction
     @Query("""
-        SELECT *
+        SELECT p.*
         FROM product as p
-        LEFT JOIN stock_batch as b ON p.productId == b.productId
+        LEFT JOIN stock_batch as b ON p.productId = b.productId
         GROUP BY p.productId
         HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity
     """)

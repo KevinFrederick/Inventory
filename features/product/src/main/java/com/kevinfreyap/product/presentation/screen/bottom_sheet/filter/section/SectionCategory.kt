@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,19 +45,37 @@ fun SectionCategory(
 
         Spacer(Modifier.height(8.dp))
 
-        FlowRow(
-            maxItemsInEachRow = 2,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            categories.forEach { categoryUi ->
-                CheckboxSelectionItem(
-                    checkboxLabel = categoryUi.name,
-                    onClick = { onCategoryToggled(categoryUi) },
-                    isSelected = (categoryUi in selectedCategories),
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
+        if(categories.isEmpty()) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.warning_no_category_yet),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Theme.custom.hint
                 )
+            }
+
+            Spacer(Modifier.height(8.dp))
+        } else {
+            FlowRow(
+                maxItemsInEachRow = 2,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                categories.forEach { categoryUi ->
+                    CheckboxSelectionItem(
+                        checkboxLabel = categoryUi.name,
+                        onClick = { onCategoryToggled(categoryUi) },
+                        isSelected = (categoryUi in selectedCategories),
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                    )
+                }
             }
         }
     }
@@ -70,6 +90,7 @@ fun SectionCategoryPreview() {
 
     InventoryTheme {
         SectionCategory(
+//            categories = emptyList(),
             categories = listOf(
                 CategoryUi(
                     id = "Cat_01",

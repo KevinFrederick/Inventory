@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,9 +27,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,19 +73,25 @@ fun ProductListScreen(
     modifier: Modifier = Modifier,
     viewModel: ProductListViewModel = hiltViewModel()
 ) {
-    val products = viewModel.productFlow.collectAsLazyPagingItems()
+    val products = viewModel.products.collectAsLazyPagingItems()
+
+    val availableFilterOption by viewModel.availableFilters.collectAsStateWithLifecycle()
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val availableFilterOption by viewModel.availableFilters.collectAsStateWithLifecycle()
+    val appliedQuery by viewModel.appliedQuery.collectAsStateWithLifecycle()
+
     val draftFilter by viewModel.draftFilter.collectAsStateWithLifecycle()
+    val appliedFilter by viewModel.filterState.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
 
     ProductListContent(
         products = products,
         searchQuery = searchQuery,
+        appliedQuery = appliedQuery,
         availableFilterOption = availableFilterOption,
         draftFilter = draftFilter,
+        appliedFilter = appliedFilter,
         showFilterSheet = showFilterSheet,
         onToggleFilterSheet = { isVisible ->
             showFilterSheet = isVisible
@@ -97,8 +106,10 @@ fun ProductListScreen(
 fun ProductListContent(
     products: LazyPagingItems<ProductListItemUi>,
     searchQuery: String,
+    appliedQuery: String,
     availableFilterOption: FilterOptionList,
     draftFilter: FilterState,
+    appliedFilter: FilterState,
     showFilterSheet: Boolean,
     onToggleFilterSheet: (Boolean) -> Unit,
     onFilterAction: (FilterQueryAction) -> Unit,
@@ -107,7 +118,21 @@ fun ProductListContent(
 ) {
 
     Scaffold(
-        contentWindowInsets = WindowInsets(top = 16.dp)
+        contentWindowInsets = WindowInsets(top = 24.dp),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onNavigate(ProductListNavigation.AddProduct)
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    painter = painterResource(coreR.drawable.add_24),
+                    contentDescription = "Add Product"
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -119,249 +144,22 @@ fun ProductListContent(
                 )
                 .fillMaxSize()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                AppSearchBar(
-                    searchQuery = searchQuery,
-                    placeholder = stringResource(R.string.placeholder_search_inventory),
-                    onQueryChange = { query ->
-                        onFilterAction(FilterQueryAction.UpdateSearchQuery(query))
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                )
+            ProductSearchAndFilterBar(
+                searchQuery = searchQuery,
+                appliedFilter = appliedFilter,
+                onFilterAction = onFilterAction,
+                onToggleFilterSheet = onToggleFilterSheet
+            )
 
-                IconButton(
-                    onClick = {
-                        onFilterAction(FilterQueryAction.ShowAppliedFilter)
-                        onToggleFilterSheet(true)
-                    },
-                    modifier = Modifier
-                        .padding(4.dp)
-                ) {
-                    BadgedBox(
-                        badge = { if (draftFilter.hasActiveFilter) Badge() },
-                        modifier = modifier
-                            .padding(8.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.filter_list_24),
-                            contentDescription = "Filter Icon",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(8.dp))
-
-            when (products.loadState.refresh) {
-                LoadState.Loading -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        items(count = 10) {
-                            AppBaseListItemPlaceholder()
-                        }
-                    }
-                }
-                is LoadState.NotLoading -> {
-                    if (products.itemCount == 0) {
-                        val isSearchOrFilterActive = searchQuery.isNotEmpty() || draftFilter.hasActiveFilter
-
-                        if (isSearchOrFilterActive) {
-                            BoxWithConstraints(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .verticalScroll(rememberScrollState())
-                                        .heightIn(min = minHeight)
-                                ) {
-                                    AppStateBanner(
-                                        bannerIcon = R.drawable.custom_no_result_icon,
-                                        bannerTitle = stringResource(R.string.title_banner_no_result),
-                                        bannerSubtitle = stringResource(R.string.subtitle_banner_no_result),
-                                        actionButton = {
-                                            AppPrimaryButton(
-                                                text = stringResource(R.string.btn_label_clear_filters),
-                                                onClick = {
-                                                    onFilterAction(FilterQueryAction.ClearAll)
-                                                    onFilterAction(FilterQueryAction.UpdateSearchQuery(""))
-                                                },
-                                                icon = {
-                                                    Icon(
-                                                        painter = painterResource(coreR.drawable.delete_24),
-                                                        contentDescription = stringResource(R.string.btn_label_clear_filters),
-                                                    )
-                                                },
-                                            )
-                                        },
-                                    )
-                                }
-                            }
-                        } else {
-                            BoxWithConstraints(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .verticalScroll(rememberScrollState())
-                                        .heightIn(min = minHeight)
-                                ) {
-                                    AppStateBanner(
-                                        bannerIcon = R.drawable.custom_empty_storage_icon,
-                                        bannerTitle = stringResource(R.string.title_banner_empty_inventory),
-                                        bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
-                                        actionButton = {
-                                            AppPrimaryButton(
-                                                text = stringResource(R.string.btn_label_add_first_item),
-                                                onClick = {
-                                                    onNavigate(ProductListNavigation.AddProduct)
-                                                },
-                                                icon = {
-                                                    Icon(
-                                                        painter = painterResource(coreR.drawable.add_24),
-                                                        contentDescription = stringResource(R.string.btn_label_add_first_item),
-                                                    )
-                                                },
-                                            )
-                                        },
-                                    )
-                                }
-                            }
-                        }
-
-                    } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
-                            items(
-                                count = products.itemCount,
-                                key = products.itemKey { item -> item.id }
-                            ) { index ->
-                                val product = products[index]
-                                if (product != null) {
-                                    AppBaseListItem(
-                                        itemName = product.name,
-                                        subtitle = if (product.sku != null) {
-                                            {
-                                                Text(
-                                                    text = product.sku,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = Theme.custom.secondaryText
-                                                )
-                                            }
-                                        } else null,
-                                        trailingData = {
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                verticalArrangement = Arrangement.Center,
-                                                modifier = Modifier
-                                                    .padding(4.dp)
-                                            ) {
-                                                Text(
-                                                    text = stringResource(R.string.label_quantity),
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = Theme.custom.secondaryText,
-                                                )
-                                                Text(
-                                                    text = product.quantity.toString(),
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    fontWeight = FontWeight.Medium,
-                                                    color = product.stockLevel.color
-                                                )
-                                            }
-                                        },
-                                        onClick = {
-                                            onNavigate(ProductListNavigation.ProductDetail(product.id))
-                                        }
-                                    )
-                                }
-                            }
-
-
-                            when (products.loadState.append) {
-                                LoadState.Loading -> {
-                                    item {
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                                        }
-                                    }
-                                }
-
-                                is LoadState.Error -> {
-                                    item {
-                                        TextButton(
-                                            onClick = { products.retry() },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.txt_btn_label_tap_to_retry_load_more),
-                                            )
-                                        }
-                                    }
-                                }
-
-                                is LoadState.NotLoading -> Unit
-                            }
-                        }
-
-                    }
-                }
-                is LoadState.Error -> {
-                    BoxWithConstraints(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                                .heightIn(min = minHeight)
-                        ) {
-                            AppStateBanner(
-                                bannerIcon = R.drawable.custom_error_load_icon,
-                                bannerTitle = stringResource(R.string.title_banner_load_error),
-                                bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
-                                actionButton = {
-                                    AppPrimaryButton(
-                                        text = stringResource(R.string.btn_label_try_again),
-                                        onClick = {
-                                            products.retry()
-                                        },
-                                        icon = {
-                                            Icon(
-                                                painter = painterResource(coreR.drawable.refresh_24),
-                                                contentDescription = stringResource(R.string.btn_label_try_again),
-                                            )
-                                        },
-                                    )
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-
+            ProductContentList(
+                products = products,
+                searchQuery = appliedQuery,
+                appliedFilter = appliedFilter,
+                onNavigate = onNavigate,
+                onFilterAction = onFilterAction,
+            )
         }
     }
 
@@ -380,6 +178,310 @@ fun ProductListContent(
                 onToggleFilterSheet(false)
             },
         )
+    }
+}
+
+@Composable
+private fun ProductSearchAndFilterBar(
+    searchQuery: String,
+    appliedFilter: FilterState,
+    onFilterAction: (FilterQueryAction) -> Unit,
+    onToggleFilterSheet: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        AppSearchBar(
+            searchQuery = searchQuery,
+            placeholder = stringResource(R.string.placeholder_search_inventory),
+            onQueryChange = { query ->
+                onFilterAction(FilterQueryAction.UpdateSearchQuery(query))
+            },
+            modifier = Modifier
+                .weight(1f)
+        )
+
+        IconButton(
+            onClick = {
+                onFilterAction(FilterQueryAction.ShowAppliedFilter)
+                onToggleFilterSheet(true)
+            },
+            modifier = Modifier
+                .padding(4.dp)
+        ) {
+            BadgedBox(
+                badge = { if (appliedFilter.hasActiveFilter) Badge() },
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.filter_list_24),
+                    contentDescription = "Filter Icon",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductContentList(
+    products: LazyPagingItems<ProductListItemUi>,
+    searchQuery: String,
+    appliedFilter: FilterState,
+    onNavigate: (ProductListNavigation) -> Unit,
+    onFilterAction: (FilterQueryAction) -> Unit
+) {
+    val isLoading = products.loadState.refresh is LoadState.Loading
+    val isError = products.loadState.refresh is LoadState.Error
+    val isSearchOrFilterActive = searchQuery.isNotEmpty() || appliedFilter.hasActiveFilter
+
+    var hasCompletedInitialLoad by rememberSaveable { mutableStateOf(false) }
+    var displayAsNoResult by rememberSaveable { mutableStateOf(isSearchOrFilterActive) }
+
+    LaunchedEffect(isLoading, hasCompletedInitialLoad) {
+        if (!isLoading && !hasCompletedInitialLoad) {
+            hasCompletedInitialLoad = true
+        }
+    }
+
+    LaunchedEffect(isLoading, isSearchOrFilterActive) {
+        if (!isLoading) {
+            displayAsNoResult = isSearchOrFilterActive
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        when {
+            // initial loading
+            isLoading && products.itemCount == 0 && !hasCompletedInitialLoad -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    items(count = 10) {
+                        AppBaseListItemPlaceholder()
+                    }
+                }
+            }
+
+            // empty state, finished loading found nothing
+            products.itemCount == 0 -> {
+                ProductEmptyOrNoResultState(
+                    isNoResultState = displayAsNoResult,
+                    onFilterAction = onFilterAction,
+                    onNavigate = onNavigate,
+                )
+            }
+
+            // error state
+            isError && products.itemCount == 0 -> {
+                ProductErrorState(
+                    onRetry = {
+                        products.retry()
+                    }
+                )
+            }
+
+            // success
+            else -> {
+                ProductSuccessState(
+                    products = products,
+                    onNavigate = onNavigate
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductEmptyOrNoResultState(
+    isNoResultState: Boolean,
+    onFilterAction: (FilterQueryAction) -> Unit,
+    onNavigate: (ProductListNavigation) -> Unit
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = minHeight)
+        ) {
+            if (isNoResultState) {
+                AppStateBanner(
+                    bannerIcon = R.drawable.custom_no_result_icon,
+                    bannerTitle = stringResource(R.string.title_banner_no_result),
+                    bannerSubtitle = stringResource(R.string.subtitle_banner_no_result),
+                    actionButton = {
+                        AppPrimaryButton(
+                            text = stringResource(R.string.btn_label_clear_filters),
+                            onClick = {
+                                onFilterAction(FilterQueryAction.ClearAll)
+                                onFilterAction(FilterQueryAction.UpdateSearchQuery(""))
+                            },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(coreR.drawable.delete_24),
+                                    contentDescription = stringResource(R.string.btn_label_clear_filters),
+                                )
+                            },
+                        )
+                    },
+                )
+            } else {
+                AppStateBanner(
+                    bannerIcon = R.drawable.custom_empty_storage_icon,
+                    bannerTitle = stringResource(R.string.title_banner_empty_inventory),
+                    bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
+                    actionButton = {
+                        AppPrimaryButton(
+                            text = stringResource(R.string.btn_label_add_first_item),
+                            onClick = {
+                                onNavigate(ProductListNavigation.AddProduct)
+                            },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(coreR.drawable.add_24),
+                                    contentDescription = stringResource(R.string.btn_label_add_first_item),
+                                )
+                            },
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductSuccessState(
+    products: LazyPagingItems<ProductListItemUi>,
+    onNavigate: (ProductListNavigation) -> Unit
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        items(
+            count = products.itemCount,
+            key = products.itemKey { item -> item.id }
+        ) { index ->
+            val product = products[index]
+            if (product != null) {
+                AppBaseListItem(
+                    itemName = product.name,
+                    subtitle = if (product.sku != null) {
+                        {
+                            Text(
+                                text = product.sku,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Theme.custom.secondaryText
+                            )
+                        }
+                    } else null,
+                    trailingData = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .padding(4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.label_quantity),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Theme.custom.secondaryText,
+                            )
+                            Text(
+                                text = product.quantity.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = product.stockLevel.color
+                            )
+                        }
+                    },
+                    onClick = {
+                        onNavigate(ProductListNavigation.ProductDetail(product.id))
+                    }
+                )
+            }
+        }
+
+
+        when (products.loadState.append) {
+            LoadState.Loading -> {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    }
+                }
+            }
+
+            is LoadState.Error -> {
+                item {
+                    TextButton(
+                        onClick = { products.retry() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.txt_btn_label_tap_to_retry_load_more),
+                        )
+                    }
+                }
+            }
+
+            is LoadState.NotLoading -> Unit
+        }
+    }
+}
+
+@Composable
+private fun ProductErrorState(
+    onRetry: () -> Unit
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = minHeight)
+        ) {
+            AppStateBanner(
+                bannerIcon = R.drawable.custom_error_load_icon,
+                bannerTitle = stringResource(R.string.title_banner_load_error),
+                bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
+                actionButton = {
+                    AppPrimaryButton(
+                        text = stringResource(R.string.btn_label_try_again),
+                        onClick = onRetry,
+                        icon = {
+                            Icon(
+                                painter = painterResource(coreR.drawable.refresh_24),
+                                contentDescription = stringResource(R.string.btn_label_try_again),
+                            )
+                        },
+                    )
+                },
+            )
+        }
     }
 }
 
@@ -440,8 +542,10 @@ fun ProductListPreview() {
         ProductListContent(
             products = lazyPagingItems,
             searchQuery = "",
+            appliedQuery = "",
             availableFilterOption = FilterOptionList(),
             draftFilter = FilterState(),
+            appliedFilter = FilterState(),
             showFilterSheet = false,
             onToggleFilterSheet = { },
             onFilterAction = {},

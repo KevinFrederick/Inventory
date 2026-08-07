@@ -31,7 +31,8 @@ data class FilterState(
         )
 
     val hasActiveFilter: Boolean
-        get() = (categorySet.isNotEmpty()) ||
+        get() = (sortConfig != SortConfig()) ||
+                (categorySet.isNotEmpty()) ||
                 (location != null) ||
                 (filterDateOption != null)
 }

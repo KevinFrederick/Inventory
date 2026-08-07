@@ -122,7 +122,7 @@ fun AddProductScreen(
                 Toast.LENGTH_SHORT
             ).show()
 
-            onNavigate(AddProductNavigation.AllProduct)
+            onNavigate(AddProductNavigation.NavigateUp)
             viewmodel.onAction(AddProductAction.ResetForm)
         }
     }

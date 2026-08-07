@@ -1,8 +1,10 @@
 package com.kevinfreyap.product.data.repository
 
+import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
 import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
@@ -13,6 +15,7 @@ import com.kevinfreyap.database.query.ProductQueryBuilder
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toDomainList
 import com.kevinfreyap.product.data.mapper.toEntity
+import com.kevinfreyap.product.domain.model.FilteredPagingStream
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.query.FilterDateOption
@@ -44,45 +47,57 @@ class ProductRepository @Inject constructor(
         return productDao.isSkuDuplicate(sku)
     }
 
-    override fun getAllProduct(filterQuery: ProductQueryFilter): Flow<PagingData<Product>> {
-        val calculatedDate = calculateDateRange(filterQuery.filterDateOption)
+    override fun getProductStream(
+        filterProvider: () -> ProductQueryFilter
+    ): FilteredPagingStream<Product> {
+        val pagingSourceFactory = InvalidatingPagingSourceFactory {
+            val filterQuery = filterProvider()
 
-        val startDate = if (filterQuery.filterDateOption == FilterDateOption.PICK_DATE) {
-            filterQuery.startDate
-        } else {
-            calculatedDate.startMillis
+            val calculatedDate = calculateDateRange(filterQuery.filterDateOption)
+
+            val startDate = if (filterQuery.filterDateOption == FilterDateOption.PICK_DATE) {
+                filterQuery.startDate
+            } else {
+                calculatedDate.startMillis
+            }
+
+            val endDate = if (filterQuery.filterDateOption == FilterDateOption.PICK_DATE) {
+                filterQuery.endDate
+            } else {
+                calculatedDate.endMillis
+            }
+
+            val dbFilter = ProductDbFilter (
+                searchQuery = filterQuery.searchQuery,
+                sortBy = filterQuery.sortConfig.option.columnName,
+                sortDirection = filterQuery.sortConfig.direction.sqlString,
+                categoryList = filterQuery.categoryList?.map { it.value },
+                locationId = filterQuery.locationId?.value,
+                startDate = startDate,
+                endDate = endDate
+            )
+
+            val query = ProductQueryBuilder().build(dbFilter)
+
+            productDao.getAllProduct(query)
         }
 
-        val endDate = if (filterQuery.filterDateOption == FilterDateOption.PICK_DATE) {
-            filterQuery.endDate
-        } else {
-            calculatedDate.endMillis
-        }
-
-        val dbFilter = ProductDbFilter (
-            searchQuery = filterQuery.searchQuery,
-            sortBy = filterQuery.sortConfig.option.columnName,
-            sortDirection = filterQuery.sortConfig.direction.sqlString,
-            categoryList = filterQuery.categoryList?.map { it.value },
-            locationId = filterQuery.locationId?.value,
-            startDate = startDate,
-            endDate = endDate
-        )
-
-        val query = ProductQueryBuilder().build(dbFilter)
-
-        return Pager(
+        // create pager and map to domain model
+        val pagerFlow = Pager(
             config = PagingConfig(
-                pageSize = 50,
+                pageSize = 50
             ),
-            pagingSourceFactory = {
-                productDao.getAllProduct(query)
-            }
+            pagingSourceFactory = pagingSourceFactory
         ).flow.map { pagingData ->
-            pagingData.map { productWithDetails ->
-                productWithDetails.toDomain()
-            }
+            pagingData.map { it.toDomain() }
         }
+
+        return FilteredPagingStream(
+            flow = pagerFlow,
+            invalidate = {
+                pagingSourceFactory.invalidate()
+            }
+        )
     }
 
     override fun getProductCount(): Flow<Int> {

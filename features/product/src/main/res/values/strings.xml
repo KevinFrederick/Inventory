@@ -119,6 +119,9 @@
     <!--  SUCCESS  -->
     <string name="success_product_saved">Product saved successfully!</string>
 
+    <!--  WARNING  -->
+    <string name="warning_no_category_yet">No categories added yet.</string>
+
     <!--  ERROR  -->
     <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
     <string name="error_product_image_path_too_long">The image file path or name is too long</string>

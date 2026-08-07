@@ -74,10 +74,16 @@ class DashboardViewModel @Inject constructor(
             ) { totalProductCount, alertList ->
                 if (totalProductCount == 0) return@combine UiState.Empty
 
+                val lowStockProductCount = if (alertList.activeList == ActiveAlertList.LOW_STOCK) {
+                    alertList.textButtonArg ?: 0
+                } else {
+                    0
+                }
+
                 UiState.Success(
                     DashboardState(
                         totalProductCount = totalProductCount,
-                        lowStockProductCount = alertList.products.size,
+                        lowStockProductCount = lowStockProductCount,
                         alertList = alertList
                     )
                 )
