@@ -8,6 +8,7 @@ import androidx.paging.map
 import com.kevinfreyap.product.domain.model.query.sort.SortDirection
 import com.kevinfreyap.product.domain.usecase.GetAllCategoryUseCase
 import com.kevinfreyap.product.domain.usecase.GetAllLocationUseCase
+import com.kevinfreyap.product.domain.usecase.GetFilteredProductCountUseCase
 import com.kevinfreyap.product.domain.usecase.GetFilteredProductUseCase
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
 import com.kevinfreyap.product.presentation.mapper.toDomain
@@ -19,13 +20,18 @@ import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,7 +39,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ProductListViewModel @Inject constructor(
-    private val getFilteredProduct: GetFilteredProductUseCase,
+    getFilteredProduct: GetFilteredProductUseCase,
+    private val getFilteredProductCount: GetFilteredProductCountUseCase,
     private val getAllCategory: GetAllCategoryUseCase,
     private val getAllLocation: GetAllLocationUseCase
 ): ViewModel() {
@@ -63,6 +70,22 @@ class ProductListViewModel @Inject constructor(
             pagingData.map { it.toUiModel() }
         }
         .cachedIn(viewModelScope)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val totalCount: StateFlow<Int> = combine(
+        flow = _appliedQuery,
+        flow2 = _filterState
+    ) { query, filter ->
+        filter.toDomain(query)
+    }
+        .flatMapLatest { filter ->
+            getFilteredProductCount(filter)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0
+        )
 
     init {
         loadFilterOptions()
