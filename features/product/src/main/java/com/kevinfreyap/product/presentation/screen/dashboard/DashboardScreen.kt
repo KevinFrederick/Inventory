@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
+import com.kevinfreyap.product.presentation.components.ProductListItem
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
 import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.product.presentation.model.ActiveAlertList
@@ -222,37 +223,8 @@ fun DashboardContent(
                             )
                         }
                     ) { product ->
-                        AppBaseListItem(
-                            itemName = product.name,
-                            subtitle = if (product.sku != null) {
-                                {
-                                    Text(
-                                        text = product.sku,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Theme.custom.secondaryText
-                                    )
-                                }
-                            } else null,
-                            trailingData = {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.label_quantity),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = Theme.custom.secondaryText,
-                                    )
-                                    Text(
-                                        text = product.quantity.toString(),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Medium,
-                                        color = product.stockLevel.color
-                                    )
-                                }
-                            },
+                        ProductListItem(
+                            product = product,
                             onClick = {
                                 onNavigate(DashboardNavigation.ProductDetail(product.id))
                             }

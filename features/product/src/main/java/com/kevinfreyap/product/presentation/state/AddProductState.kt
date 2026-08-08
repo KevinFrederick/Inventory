@@ -35,7 +35,7 @@ data class AddProductState(
         get() {
             val isProductValid = productDetail.productName.isNotBlank() &&
                                  productDetail.productCategoryName.isNotBlank() &&
-                                 formErrors == null
+                                 formErrors?.hasAnyError != true
 
             val isInitialStockValid = if (batchDetail.addInitialStock) {
                 batchDetail.batchQuantity.isNotBlank() && batchDetail.batchQuantity != "0" &&

@@ -8,6 +8,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
 import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.FileOutputStream
 
 class ImageManager @Inject constructor (
     @param:ApplicationContext private val context: Context
@@ -28,6 +31,40 @@ class ImageManager @Inject constructor (
             e.printStackTrace()
 
             Double.MAX_VALUE
+        }
+    }
+
+    override suspend fun saveImageToInternalStorage(uriString: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val imageUri = uriString.toUri()
+                val inputStream = context.contentResolver.openInputStream(imageUri) ?: return@withContext null
+
+                val filename = "product_img_${System.currentTimeMillis()}.jpg"
+                val permanentFile = File(context.filesDir, filename)
+
+                inputStream.use { input ->
+                    FileOutputStream(permanentFile).use { outputStream ->
+                        input.copyTo(outputStream)
+                    }
+                }
+
+                permanentFile.absolutePath
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    override suspend fun deleteImage(imagePath: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val file = File(imagePath)
+                if (file.exists()) file.delete() else true
+            } catch (_: Exception) {
+                false
+            }
         }
     }
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -50,6 +51,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
+import com.kevinfreyap.product.presentation.components.ProductListItem
 import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
 import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.ui.R as coreR
@@ -403,37 +405,8 @@ private fun ProductSuccessState(
         ) { index ->
             val product = products[index]
             if (product != null) {
-                AppBaseListItem(
-                    itemName = product.name,
-                    subtitle = if (product.sku != null) {
-                        {
-                            Text(
-                                text = product.sku,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Theme.custom.secondaryText
-                            )
-                        }
-                    } else null,
-                    trailingData = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .padding(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.label_quantity),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Theme.custom.secondaryText,
-                            )
-                            Text(
-                                text = product.quantity.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = product.stockLevel.color
-                            )
-                        }
-                    },
+                ProductListItem(
+                    product = product,
                     onClick = {
                         onNavigate(ProductListNavigation.ProductDetail(product.id))
                     }
@@ -526,7 +499,7 @@ fun ProductListPreview() {
             stockLevel = StockLevel.IN_STOCK,
             category = "Electronic",
             imageUri = null,
-            sku = "#SKU-1234-B"
+            sku = "#SKU-1234-Bdksadjfkasdjfkasljfkljfaljfkljskdjakjfkdjajsjdfkjsajdkjfajdfj"
         ),
         ProductListItemUi(
             id = "PROD-02",
@@ -535,7 +508,7 @@ fun ProductListPreview() {
             stockLevel = StockLevel.LOW_STOCK,
             category = "Electronic",
             imageUri = null,
-            sku = "#SKU-1234-B"
+            sku = null
         ),
         ProductListItemUi(
             id = "PROD-03",
