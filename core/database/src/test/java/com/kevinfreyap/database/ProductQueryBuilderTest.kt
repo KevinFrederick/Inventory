@@ -35,11 +35,10 @@ class ProductQueryBuilderTest {
         assertEquals(
             "SELECT p.*" +
             " FROM product AS p" +
-            " INNER JOIN stock_batch AS b ON p.productId = b.productId" +
+            " LEFT JOIN stock_batch AS b ON p.productId = b.productId" +
             " WHERE p.name LIKE ? AND b.locationId = ?" +
             " GROUP BY p.productId" +
-            " ORDER BY p.name" +
-            " ASC",
+            " ORDER BY p.name ASC",
             query.sql
         )
     }
@@ -80,9 +79,10 @@ class ProductQueryBuilderTest {
         assertEquals(
             "SELECT p.*" +
                     " FROM product AS p" +
-                    " INNER JOIN stock_batch AS b ON p.productId = b.productId" +
+                    " LEFT JOIN stock_batch AS b ON p.productId = b.productId" +
                     " GROUP BY p.productId" +
-                    " ORDER BY MIN(b.price) ASC",
+                    " ORDER BY MIN(b.price) ASC," +
+                    " p.createdAt DESC",
             query.sql
         )
     }
