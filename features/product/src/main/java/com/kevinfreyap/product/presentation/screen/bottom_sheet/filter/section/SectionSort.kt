@@ -21,6 +21,7 @@ import com.kevinfreyap.product.domain.model.query.sort.SortDirection
 import com.kevinfreyap.product.domain.model.query.sort.SortOption
 import com.kevinfreyap.product.presentation.components.RadioSelectionRow
 import com.kevinfreyap.product.presentation.components.SortDirectionButton
+import com.kevinfreyap.product.presentation.mapper.toLabel
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
@@ -53,7 +54,7 @@ fun SectionSort(
 
         SortOption.entries.forEach { option ->
             RadioSelectionRow(
-                radioLabel = stringResource(option.displayName),
+                radioLabel = stringResource(option.toLabel()),
                 onClick = { onSelectOption(option) },
                 isSelected = (option == selectedOption)
             )

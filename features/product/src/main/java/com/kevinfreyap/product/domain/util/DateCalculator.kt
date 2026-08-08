@@ -2,8 +2,11 @@ package com.kevinfreyap.product.domain.util
 
 import com.kevinfreyap.product.domain.model.query.DateBoundaries
 import com.kevinfreyap.product.domain.model.query.FilterDateOption
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 object DateCalculator {
     fun calculateDateRange(option: FilterDateOption?): DateBoundaries {
@@ -37,4 +40,35 @@ object DateCalculator {
             else -> DateBoundaries()
         }
     }
+}
+
+fun Long.toStartOfDayMillis(): Long {
+    val localDate = Instant.ofEpochMilli(this)
+        .atZone(ZoneOffset.UTC)
+        .toLocalDate()
+
+    return localDate.atStartOfDay(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
+}
+
+fun Long.toEndOfDayMillis(): Long {
+    val localDate = Instant.ofEpochMilli(this)
+        .atZone(ZoneOffset.UTC)
+        .toLocalDate()
+
+    return localDate.atTime(LocalTime.MAX)
+        .atZone(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
+}
+
+fun Long.toUtcForDatePicker(): Long {
+    val localDate = Instant.ofEpochMilli(this)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+
+    return localDate.atStartOfDay(ZoneOffset.UTC)
+        .toInstant()
+        .toEpochMilli()
 }

@@ -6,6 +6,7 @@ data class ProductDbFilter(
     val sortDirection: String = "DESC",
     val categoryList: List<String>? = null,
     val locationId: String? = null,
+    val stockOption: String? = null,
     val startDate: Long? = null,
     val endDate: Long? = null
 )

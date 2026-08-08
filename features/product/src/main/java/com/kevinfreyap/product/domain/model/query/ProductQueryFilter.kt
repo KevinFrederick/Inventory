@@ -10,6 +10,7 @@ data class ProductQueryFilter(
     val categoryList: List<CategoryId>? = null,
     val locationId: LocationId? = null,
     val filterDateOption: FilterDateOption? = null,
+    val filterStockOption: FilterStockOption? = null,
     val startDate: Long? = null,
     val endDate: Long? = null
 )

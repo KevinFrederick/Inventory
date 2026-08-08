@@ -15,10 +15,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
@@ -39,6 +41,7 @@ fun MainAppScreen(
     val bottomBarRoutes = listOf(
         Screen.Dashboard.route,
         Screen.ProductList.route,
+        Screen.ProductList.ROUTE_WITH_ARGS
     )
 
     val showBottomBar = currentRoute in bottomBarRoutes
@@ -78,14 +81,31 @@ fun MainAppScreen(
                                 }
                             }
                             is DashboardNavigation.LowStockProduct -> {
-
+                                val filter = destination.stockFilter
+                                navController.navigate(Screen.ProductList.createRoute(stockFilter = filter)) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     }
                 )
             }
 
-            composable(Screen.ProductList.route) {
+            composable(
+                route = Screen.ProductList.ROUTE_WITH_ARGS,
+                arguments = listOf(
+                    navArgument(
+                        "stockFilter"
+                    ) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
                 ProductListScreen(
                     onNavigate = { destination ->
                         when(destination) {
@@ -135,7 +155,7 @@ fun BottomBar(
                 icon = R.drawable.dashboard_24
             ),
             BottomTabItem(
-                route = Screen.ProductList.route,
+                route = Screen.ProductList.createRoute(stockFilter = null),
                 title = stringResource(R.string.bottom_tab_product_list),
                 icon = R.drawable.format_list_bulleted_24
             )
@@ -143,7 +163,7 @@ fun BottomBar(
 
         navigationItems.forEach { item ->
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = currentRoute?.contains(item.route) == true,
                 icon = {
                     Icon(
                         painter = painterResource(item.icon),
@@ -162,12 +182,9 @@ fun BottomBar(
                         val startRoute = navController.graph.startDestinationRoute
                             ?: Screen.Dashboard.route
 
-                        popUpTo(startRoute){
-                            saveState = true
-                        }
+                        popUpTo(startRoute)
 
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
             )

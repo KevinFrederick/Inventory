@@ -1,7 +1,11 @@
 package com.kevinfreyap.product.presentation.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -35,28 +39,29 @@ fun DateDisplayBox(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         modifier = modifier
-            .heightIn(min = 70.dp)
-            .widthIn(min = 150.dp)
     ) {
         Column(
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(12.dp)
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = Theme.custom.secondaryText,
-            )
+            if (label.isNotBlank()){
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Theme.custom.secondaryText,
+                )
+            }
             Text(
                 text = dateString,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
                 color = if (isPlaceholder) Theme.custom.secondaryText else Theme.custom.primaryText,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 12.dp, horizontal = 8.dp)
+                    .padding(vertical = 12.dp)
             )
         }
     }
@@ -70,10 +75,12 @@ fun DateDisplayBox(
 fun DateDisplayBoxPreview() {
     InventoryTheme {
         DateDisplayBox(
-            label = "Start Date",
+            label = "",
             dateString = "18 September 2020",
             onClick = {},
-            isPlaceholder = true
+            isPlaceholder = true,
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
         )
     }
 }

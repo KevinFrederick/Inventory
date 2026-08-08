@@ -26,6 +26,7 @@ fun ProductQueryFilter.toDbFilter(): ProductDbFilter {
         sortDirection = this.sortConfig.direction.sqlString,
         categoryList = this.categoryList?.map { it.value },
         locationId = this.locationId?.value,
+        stockOption = this.filterStockOption?.name,
         startDate = startDate,
         endDate = endDate
     )

@@ -37,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,20 +51,17 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
 import com.kevinfreyap.product.presentation.components.ProductListItem
 import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
-import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.FilterBottomSheet
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.state.FilterState
-import com.kevinfreyap.ui.components.AppBaseListItem
 import com.kevinfreyap.ui.components.AppBaseListItemPlaceholder
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppSearchBar
 import com.kevinfreyap.ui.components.AppStateBanner
 import com.kevinfreyap.ui.theme.InventoryTheme
-import com.kevinfreyap.ui.theme.Theme
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -78,6 +73,7 @@ fun ProductListScreen(
     val products = viewModel.products.collectAsLazyPagingItems()
     val totalCount by viewModel.totalCount.collectAsStateWithLifecycle()
 
+    val maxAllowedDateMillis = viewModel.maxAllowedDateMillis
     val availableFilterOption by viewModel.availableFilters.collectAsStateWithLifecycle()
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -94,6 +90,7 @@ fun ProductListScreen(
         searchQuery = searchQuery,
         appliedQuery = appliedQuery,
         availableFilterOption = availableFilterOption,
+        maxAllowedDateMillis = maxAllowedDateMillis,
         draftFilter = draftFilter,
         appliedFilter = appliedFilter,
         showFilterSheet = showFilterSheet,
@@ -113,6 +110,7 @@ fun ProductListContent(
     searchQuery: String,
     appliedQuery: String,
     availableFilterOption: FilterOptionList,
+    maxAllowedDateMillis: Long,
     draftFilter: FilterState,
     appliedFilter: FilterState,
     showFilterSheet: Boolean,
@@ -173,6 +171,7 @@ fun ProductListContent(
         FilterBottomSheet(
             filterOptionList = availableFilterOption,
             filterState = draftFilter,
+            maxAllowedDateMillis = maxAllowedDateMillis,
             onAction = { action ->
                 onFilterAction(action)
 
@@ -544,6 +543,7 @@ fun ProductListPreview() {
             searchQuery = "",
             appliedQuery = "",
             availableFilterOption = FilterOptionList(),
+            maxAllowedDateMillis = 0L,
             draftFilter = FilterState(),
             appliedFilter = FilterState(),
             showFilterSheet = false,

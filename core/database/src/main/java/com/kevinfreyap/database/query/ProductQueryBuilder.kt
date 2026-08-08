@@ -10,21 +10,26 @@ class ProductQueryBuilder {
     ): SupportSQLiteQuery {
         val query = StringBuilder()
 
+        val stockBatchColumnName = listOf("price", "quantity")
+        val isSortingByBatch = filter.sortBy in stockBatchColumnName
+        val hasLocationFilter = !filter.locationId.isNullOrBlank()
+        val hasStockFilter = !filter.stockOption.isNullOrBlank()
+
         if (isCountQuery) {
-            query.append("SELECT COUNT (DISTINCT p.productId) FROM product AS p")
+            if (hasStockFilter) {
+                query.append("SELECT COUNT(*) FROM (SELECT p.productId FROM product AS p")
+            } else {
+                query.append("SELECT COUNT (DISTINCT p.productId) FROM product AS p")
+            }
         } else {
             query.append("SELECT p.* FROM product AS p")
         }
 
         val bindArgs = mutableListOf<Any>()
 
-        val stockBatchColumnName = listOf("price", "quantity")
-        val isSortingByBatch = filter.sortBy in stockBatchColumnName
-        val hasLocationFilter = !filter.locationId.isNullOrBlank()
-
-        if ( hasLocationFilter || isSortingByBatch) {
+        if ( hasLocationFilter || isSortingByBatch || hasStockFilter) {
             query.append(
-                " INNER JOIN stock_batch AS b ON p.productId = b.productId"
+                " LEFT JOIN stock_batch AS b ON p.productId = b.productId"
             )
         }
 
@@ -78,18 +83,43 @@ class ProductQueryBuilder {
             bindArgs.add(filter.endDate!!)
         }
 
-        if (!isCountQuery) {
-            if (hasLocationFilter || isSortingByBatch) {
+        val needsGroupBy = hasLocationFilter || isSortingByBatch || hasStockFilter
+
+        if (!isCountQuery || hasStockFilter) {
+            if (needsGroupBy) {
                 query.append(" GROUP BY p.productId")
             }
 
+            if (hasStockFilter) {
+                when(filter.stockOption) {
+                    "OUT_OF_STOCK" -> {
+                        query.append(" HAVING COALESCE(SUM(b.quantity), 0) <= 0")
+                    }
+                    "LOW_STOCK" -> {
+                        query.append(" HAVING COALESCE(SUM(b.quantity), 0) > 0 AND COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity")
+                    }
+                    "STOCK_WARNING" -> {
+                        query.append(" HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity")
+                    }
+                    "IN_STOCK" -> {
+                        query.append(" HAVING COALESCE(SUM(b.quantity), 0) > 0")
+                    }
+                }
+            }
+        }
+
+        if (isCountQuery && hasStockFilter) {
+            query.append(")")
+        }
+
+        if (!isCountQuery) {
             if (isSortingByBatch) {
                 val orderClause = when(filter.sortBy) {
                     "quantity" -> "SUM(b.quantity)"
                     "price" -> if (filter.sortDirection == "ASC") "MIN(b.price)" else "MAX(b.price)"
                     else -> "b.${filter.sortBy}"
                 }
-                query.append(" ORDER BY $orderClause ${filter.sortDirection}")
+                query.append(" ORDER BY $orderClause ${filter.sortDirection}, p.createdAt DESC")
             } else {
                 query.append(" ORDER BY p.${filter.sortBy} ${filter.sortDirection}")
             }

@@ -1,7 +1,10 @@
 package com.kevinfreyap.product.presentation.components
 
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,14 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.product.R
-import com.kevinfreyap.product.presentation.state.DateFieldUiState
+import com.kevinfreyap.product.presentation.model.DateUi
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun DateDisplayBoxRow(
-    startDateState: DateFieldUiState,
-    endDateState: DateFieldUiState,
+    startDate: DateUi?,
+    endDate: DateUi?,
     onStartDateClicked: () -> Unit,
     onEndDateClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -29,14 +32,16 @@ fun DateDisplayBoxRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
         DateDisplayBox(
-            label = stringResource(R.string.label_start_date),
-            dateString = startDateState.displayText,
+            label = if (startDate != null) stringResource(R.string.label_start_date) else "",
+            dateString = startDate?.displayText ?: stringResource(R.string.label_start_date),
             onClick = onStartDateClicked,
-            isPlaceholder = startDateState.isPlaceholder,
+            isPlaceholder = startDate == null,
             modifier = Modifier
                 .weight(1f)
+                .fillMaxHeight()
         )
 
         Text(
@@ -45,16 +50,17 @@ fun DateDisplayBoxRow(
             fontWeight = FontWeight.Medium,
             color = Theme.custom.primaryText,
             modifier = Modifier
-                .padding(horizontal = 4.dp)
+                .padding(horizontal = 8.dp)
         )
 
         DateDisplayBox(
-            label = stringResource(R.string.label_end_date),
-            dateString = endDateState.displayText,
+            label = if (endDate != null) stringResource(R.string.label_end_date) else "",
+            dateString = endDate?.displayText ?: stringResource(R.string.label_end_date),
             onClick = onEndDateClicked,
-            isPlaceholder = endDateState.isPlaceholder,
+            isPlaceholder = endDate == null,
             modifier = Modifier
                 .weight(1f)
+                .fillMaxHeight()
         )
     }
 }
@@ -67,14 +73,11 @@ fun DateDisplayBoxRow(
 fun DateDisplayBoxRowPreview() {
     InventoryTheme {
         DateDisplayBoxRow(
-            startDateState = DateFieldUiState(
-                displayText = "20 July 2020",
-                isPlaceholder = true
+            startDate = DateUi(
+                rawMillis = 1000L,
+                displayText = "20 August 2020"
             ),
-            endDateState = DateFieldUiState(
-                displayText = "20 September 2025",
-                isPlaceholder = false
-            ),
+            endDate = null,
             onStartDateClicked = {},
             onEndDateClicked = {}
         )

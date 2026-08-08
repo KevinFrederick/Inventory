@@ -22,9 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.product.R
+import com.kevinfreyap.product.domain.model.query.FilterDateOption
 import com.kevinfreyap.product.domain.model.query.sort.SortConfig
 import com.kevinfreyap.product.domain.model.query.sort.SortDirection
 import com.kevinfreyap.product.domain.model.query.sort.SortOption
+import com.kevinfreyap.product.domain.util.toUtcForDatePicker
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
 import com.kevinfreyap.ui.components.AppDatePickerDialog
 import com.kevinfreyap.product.presentation.components.DateDisplayBoxRow
@@ -38,6 +40,7 @@ import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.S
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionFilterButtons
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionLocation
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionSort
+import com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section.SectionStock
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -48,6 +51,7 @@ import com.kevinfreyap.ui.theme.Theme
 fun FilterBottomSheet(
     filterOptionList: FilterOptionList,
     filterState: FilterState,
+    maxAllowedDateMillis: Long,
     onAction: (FilterQueryAction) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -64,6 +68,7 @@ fun FilterBottomSheet(
         FilterBottomSheetContent(
             filterOptionListList = filterOptionList,
             filterState = filterState,
+            maxAllowedDateMillis = maxAllowedDateMillis,
             onAction = onAction,
             modifier = modifier,
         )
@@ -74,6 +79,7 @@ fun FilterBottomSheet(
 fun FilterBottomSheetContent(
     filterOptionListList: FilterOptionList,
     filterState: FilterState,
+    maxAllowedDateMillis: Long,
     onAction: (FilterQueryAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -144,6 +150,13 @@ fun FilterBottomSheetContent(
                 },
             )
 
+            SectionStock(
+                selectedOption = filterState.filterStockOption,
+                onSelectOption = { stockOption ->
+                    onAction(FilterQueryAction.UpdateStockOption(stockOption))
+                },
+            )
+
             SectionDateAdded(
                 selectedDateOption = filterState.filterDateOption,
                 onSelectDateOption = { dateOption ->
@@ -151,8 +164,8 @@ fun FilterBottomSheetContent(
                 },
                 customDateRow = {
                     DateDisplayBoxRow(
-                        startDateState = filterState.startDateBoxState,
-                        endDateState = filterState.endDateBoxState,
+                        startDate = filterState.startDate,
+                        endDate = filterState.endDate,
                         onStartDateClicked = {
                             onAction(
                                 FilterQueryAction.OpenDatePicker(
@@ -195,8 +208,16 @@ fun FilterBottomSheetContent(
             ActiveDatePicker.END -> filterState.endDate?.rawMillis
         }
 
+        val minBoundary = if (activeDatePicker == ActiveDatePicker.END) {
+            filterState.startDate?.rawMillis?.toUtcForDatePicker()
+        } else {
+            null
+        }
+
         AppDatePickerDialog(
             initialDateMillis = initialDateSelected,
+            maxAllowedDateMillis = maxAllowedDateMillis,
+            minAllowedDateMillis = minBoundary,
             onDateSelected = { selectedMillis ->
                 if (activeDatePicker == ActiveDatePicker.START) {
                     onAction(FilterQueryAction.UpdateStartDate(selectedMillis))
@@ -252,9 +273,11 @@ fun FilterBottomSheetPreview() {
                         id = "Cat_02",
                         name = "Food"
                     )
-                )
+                ),
+                filterDateOption = FilterDateOption.PICK_DATE
             ),
-            onAction = {}
+            onAction = {},
+            maxAllowedDateMillis = 0L
         )
     }
 }
