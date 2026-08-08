@@ -15,4 +15,18 @@ data class ProductFormError(
     val priceError: BatchPriceError? = null,
     val expirationError: BatchExpirationError? = null,
     val supplierError: BatchSupplierError? = null
-): RootError
+): RootError {
+    val hasAnyError: Boolean
+        get() = nameError != null ||
+                categoryError != null ||
+                descriptionError != null ||
+                barcodeError != null ||
+                skuError != null ||
+                imageError != null ||
+                minQuantityError != null ||
+                quantityError != null ||
+                locationError != null ||
+                priceError != null ||
+                expirationError != null ||
+                supplierError != null
+}

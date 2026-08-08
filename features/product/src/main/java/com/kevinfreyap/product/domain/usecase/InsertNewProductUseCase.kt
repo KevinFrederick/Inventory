@@ -8,19 +8,23 @@ import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.error.ProductFormError
+import com.kevinfreyap.product.domain.repository.IImageManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import java.util.UUID
 import javax.inject.Inject
 
 class InsertNewProductUseCase @Inject constructor(
     private val repository: IProductRepository,
+    private val imageManager: IImageManager,
     private val validateProductName: ValidateProductNameUseCase,
+    private val validateProductCategory: ValidateProductCategoryUseCase,
     private val validateProductDescription: ValidateProductDescriptionUseCase,
     private val validateProductBarcode: ValidateProductBarcodeUseCase,
     private val validateProductSku: ValidateProductSkuUseCase,
     private val validateProductImage: ValidateProductImageUseCase,
     private val validateProductMinimumQuantity: ValidateProductMinimumQuantityUseCase,
     private val validateBatchQuantity: ValidateBatchQuantityUseCase,
+    private val validateBatchLocation: ValidateBatchLocationUseCase,
     private val validateBatchPrice: ValidateBatchPriceUseCase,
     private val validateBatchExpiration: ValidateBatchExpirationUseCase,
     private val validateBatchSupplier: ValidateBatchSupplierUseCase,
@@ -47,7 +51,7 @@ class InsertNewProductUseCase @Inject constructor(
 
     ): Result<Unit, ProductFormError> {
         val nameResult = validateProductName(productName)
-        val categoryResult = createOrGetCategory(productCategoryName)
+        val categoryResult = validateProductCategory(productCategoryName)
         val descriptionResult = validateProductDescription(productDescription)
         val barcodeResult = validateProductBarcode(productBarcode)
         val skuResult = validateProductSku(productSku)
@@ -62,7 +66,7 @@ class InsertNewProductUseCase @Inject constructor(
         }
 
         val locationResult = if (addInitialStock) {
-            createOrGetLocation(batchLocation)
+            validateBatchLocation(batchLocation)
         } else {
             null
         }
@@ -117,6 +121,9 @@ class InsertNewProductUseCase @Inject constructor(
             )
         }
 
+        val validCategoryName = categoryResult.getOrNull()!!
+        val categoryDomain = createOrGetCategory(validCategoryName)
+
         val newProductId = ProductId("product-${UUID.randomUUID()}")
 
         // use `?:` to satisfy the Kotlin compiler's null-safety.
@@ -128,12 +135,13 @@ class InsertNewProductUseCase @Inject constructor(
             // 1st `!!` : locationResult exists because addInitialStock is true (bypass didn't happen).
             // 2nd `!!` : The Location data exists because the error-check above guaranteed it's a Success.
             val validLocation = locationResult!!.getOrNull()!!
+            val locationDomain = createOrGetLocation(validLocation)
 
             listOf(
                 StockBatch(
                     batchId = BatchId("batch-${UUID.randomUUID()}"),
                     productId = newProductId,
-                    location = validLocation,
+                    location = locationDomain,
                     quantity = validBatchQuantity,
                     price = validPrice,
                     expirationDate = expirationResult.getOrNull(),
@@ -145,15 +153,23 @@ class InsertNewProductUseCase @Inject constructor(
             emptyList()
         }
 
+        val currentUri = imageResult.getOrNull()
+
+        val permanentPath = if (currentUri != null && currentUri.startsWith("content://")) {
+            imageManager.saveImageToInternalStorage(currentUri)
+        } else {
+            currentUri
+        }
+
         repository.insertProduct(
             Product(
                 productId = newProductId,
-                category = categoryResult.getOrNull()!!,
+                category = categoryDomain,
                 name = nameResult.getOrNull()!!,
                 description = descriptionResult.getOrNull(),
                 barcode = barcodeResult.getOrNull(),
                 sku = skuResult.getOrNull(),
-                imageUri = imageResult.getOrNull(),
+                imageUri = permanentPath,
                 minimumQuantity = minQuantityResult.getOrNull() ?: 0,
                 batches = initialBatch,
                 createdAt = System.currentTimeMillis(),
