@@ -14,6 +14,8 @@ interface IProductRepository {
 
     fun getProductStream(filterProvider: () -> ProductQueryFilter): FilteredPagingStream<Product>
 
+    fun getDynamicProductCount(filter: ProductQueryFilter): Flow<Int>
+
     fun getProductCount(): Flow<Int>
 
     fun getRecentProduct(limit: Int = 3): Flow<List<Product>>

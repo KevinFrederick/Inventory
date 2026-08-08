@@ -4,10 +4,18 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 
 class ProductQueryBuilder {
-    fun build(filter: ProductDbFilter): SupportSQLiteQuery {
-        val query = StringBuilder(
-            "SELECT p.* FROM product AS p"
-        )
+    fun build(
+        filter: ProductDbFilter,
+        isCountQuery: Boolean = false
+    ): SupportSQLiteQuery {
+        val query = StringBuilder()
+
+        if (isCountQuery) {
+            query.append("SELECT COUNT (DISTINCT p.productId) FROM product AS p")
+        } else {
+            query.append("SELECT p.* FROM product AS p")
+        }
+
         val bindArgs = mutableListOf<Any>()
 
         val stockBatchColumnName = listOf("price", "quantity")
@@ -70,19 +78,21 @@ class ProductQueryBuilder {
             bindArgs.add(filter.endDate!!)
         }
 
-        if (hasLocationFilter || isSortingByBatch) {
-            query.append(" GROUP BY p.productId")
-        }
-
-        if (isSortingByBatch) {
-            val orderClause = when(filter.sortBy) {
-                "quantity" -> "SUM(b.quantity)"
-                "price" -> if (filter.sortDirection == "ASC") "MIN(b.price)" else "MAX(b.price)"
-                else -> "b.${filter.sortBy}"
+        if (!isCountQuery) {
+            if (hasLocationFilter || isSortingByBatch) {
+                query.append(" GROUP BY p.productId")
             }
-            query.append(" ORDER BY $orderClause ${filter.sortDirection}")
-        } else {
-            query.append(" ORDER BY p.${filter.sortBy} ${filter.sortDirection}")
+
+            if (isSortingByBatch) {
+                val orderClause = when(filter.sortBy) {
+                    "quantity" -> "SUM(b.quantity)"
+                    "price" -> if (filter.sortDirection == "ASC") "MIN(b.price)" else "MAX(b.price)"
+                    else -> "b.${filter.sortBy}"
+                }
+                query.append(" ORDER BY $orderClause ${filter.sortDirection}")
+            } else {
+                query.append(" ORDER BY p.${filter.sortBy} ${filter.sortDirection}")
+            }
         }
 
         return SimpleSQLiteQuery(query.toString(), bindArgs.toTypedArray())

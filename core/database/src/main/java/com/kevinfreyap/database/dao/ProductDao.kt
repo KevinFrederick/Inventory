@@ -34,6 +34,15 @@ interface ProductDao {
     fun getAllProduct(query: SupportSQLiteQuery): PagingSource<Int, ProductWithDetails>
 
     @Transaction
+    @RawQuery(observedEntities = [
+        ProductEntity::class,
+        CategoryEntity::class,
+        LocationEntity::class,
+        StockBatchEntity::class
+    ])
+    fun getDynamicProductCount(query: SupportSQLiteQuery): Flow<Int>
+
+    @Transaction
     @Query("SELECT * FROM product ORDER BY lastUpdated DESC LIMIT :limit")
     fun getRecentProduct(limit: Int): Flow<List<ProductWithDetails>>
 

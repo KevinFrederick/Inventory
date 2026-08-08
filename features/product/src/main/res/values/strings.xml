@@ -45,6 +45,9 @@
     
     <string name="label_image_picker_camera">Take a photo</string>
     <string name="label_image_picker_gallery">Choose from gallery</string>
+    
+    <string name="label_showing_search_filter_result">Showing %1$d results</string>
+    <string name="label_total_search_filter">Total: %1$d products</string>
 
     <!--  BUTTON LABEL  -->
     <string name="btn_label_confirm">Confirm</string>

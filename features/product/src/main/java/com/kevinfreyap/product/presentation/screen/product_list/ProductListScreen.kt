@@ -74,6 +74,7 @@ fun ProductListScreen(
     viewModel: ProductListViewModel = hiltViewModel()
 ) {
     val products = viewModel.products.collectAsLazyPagingItems()
+    val totalCount by viewModel.totalCount.collectAsStateWithLifecycle()
 
     val availableFilterOption by viewModel.availableFilters.collectAsStateWithLifecycle()
 
@@ -87,6 +88,7 @@ fun ProductListScreen(
 
     ProductListContent(
         products = products,
+        totalCount = totalCount,
         searchQuery = searchQuery,
         appliedQuery = appliedQuery,
         availableFilterOption = availableFilterOption,
@@ -105,6 +107,7 @@ fun ProductListScreen(
 @Composable
 fun ProductListContent(
     products: LazyPagingItems<ProductListItemUi>,
+    totalCount: Int,
     searchQuery: String,
     appliedQuery: String,
     availableFilterOption: FilterOptionList,
@@ -155,6 +158,7 @@ fun ProductListContent(
 
             ProductContentList(
                 products = products,
+                totalCount = totalCount,
                 searchQuery = appliedQuery,
                 appliedFilter = appliedFilter,
                 onNavigate = onNavigate,
@@ -229,6 +233,7 @@ private fun ProductSearchAndFilterBar(
 @Composable
 private fun ProductContentList(
     products: LazyPagingItems<ProductListItemUi>,
+    totalCount: Int,
     searchQuery: String,
     appliedFilter: FilterState,
     onNavigate: (ProductListNavigation) -> Unit,
@@ -293,6 +298,8 @@ private fun ProductContentList(
             else -> {
                 ProductSuccessState(
                     products = products,
+                    totalCount = totalCount,
+                    isSearchFilterActive = isSearchOrFilterActive,
                     onNavigate = onNavigate
                 )
             }
@@ -366,6 +373,8 @@ private fun ProductEmptyOrNoResultState(
 @Composable
 private fun ProductSuccessState(
     products: LazyPagingItems<ProductListItemUi>,
+    totalCount: Int,
+    isSearchFilterActive: Boolean,
     onNavigate: (ProductListNavigation) -> Unit
 ) {
     LazyColumn(
@@ -373,6 +382,21 @@ private fun ProductSuccessState(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        item{
+            Text(
+                text = if (isSearchFilterActive) {
+                    stringResource(R.string.label_showing_search_filter_result, totalCount)
+                } else {
+                    stringResource(R.string.label_total_search_filter, totalCount)
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            )
+        }
+
         items(
             count = products.itemCount,
             key = products.itemKey { item -> item.id }
@@ -422,7 +446,9 @@ private fun ProductSuccessState(
             LoadState.Loading -> {
                 item {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
@@ -541,6 +567,7 @@ fun ProductListPreview() {
     InventoryTheme {
         ProductListContent(
             products = lazyPagingItems,
+            totalCount = 3,
             searchQuery = "",
             appliedQuery = "",
             availableFilterOption = FilterOptionList(),
