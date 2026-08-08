@@ -2,10 +2,11 @@ package com.kevinfreyap.product.presentation.screen.bottom_sheet.filter.section
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.query.FilterDateOption
 import com.kevinfreyap.product.presentation.components.DateDisplayBoxRow
-import com.kevinfreyap.product.presentation.components.DateOptionChip
-import com.kevinfreyap.product.presentation.state.DateFieldUiState
+import com.kevinfreyap.product.presentation.components.OptionChip
+import com.kevinfreyap.product.presentation.mapper.toLabel
+import com.kevinfreyap.product.presentation.model.DateUi
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
@@ -45,13 +47,13 @@ fun SectionDateAdded(
             color = Theme.custom.primaryText,
         )
 
-        Row(
+        LazyRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterDateOption.entries.forEach { filterDateOption ->
-                DateOptionChip(
-                    label = stringResource(filterDateOption.stringRes),
+            items(FilterDateOption.entries) { filterDateOption ->
+                OptionChip(
+                    label = stringResource(filterDateOption.toLabel()),
                     onClick = { onSelectDateOption(filterDateOption) },
                     isSelected = (filterDateOption == selectedDateOption)
                 )
@@ -78,14 +80,11 @@ fun SectionDateAddedPreview() {
             onSelectDateOption = { option -> selectedDateOption = option },
             customDateRow = {
                 DateDisplayBoxRow(
-                    startDateState = DateFieldUiState(
-                        displayText = "20 July 2020",
-                        isPlaceholder = true
+                    startDate = DateUi(
+                        rawMillis = 1000L,
+                        displayText = "20 September 2020"
                     ),
-                    endDateState = DateFieldUiState(
-                        displayText = "20 September 2025",
-                        isPlaceholder = false
-                    ),
+                    endDate = null,
                     onStartDateClicked = {},
                     onEndDateClicked = {}
                 )

@@ -9,18 +9,7 @@ import java.util.TimeZone
 
 object DateFormatter {
 
-    // for DatePicker Input
     fun formatDatePickerDate(dateMillis: Long): String {
-        val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
-            .withZone(ZoneId.of("UTC"))
-
-        val dateInstant = Instant.ofEpochMilli(dateMillis)
-
-        return dateFormatter.format(dateInstant)
-    }
-
-    // for SystemDate
-    fun formatSystemDate(dateMillis: Long): String {
         val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
             .withZone(ZoneId.systemDefault())
 

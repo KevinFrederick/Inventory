@@ -53,6 +53,9 @@ interface ProductDao {
         LEFT JOIN stock_batch as b ON p.productId = b.productId
         GROUP BY p.productId
         HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity
+        ORDER BY 
+            COALESCE(SUM(b.quantity), 0) ASC,
+            p.createdAt DESC
     """)
     fun getLowStockProducts(): Flow<List<ProductWithDetails>>
 

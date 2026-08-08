@@ -18,22 +18,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
+import com.kevinfreyap.product.domain.model.query.FilterStockOption
 import com.kevinfreyap.product.presentation.components.ProductListItem
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
-import com.kevinfreyap.product.presentation.mapper.color
 import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
@@ -42,7 +40,7 @@ import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionCoun
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetings
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeader
 import com.kevinfreyap.product.presentation.state.DashboardState
-import com.kevinfreyap.ui.components.AppBaseListItem
+import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppIconName
 import com.kevinfreyap.ui.components.AppPrimaryButton
@@ -197,30 +195,37 @@ fun DashboardContent(
                         title = stringResource(listData.title),
                         list = listData.products,
                         textButton = {
-                            Text(
-                                text = listData.textButtonArg?.let { arg ->
-                                    stringResource(listData.textButton, arg)
-                                } ?: stringResource(listData.textButton),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(50))
-                                    .clickable  {
-                                        when(listData.activeList) {
-                                            ActiveAlertList.LOW_STOCK -> {
-                                                onNavigate(DashboardNavigation.LowStockProduct)
-                                            }
-                                            ActiveAlertList.RECENTLY_UPDATED -> {
-                                                onNavigate(DashboardNavigation.AllProduct)
+                            val totalCount = listData.textButtonArg ?: listData.products.size
+
+                            if (totalCount > 3) {
+                                Text(
+                                    text = listData.textButtonArg?.let { arg ->
+                                        stringResource(listData.textButton, arg)
+                                    } ?: stringResource(listData.textButton),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(50))
+                                        .clickable  {
+                                            when(listData.activeList) {
+                                                ActiveAlertList.LOW_STOCK -> {
+                                                    onNavigate(
+                                                        DashboardNavigation.LowStockProduct(FilterStockOption.STOCK_WARNING.name)
+                                                    )
+                                                }
+
+                                                ActiveAlertList.RECENTLY_UPDATED -> {
+                                                    onNavigate(DashboardNavigation.AllProduct)
+                                                }
                                             }
                                         }
-                                    }
-                                    .padding(
-                                        vertical = 8.dp,
-                                    )
-                            )
+                                        .padding(
+                                            vertical = 8.dp,
+                                        )
+                                )
+                            }
                         }
                     ) { product ->
                         ProductListItem(
@@ -250,7 +255,7 @@ fun DashboardScreenPreview() {
                     totalProductCount = 1700,
                     lowStockProductCount = 7,
                     alertList = AlertListUi(
-                        title = R.string.label_low_stock_product,
+                        title = R.string.label_stock_warning,
                         textButton = R.string.btn_label_view_all_low_stock_product,
                         products = listOf(
                             ProductListItemUi(

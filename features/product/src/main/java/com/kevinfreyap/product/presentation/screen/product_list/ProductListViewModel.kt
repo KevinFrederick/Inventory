@@ -1,15 +1,19 @@
 package com.kevinfreyap.product.presentation.screen.product_list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.kevinfreyap.product.domain.model.query.FilterStockOption
 import com.kevinfreyap.product.domain.model.query.sort.SortDirection
 import com.kevinfreyap.product.domain.usecase.GetAllCategoryUseCase
 import com.kevinfreyap.product.domain.usecase.GetAllLocationUseCase
 import com.kevinfreyap.product.domain.usecase.GetFilteredProductCountUseCase
 import com.kevinfreyap.product.domain.usecase.GetFilteredProductUseCase
+import com.kevinfreyap.product.domain.util.toEndOfDayMillis
+import com.kevinfreyap.product.domain.util.toStartOfDayMillis
 import com.kevinfreyap.product.presentation.action.FilterQueryAction
 import com.kevinfreyap.product.presentation.mapper.toDomain
 import com.kevinfreyap.product.presentation.mapper.toUi
@@ -34,6 +38,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -42,7 +49,8 @@ class ProductListViewModel @Inject constructor(
     getFilteredProduct: GetFilteredProductUseCase,
     private val getFilteredProductCount: GetFilteredProductCountUseCase,
     private val getAllCategory: GetAllCategoryUseCase,
-    private val getAllLocation: GetAllLocationUseCase
+    private val getAllLocation: GetAllLocationUseCase,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _filtersOptionList = MutableStateFlow(FilterOptionList())
     val availableFilters = _filtersOptionList.asStateFlow()
@@ -58,6 +66,11 @@ class ProductListViewModel @Inject constructor(
 
     private val _appliedQuery = MutableStateFlow("")
     val appliedQuery = _appliedQuery.asStateFlow()
+
+    val maxAllowedDateMillis: Long = LocalDate.now(ZoneId.systemDefault())
+        .atStartOfDay(ZoneOffset.UTC)
+        .toInstant()
+        .toEpochMilli()
 
     private var searchJob: Job? = null
 
@@ -88,7 +101,22 @@ class ProductListViewModel @Inject constructor(
         )
 
     init {
+        observeFilter()
         loadFilterOptions()
+    }
+
+    private fun observeFilter() {
+        viewModelScope.launch {
+            savedStateHandle.getStateFlow<String?>("stockFilter", null).collect { routeArgument ->
+                val option = if (routeArgument != null) {
+                    FilterStockOption.entries.find { it.name == routeArgument }
+                        ?: FilterStockOption.IN_STOCK
+                } else {
+                    null
+                }
+                _filterState.update { it.copy(filterStockOption = option) }
+            }
+        }
     }
 
     private fun loadFilterOptions() {
@@ -155,6 +183,17 @@ class ProductListViewModel @Inject constructor(
             is FilterQueryAction.UpdateLocation -> {
                 _draftFilter.update { it.copy(location = action.location) }
             }
+            is FilterQueryAction.UpdateStockOption -> {
+                _draftFilter.update { currentState ->
+                    val newStockOption = if (currentState.filterStockOption == action.stockOption) {
+                        null
+                    } else {
+                        action.stockOption
+                    }
+
+                    currentState.copy(filterStockOption = newStockOption)
+                }
+            }
             is FilterQueryAction.UpdateDateOption -> {
                 _draftFilter.update { currentState ->
                     val newDateOption = if (currentState.filterDateOption == action.dateOption) {
@@ -172,9 +211,11 @@ class ProductListViewModel @Inject constructor(
                 }
             }
             is FilterQueryAction.UpdateStartDate -> {
+                val startDateMillis = action.startDateMillis.toStartOfDayMillis()
+
                 val startModel = DateUi(
-                    displayText = formatDatePickerDate(action.startDateMillis),
-                    rawMillis = action.startDateMillis
+                    displayText = formatDatePickerDate(startDateMillis),
+                    rawMillis = startDateMillis
                 )
 
                 _draftFilter.update { currentDraft ->
@@ -185,9 +226,11 @@ class ProductListViewModel @Inject constructor(
                 }
             }
             is FilterQueryAction.UpdateEndDate -> {
+                val endDateMillis = action.endDateMillis.toEndOfDayMillis()
+
                 val endModel = DateUi(
-                    displayText = formatDatePickerDate(action.endDateMillis),
-                    rawMillis = action.endDateMillis
+                    displayText = formatDatePickerDate(endDateMillis),
+                    rawMillis = endDateMillis
                 )
 
                 _draftFilter.update { currentDraft ->

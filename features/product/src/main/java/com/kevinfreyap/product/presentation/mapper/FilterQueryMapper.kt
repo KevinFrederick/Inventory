@@ -15,6 +15,7 @@ fun FilterState.toDomain(searchQuery: String): ProductQueryFilter {
         sortConfig = this.sortConfig,
         categoryList = domainCategories.ifEmpty { null },
         locationId = domainLocationId,
+        filterStockOption = this.filterStockOption,
         filterDateOption = this.filterDateOption,
         startDate = this.startDate?.rawMillis,
         endDate = this.endDate?.rawMillis

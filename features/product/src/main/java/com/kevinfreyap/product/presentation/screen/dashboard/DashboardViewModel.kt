@@ -39,7 +39,7 @@ class DashboardViewModel @Inject constructor(
                 val uiProducts = lowStock.take(3).toUiModel()
 
                 val alertListUi = AlertListUi(
-                    title = R.string.label_low_stock_product,
+                    title = R.string.label_stock_warning,
                     textButton = R.string.btn_label_view_all_low_stock_product,
                     products = uiProducts,
                     textButtonArg = lowStock.size,

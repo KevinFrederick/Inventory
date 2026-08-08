@@ -14,6 +14,7 @@
     <string name="label_sort_by">Sort By</string>
     <string name="label_category">Category</string>
     <string name="label_location">Location</string>
+    <string name="label_stock_status">Stock Status</string>
     <string name="label_date_added">Date Added</string>
     <string name="label_start_date">Start Date</string>
     <string name="label_end_date">End Date</string>
@@ -22,6 +23,7 @@
     <string name="label_quantity">Quantity</string>
     <string name="label_total_product">Total Products</string>
     <string name="label_low_stock_product">Low Stock Products</string>
+    <string name="label_stock_warning">Stock Warnings</string>
     <string name="label_recently_updated">Recently Updated</string>
     <string name="label_add_initial_stock">Add initial stock</string>
     <string name="label_initial_stock_subtitle">You can always add or adjust stock later.</string>
@@ -78,6 +80,11 @@
     <string name="sort_option_date_last_7_days">Last 7 Days</string>
     <string name="sort_option_date_this_month">This Month</string>
     <string name="sort_option_date_pick_date">Pick Date</string>
+
+    <string name="sort_stock_in_stock">In Stock</string>
+    <string name="sort_stock_low_stock">Low Stock</string>
+    <string name="sort_stock_out_of_stock">Out of Stock</string>
+    <string name="sort_stock_warning">Stock Warning</string>
 
     <string name="sort_direction_asc_date">Oldest to Newest</string>
     <string name="sort_direction_asc_product_name">A to Z</string>

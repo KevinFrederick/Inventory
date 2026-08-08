@@ -6,6 +6,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -20,14 +21,28 @@ import com.kevinfreyap.ui.theme.Theme
 fun AppDatePickerDialog(
     initialDateMillis: Long?,
     onDateSelected: (Long) -> Unit,
+    maxAllowedDateMillis: Long,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    minAllowedDateMillis: Long? = null,
     showModeToggle: Boolean = false
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDateMillis,
-        initialDisplayMode = initialDisplayMode
+        initialDisplayMode = initialDisplayMode,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+
+                val isBeforeMax = utcTimeMillis <= maxAllowedDateMillis
+
+                val isAfterMin = minAllowedDateMillis?.let { min ->
+                    utcTimeMillis >= min
+                } ?: true
+
+                return isBeforeMax && isAfterMin
+            }
+        }
     )
 
     val colors = DatePickerDefaults.colors(
