@@ -18,4 +18,20 @@ data class Product(
 ) {
     val totalQuantity: Int
         get() = batches.sumOf { it.quantity }
+
+    val minBatchCost: Double?
+        get() = batches.minOfOrNull { it.price }
+
+    val maxBatchCost: Double?
+        get() {
+            val min = batches.minOfOrNull { it.price }
+            val max = batches.maxOfOrNull { it.price }
+
+            return if (min == max) null else max
+        }
+
+    val nearestExpiringBatch: Long?
+        get() = batches
+            .filter { it.expirationDate != null }
+            .minOfOrNull { it.expirationDate!! }
 }

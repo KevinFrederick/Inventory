@@ -25,7 +25,7 @@ import com.kevinfreyap.product.presentation.action.AddProductAction
 import com.kevinfreyap.product.presentation.components.CurrencyTextField
 import com.kevinfreyap.product.presentation.components.FieldListHeader
 import com.kevinfreyap.product.presentation.components.QuantitySelector
-import com.kevinfreyap.product.presentation.state.BatchDetailState
+import com.kevinfreyap.product.presentation.state.AddBatchDetailState
 import com.kevinfreyap.product.presentation.util.ThousandSeparatorVisualTransformation
 import com.kevinfreyap.ui.components.AppDropdownField
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -33,7 +33,7 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionBatchDetail(
-    batchDetailState: BatchDetailState,
+    addBatchDetailState: AddBatchDetailState,
     formErrors: ProductFormError?,
     onAction: (AddProductAction.BatchDetailAction) -> Unit,
     modifier: Modifier = Modifier
@@ -66,13 +66,13 @@ fun SectionBatchDetail(
                     Spacer(Modifier.width(16.dp))
 
                     QuantitySelector(
-                        quantity = batchDetailState.batchQuantity,
+                        quantity = addBatchDetailState.batchQuantity,
                         onQuantityTextChange = { typedText ->
                             val onlyDigit = typedText.filter { it.isDigit() }
 
                             val cleanNumber = when {
                                 onlyDigit.isEmpty() -> "0"
-                                batchDetailState.batchQuantity == "0" && onlyDigit.length == 2 -> {
+                                addBatchDetailState.batchQuantity == "0" && onlyDigit.length == 2 -> {
                                     onlyDigit.replaceFirst("0", "")
                                 }
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
@@ -102,9 +102,9 @@ fun SectionBatchDetail(
                 }
 
                 AppDropdownField(
-                    value = batchDetailState.batchLocation,
+                    value = addBatchDetailState.batchLocation,
                     label = stringResource(R.string.label_field_batch_location),
-                    options = batchDetailState.filteredLocations,
+                    options = addBatchDetailState.filteredLocations,
                     optionText = { it },
                     onSearchQueryChange = { typedString ->
                         onAction(AddProductAction.BatchDetailAction.OnBatchLocationChanged(typedString))
@@ -115,9 +115,9 @@ fun SectionBatchDetail(
                     unfocusedColor = Theme.custom.hint,
                     enableAddNew = true,
                     onAddNewOption = {
-                        onAction(AddProductAction.BatchDetailAction.OnCreateNewLocation(batchDetailState.batchLocation))
+                        onAction(AddProductAction.BatchDetailAction.OnCreateNewLocation(addBatchDetailState.batchLocation))
                     },
-                    addNewText = stringResource(R.string.dropdown_new_location, batchDetailState.batchLocation),
+                    addNewText = stringResource(R.string.dropdown_new_location, addBatchDetailState.batchLocation),
                     isError = formErrors?.locationError != null,
                     errorMessage = if (formErrors?.locationError != null) {
                         when(formErrors.locationError) {
@@ -129,7 +129,7 @@ fun SectionBatchDetail(
                 )
 
                 CurrencyTextField(
-                    price = batchDetailState.batchPrice,
+                    price = addBatchDetailState.batchPrice,
                     placeholder = stringResource(R.string.label_field_batch_price),
                     currencySymbol = stringResource(R.string.currency_idr_rp),
                     onPriceChange = { newPrice ->
@@ -158,7 +158,7 @@ fun SectionBatchDetail(
 fun SectionBatchDetailPreview() {
     InventoryTheme {
         SectionBatchDetail(
-            batchDetailState = BatchDetailState(),
+            addBatchDetailState = AddBatchDetailState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

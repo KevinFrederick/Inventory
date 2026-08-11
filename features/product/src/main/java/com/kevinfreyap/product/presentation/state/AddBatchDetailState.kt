@@ -1,6 +1,6 @@
 package com.kevinfreyap.product.presentation.state
 
-data class BatchDetailState(
+data class AddBatchDetailState(
     val addInitialStock: Boolean = false,
     val batchQuantity: String = "0",
     val isQuantityConfirmed: Boolean = false,

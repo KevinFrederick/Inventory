@@ -25,8 +25,7 @@ import com.kevinfreyap.product.domain.model.error.BatchSupplierError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.presentation.action.AddProductAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.BatchInformationState
-import com.kevinfreyap.ui.util.DateInputFieldValidationHelper.isValidPartialDate
+import com.kevinfreyap.product.presentation.state.AddBatchInformationState
 import com.kevinfreyap.product.presentation.util.DateInputTransformation
 import com.kevinfreyap.ui.components.AppDateInputDialog
 import com.kevinfreyap.ui.components.AppTextField
@@ -35,7 +34,7 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionBatchInformation(
-    batchInformationState: BatchInformationState,
+    addBatchInformationState: AddBatchInformationState,
     formErrors: ProductFormError?,
     onAction: (AddProductAction.BatchInformationAction) -> Unit,
     modifier: Modifier = Modifier
@@ -53,7 +52,7 @@ fun SectionBatchInformation(
             ) {
                 Box {
                     AppTextField(
-                        value = batchInformationState.batchExpirationText,
+                        value = addBatchInformationState.batchExpirationText ?: "",
                         onValueChange = {},
                         label = stringResource(R.string.label_field_batch_expiration),
                         minLines = 1,
@@ -85,7 +84,7 @@ fun SectionBatchInformation(
                 }
 
                 AppTextField(
-                    value = batchInformationState.batchSupplier ?: "",
+                    value = addBatchInformationState.batchSupplier ?: "",
                     onValueChange = { supplier ->
                         onAction(AddProductAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
                     },
@@ -108,7 +107,7 @@ fun SectionBatchInformation(
 
     if (showDatePicker) {
         AppDateInputDialog(
-            dateValue = batchInformationState.batchExpirationFieldText,
+            dateValue = addBatchInformationState.batchExpirationFieldText,
             fieldLabel = stringResource(R.string.label_field_batch_expiration),
             fieldPlaceholder = stringResource(R.string.placeholder_date_input),
             visualTransformation = DateInputTransformation,
@@ -140,7 +139,7 @@ fun SectionBatchInformation(
 fun SectionBatchInformationPreview() {
     InventoryTheme {
         SectionBatchInformation(
-            batchInformationState = BatchInformationState(),
+            addBatchInformationState = AddBatchInformationState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

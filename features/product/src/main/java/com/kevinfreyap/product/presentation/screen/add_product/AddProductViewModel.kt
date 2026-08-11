@@ -318,9 +318,7 @@ class AddProductViewModel @Inject constructor(
                         parseDateStringToLong(rawString)
                     } else null
 
-                    val parsedPrettyString: String = if (parsedMillis != null) {
-                        formatDatePickerDate(parsedMillis)
-                    } else ""
+                    val parsedPrettyString: String? = formatDatePickerDate(parsedMillis)
 
                     currentState.copy(
                         batchInformation = currentState.batchInformation.copy(

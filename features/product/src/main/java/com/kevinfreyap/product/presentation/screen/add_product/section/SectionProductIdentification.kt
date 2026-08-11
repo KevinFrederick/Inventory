@@ -17,14 +17,14 @@ import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductSkuError
 import com.kevinfreyap.product.presentation.action.AddProductAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.ProductIdentificationState
+import com.kevinfreyap.product.presentation.state.AddProductIdentificationState
 import com.kevinfreyap.ui.components.AppTextField
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionProductIdentification(
-    productIdentificationState: ProductIdentificationState,
+    addProductIdentificationState: AddProductIdentificationState,
     formErrors: ProductFormError?,
     onAction: (AddProductAction.ProductIdentificationAction) -> Unit,
     modifier: Modifier = Modifier
@@ -39,7 +39,7 @@ fun SectionProductIdentification(
                     .fillMaxWidth()
             ) {
                 AppTextField(
-                    value = productIdentificationState.productSku ?: "",
+                    value = addProductIdentificationState.productSku ?: "",
                     onValueChange = { sku ->
                         val sanitizedSku = sku.replace(" ", "")
                         onAction(AddProductAction.ProductIdentificationAction.OnSkuChanged(sanitizedSku))
@@ -62,7 +62,7 @@ fun SectionProductIdentification(
                 )
 
                 AppTextField(
-                    value = productIdentificationState.productBarcode ?: "",
+                    value = addProductIdentificationState.productBarcode ?: "",
                     onValueChange = { barcode ->
                         val sanitizedBarcode = barcode.replace(" ", "")
                         onAction(AddProductAction.ProductIdentificationAction.OnBarcodeChanged(sanitizedBarcode))
@@ -94,7 +94,7 @@ fun SectionProductIdentification(
 fun SectionProductIdentificationPreview() {
     InventoryTheme {
         SectionProductIdentification(
-            productIdentificationState = ProductIdentificationState(),
+            addProductIdentificationState = AddProductIdentificationState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

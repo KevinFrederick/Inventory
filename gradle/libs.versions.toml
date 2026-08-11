@@ -37,6 +37,9 @@ navigationCompose = "2.9.8"
 # Coil
 coil = "3.5.0"
 
+# Zxing
+zxing = "3.5.4"
+
 [libraries]
 # Core Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -88,6 +91,9 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref="coil" }
 coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref="coil" }
+
+# Zxing
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
 # Project Plugins

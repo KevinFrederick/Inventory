@@ -553,3 +553,42 @@ fun ProductListPreview() {
         )
     }
 }
+
+@Preview(
+    showBackground = true,
+    device = "spec:width=1080px,height=2340px,dpi=416",
+    showSystemUi = true
+)
+@Composable
+fun ProductListPreview_Loading() {
+    val loadStates = LoadStates(
+        refresh = LoadState.Loading,
+        prepend = LoadState.NotLoading(endOfPaginationReached = true),
+        append = LoadState.NotLoading(endOfPaginationReached = true)
+    )
+
+    val pagingData = PagingData.from(
+        data = emptyList<ProductListItemUi>(),
+        sourceLoadStates = loadStates
+    )
+
+    // Turn into LazyPagingItems for preview
+    val lazyPagingItems = flowOf(pagingData).collectAsLazyPagingItems()
+
+    InventoryTheme {
+        ProductListContent(
+            products = lazyPagingItems,
+            totalCount = 0,
+            searchQuery = "",
+            appliedQuery = "",
+            availableFilterOption = FilterOptionList(),
+            maxAllowedDateMillis = 0L,
+            draftFilter = FilterState(),
+            appliedFilter = FilterState(),
+            showFilterSheet = false,
+            onToggleFilterSheet = { },
+            onFilterAction = {},
+            onNavigate = {}
+        )
+    }
+}

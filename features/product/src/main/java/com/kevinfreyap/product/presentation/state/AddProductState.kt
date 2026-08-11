@@ -5,12 +5,12 @@ import com.kevinfreyap.ui.state.UiState
 
 data class AddProductState(
     // Product Details
-    val productDetail: ProductDetailState = ProductDetailState(),
-    val productIdentification: ProductIdentificationState = ProductIdentificationState(),
+    val productDetail: AddProductDetailState = AddProductDetailState(),
+    val productIdentification: AddProductIdentificationState = AddProductIdentificationState(),
 
     // Stock Batch Details
-    val batchDetail: BatchDetailState = BatchDetailState(),
-    val batchInformation: BatchInformationState = BatchInformationState(),
+    val batchDetail: AddBatchDetailState = AddBatchDetailState(),
+    val batchInformation: AddBatchInformationState = AddBatchInformationState(),
 
     // UI Status
     val formErrors: ProductFormError? = null,
@@ -28,7 +28,7 @@ data class AddProductState(
                 (batchDetail.batchQuantity.isNotBlank() && batchDetail.batchQuantity != "0") ||
                 batchDetail.batchLocation.isNotBlank() ||
                 batchDetail.batchPrice.isNotBlank() ||
-                batchInformation.batchExpirationText.isNotBlank() ||
+                batchInformation.batchExpirationText?.isNotBlank() == true ||
                 batchInformation.batchSupplier?.isNotBlank() == true
 
     val isSavedEnabled: Boolean

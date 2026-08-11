@@ -61,7 +61,7 @@ interface ProductDao {
 
     @Transaction
     @Query("SELECT * FROM product WHERE productId = :id")
-    fun getProduct(id: String): Flow<ProductWithDetails>
+    fun getProduct(id: String): Flow<ProductWithDetails?>
 
     @Query("SELECT COUNT(*) FROM product")
     fun getProductCount(): Flow<Int>

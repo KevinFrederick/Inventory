@@ -56,8 +56,8 @@ import com.kevinfreyap.product.presentation.screen.add_product.section.SectionPr
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
 import com.kevinfreyap.product.presentation.state.AddProductState
-import com.kevinfreyap.product.presentation.state.BatchDetailState
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.AddBatchDetailState
+import com.kevinfreyap.product.presentation.state.AddProductDetailState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageUpload
 import com.kevinfreyap.ui.components.AppOutlinedButton
@@ -264,13 +264,13 @@ fun AddProductContent(
                 )
 
                 SectionProductInformation(
-                    productDetailState = state.productDetail,
+                    addProductDetailState = state.productDetail,
                     formErrors = state.formErrors,
                     onAction = onAction,
                 )
 
                 SectionProductIdentification(
-                    productIdentificationState = state.productIdentification,
+                    addProductIdentificationState = state.productIdentification,
                     formErrors = state.formErrors,
                     onAction = onAction,
                 )
@@ -294,13 +294,13 @@ fun AddProductContent(
                             .fillMaxWidth()
                     ) {
                         SectionBatchDetail(
-                            batchDetailState = state.batchDetail,
+                            addBatchDetailState = state.batchDetail,
                             formErrors = state.formErrors,
                             onAction = onAction,
                         )
 
                         SectionBatchInformation(
-                            batchInformationState = state.batchInformation,
+                            addBatchInformationState = state.batchInformation,
                             formErrors = state.formErrors,
                             onAction = onAction
                         )
@@ -496,12 +496,12 @@ fun AddProductContentPreview_Filled() {
         AddProductContent(
             state = AddProductState(
                 showSummaryConfirmationDialog = false,
-                batchDetail = BatchDetailState(
+                batchDetail = AddBatchDetailState(
                     addInitialStock = isChecked,
                     batchQuantity = "11000",
                     batchPrice = "1000000000"
                 ),
-                productDetail = ProductDetailState(
+                productDetail = AddProductDetailState(
                     productMinQuantity = "10000"
                 ),
                 formErrors = ProductFormError(

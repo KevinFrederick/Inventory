@@ -4,11 +4,13 @@
     <string name="title_filter_sort">Filter &amp; Sort</string>
     <string name="title_add_product">Add Product</string>
     <string name="title_image_picker">Select Image Source</string>
+    <string name="title_product_detail">Product Detail</string>
 
     <!--  PLACEHOLDER  -->
     <string name="placeholder_search_inventory">Search inventory…</string>
     <string name="placeholder_select_location">Select location</string>
     <string name="placeholder_date_input">DD/MM/YYYY</string>
+    <string name="placeholder_batch_name">Batch-%1$s</string>
 
     <!--  LABELS  -->
     <string name="label_sort_by">Sort By</string>
@@ -51,6 +53,19 @@
     <string name="label_showing_search_filter_result">Showing %1$d results</string>
     <string name="label_total_search_filter">Total: %1$d products</string>
 
+    <string name="label_quantity_items">item(s)</string>
+    <string name="label_price_range">Item Cost Range</string>
+    <string name="label_item_price">Item Cost</string>
+    <string name="label_description">Description</string>
+    <string name="label_low_stock_limit">Low Stock Alert</string>
+    <string name="label_nearest_expiration">Nearest Expiration</string>
+    <string name="label_product_batches">Product Batches</string>
+    <string name="label_product_barcode">Product Barcode</string>
+
+    <string name="label_in_stock">In Stock</string>
+    <string name="label_low_stock">Lof of Stock</string>
+    <string name="label_no_stock">Out of Stock</string>
+
     <!--  BUTTON LABEL  -->
     <string name="btn_label_confirm">Confirm</string>
     <string name="btn_label_cancel">Cancel</string>
@@ -68,8 +83,10 @@
     <string name="btn_label_discard">Discard</string>
     <string name="btn_label_keep_edit">Keep Editing</string>
     <string name="btn_label_close">Close</string>
+    <string name="btn_label_go_back">Go Back</string>
 
     <string name="txt_btn_label_tap_to_retry_load_more">Tap to retry loading more</string>
+    <string name="txt_btn_label_see_all_batch">See all %1$d batches</string>
 
     <!--  OPTIONS  -->
     <string name="sort_option_date">Date</string>
@@ -107,6 +124,12 @@
 
     <string name="title_banner_empty_inventory">Your inventory is empty</string>
     <string name="subtitle_banner_empty_inventory">Add your first product to start tracking your inventory</string>
+    
+    <string name="title_banner_not_found">Product Not Found</string>
+    <string name="subtitle_banner_not_found">This item may have been deleted or no longer exists in your inventory</string>
+
+    <string name="title_banner_something_wrong">Something went wrong</string>
+    <string name="subtitle_banner_something_wrong">We couldn\'t load any details for this product</string>
 
     <!--  CURRENCY  -->
     <string name="currency_idr_rp">Rp</string>
@@ -131,6 +154,13 @@
 
     <!--  WARNING  -->
     <string name="warning_no_category_yet">No categories added yet.</string>
+    <string name="warning_no_description">No Description Added</string>
+    <string name="warning_no_active_batch">No active batch</string>
+    <string name="warning_no_price">No Cost Set</string>
+    <string name="warning_no_price_short">Rp ---</string>
+    <string name="warning_no_expiration">No Expiration</string>
+    <string name="warning_no_barcode">No Barcode</string>
+    <string name="warning_invalid_barcode">Invalid Barcode</string>
 
     <!--  ERROR  -->
     <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>

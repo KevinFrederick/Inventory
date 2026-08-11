@@ -28,8 +28,8 @@ import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.product.presentation.state.AddProductState
-import com.kevinfreyap.product.presentation.state.BatchDetailState
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.AddBatchDetailState
+import com.kevinfreyap.product.presentation.state.AddProductDetailState
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -163,10 +163,10 @@ fun DialogSummaryListPreview() {
             title = "Confirm Values",
             subtitle = "Please review these unusual values:",
             addProductState = AddProductState(
-                productDetail = ProductDetailState(
+                productDetail = AddProductDetailState(
                     productMinQuantity = "10000"
                 ),
-                batchDetail = BatchDetailState(
+                batchDetail = AddBatchDetailState(
                     batchQuantity = "11000",
                     batchPrice = "1000000000"
                 ),

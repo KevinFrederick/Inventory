@@ -23,7 +23,7 @@ import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductNameError
 import com.kevinfreyap.product.presentation.action.AddProductAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.AddProductDetailState
 import com.kevinfreyap.product.presentation.util.ThousandSeparatorVisualTransformation
 import com.kevinfreyap.ui.components.AppDropdownField
 import com.kevinfreyap.ui.components.AppTextField
@@ -32,7 +32,7 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionProductInformation(
-    productDetailState: ProductDetailState,
+    addProductDetailState: AddProductDetailState,
     formErrors: ProductFormError?,
     onAction: (AddProductAction.ProductDetailAction) -> Unit,
     modifier: Modifier = Modifier
@@ -47,7 +47,7 @@ fun SectionProductInformation(
                     .fillMaxWidth()
             ) {
                 AppTextField(
-                    value = productDetailState.productName,
+                    value = addProductDetailState.productName,
                     onValueChange = { name ->
                         onAction(AddProductAction.ProductDetailAction.OnNameChanged(name))
                     },
@@ -74,9 +74,9 @@ fun SectionProductInformation(
                         .fillMaxWidth()
                 ) {
                     AppDropdownField(
-                        value = productDetailState.productCategoryName,
+                        value = addProductDetailState.productCategoryName,
                         label = stringResource(R.string.label_field_product_category),
-                        options = productDetailState.filteredCategories,
+                        options = addProductDetailState.filteredCategories,
                         optionText = { it },
                         onSearchQueryChange = { typedString ->
                             onAction(AddProductAction.ProductDetailAction.OnCategoryChanged(typedString))
@@ -87,9 +87,9 @@ fun SectionProductInformation(
                         unfocusedColor = Theme.custom.hint,
                         enableAddNew = true,
                         onAddNewOption = {
-                            onAction(AddProductAction.ProductDetailAction.OnCreateNewCategory(productDetailState.productCategoryName))
+                            onAction(AddProductAction.ProductDetailAction.OnCreateNewCategory(addProductDetailState.productCategoryName))
                         },
-                        addNewText = stringResource(R.string.dropdown_new_category, productDetailState.productCategoryName),
+                        addNewText = stringResource(R.string.dropdown_new_category, addProductDetailState.productCategoryName),
                         isError = formErrors?.categoryError != null,
                         errorMessage = if (formErrors?.categoryError != null) {
                             when(formErrors.categoryError) {
@@ -103,13 +103,13 @@ fun SectionProductInformation(
                     )
 
                     AppTextField(
-                        value = productDetailState.productMinQuantity,
+                        value = addProductDetailState.productMinQuantity,
                         onValueChange = { qty ->
                             val onlyDigit = qty.filter { it.isDigit() }
 
                             val cleanNumber = when {
                                 onlyDigit.isEmpty() -> "0"
-                                productDetailState.productMinQuantity == "0" && onlyDigit.length == 2 -> {
+                                addProductDetailState.productMinQuantity == "0" && onlyDigit.length == 2 -> {
                                     onlyDigit.replaceFirst("0", "")
                                 }
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
@@ -139,7 +139,7 @@ fun SectionProductInformation(
 
 
                 AppTextField(
-                    value = productDetailState.productDescription ?: "",
+                    value = addProductDetailState.productDescription ?: "",
                     onValueChange = { text ->
                         onAction(AddProductAction.ProductDetailAction.OnDescriptionChanged(text))
                     },
@@ -170,7 +170,7 @@ fun SectionProductInformation(
 fun SectionProductInformationPreview() {
     InventoryTheme {
         SectionProductInformation(
-            productDetailState = ProductDetailState(),
+            addProductDetailState = AddProductDetailState(),
             formErrors = ProductFormError(),
             onAction = {}
         )
