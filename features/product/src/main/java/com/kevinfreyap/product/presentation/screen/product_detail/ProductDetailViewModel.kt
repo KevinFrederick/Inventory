@@ -24,7 +24,7 @@ class ProductDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getProductById: GetProductByIdUseCase
 ): ViewModel(){
-    private val route = savedStateHandle.toRoute<ProductScreen.ProductDetailRoute>()
+    private val route = savedStateHandle.toRoute<ProductScreen.ProductDetail>()
     private val productId = ProductId(route.productId)
 
     val uiState: StateFlow<UiState<ProductDetailState>> = getProductById(productId)

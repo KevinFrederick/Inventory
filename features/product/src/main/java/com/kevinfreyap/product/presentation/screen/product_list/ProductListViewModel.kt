@@ -3,6 +3,7 @@ package com.kevinfreyap.product.presentation.screen.product_list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
@@ -21,6 +22,7 @@ import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.state.FilterOptionList
 import com.kevinfreyap.product.presentation.model.DateUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
+import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,12 +52,24 @@ class ProductListViewModel @Inject constructor(
     private val getFilteredProductCount: GetFilteredProductCountUseCase,
     private val getAllCategory: GetAllCategoryUseCase,
     private val getAllLocation: GetAllLocationUseCase,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
+    private val route = savedStateHandle.toRoute<ProductScreen.ProductList>()
+
+    private val initialFilter = if (route.stockFilter != null) {
+        FilterStockOption.entries.find { it.name == route.stockFilter }
+    } else {
+        null
+    }
+
     private val _filtersOptionList = MutableStateFlow(FilterOptionList())
     val availableFilters = _filtersOptionList.asStateFlow()
 
-    private val _filterState = MutableStateFlow(FilterState())
+    private val _filterState = MutableStateFlow(
+        FilterState(
+            filterStockOption = initialFilter
+        )
+    )
     val filterState = _filterState.asStateFlow()
 
     private val _draftFilter = MutableStateFlow(FilterState())
@@ -101,22 +115,7 @@ class ProductListViewModel @Inject constructor(
         )
 
     init {
-        observeFilter()
         loadFilterOptions()
-    }
-
-    private fun observeFilter() {
-        viewModelScope.launch {
-            savedStateHandle.getStateFlow<String?>("stockFilter", null).collect { routeArgument ->
-                val option = if (routeArgument != null) {
-                    FilterStockOption.entries.find { it.name == routeArgument }
-                        ?: FilterStockOption.IN_STOCK
-                } else {
-                    null
-                }
-                _filterState.update { it.copy(filterStockOption = option) }
-            }
-        }
     }
 
     private fun loadFilterOptions() {
