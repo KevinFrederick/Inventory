@@ -67,39 +67,38 @@ fun SectionTotalQtyAndPriceRange (
                     .fillMaxSize()
                     .padding(8.dp)
             ) {
+                Text(
+                    text = stockStatus,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Theme.custom.secondaryText
+                )
                 if (!quantity.isNullOrBlank()) {
-                    Text(
-                        text = stockStatus,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Theme.custom.secondaryText
-                    )
-                }
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .weight(1f)
                     ) {
-                        Text(
-                            text = quantity ?: stockStatus,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Theme.custom.primaryText,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                        )
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = quantity,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = Theme.custom.primaryText,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState())
+                            )
 
-                        Text(
-                            text = stringResource(R.string.label_quantity_items),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Theme.custom.hint
-                        )
+                            Text(
+                                text = stringResource(R.string.label_quantity_items),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Theme.custom.hint
+                            )
+                        }
                     }
                 }
             }

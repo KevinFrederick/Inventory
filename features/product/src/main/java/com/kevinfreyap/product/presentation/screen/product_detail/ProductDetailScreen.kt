@@ -1,11 +1,14 @@
 package com.kevinfreyap.product.presentation.screen.product_detail
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -16,9 +19,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,12 +50,16 @@ import com.kevinfreyap.product.presentation.screen.product_detail.section.Sectio
 import com.kevinfreyap.product.presentation.state.ProductDetailState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.R
+import com.kevinfreyap.product.presentation.action.ProductDetailAction
+import com.kevinfreyap.product.presentation.event.ProductDetailUiEvent
 import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageCard
 import com.kevinfreyap.ui.components.AppImageCardPlaceholder
+import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppStateBanner
+import com.kevinfreyap.ui.components.AppTextIconDialog
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -58,11 +70,47 @@ fun ProductDetailScreen(
     onNavigate:  (ProductDetailNavigation) -> Unit,
     viewModel: ProductDetailViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(true) {
+        viewModel.uiEvent.collect { event ->
+            when(event) {
+                is ProductDetailUiEvent.Navigate -> {
+                    onNavigate(event.destination)
+                }
+                is ProductDetailUiEvent.ShowToast -> {
+                    Toast.makeText(
+                        context,
+                        event.messageRes,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
 
     ProductDetailContent(
         uiState = uiState,
+        showDeleteDialog = showDeleteDialog,
         onNavigate = onNavigate,
+        onAction = { action ->
+            when(action) {
+                ProductDetailAction.OnDeleteButtonClick -> {
+                    showDeleteDialog = true
+                }
+                ProductDetailAction.OnConfirmDelete -> {
+                    viewModel.deleteProduct()
+                    showDeleteDialog = false
+                }
+                ProductDetailAction.OnCancelDelete -> {
+                    showDeleteDialog = false
+                }
+            }
+        },
         modifier = modifier
     )
 }
@@ -70,6 +118,8 @@ fun ProductDetailScreen(
 @Composable
 fun ProductDetailContent(
     uiState: UiState<ProductDetailState>,
+    showDeleteDialog: Boolean,
+    onAction: (ProductDetailAction) -> Unit,
     onNavigate: (ProductDetailNavigation) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,7 +133,10 @@ fun ProductDetailContent(
                 isLoading = false,
                 actionButton = {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            onAction(ProductDetailAction.OnDeleteButtonClick)
+                        },
+                        enabled = uiState is UiState.Success
                     ) {
                         Icon(
                             painter = painterResource(coreR.drawable.delete_24),
@@ -114,9 +167,9 @@ fun ProductDetailContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = modifier
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
             when(uiState) {
                 UiState.Idle -> {}
@@ -133,6 +186,46 @@ fun ProductDetailContent(
                     ProductDetailSuccess(
                         productDetailState = uiState.data
                     )
+
+                    if (showDeleteDialog) {
+                        AppTextIconDialog(
+                            icon = painterResource(R.drawable.custom_warning_icon),
+                            title = stringResource(R.string.dialog_title_delete_product, uiState.data.productName),
+                            subtitle = stringResource(R.string.dialog_subtitle_delete_product),
+                            iconColor = MaterialTheme.colorScheme.error,
+                            onDismissRequest = {
+                                onAction(ProductDetailAction.OnCancelDelete)
+                            },
+                            positiveBtn = {
+                                AppPrimaryButton(
+                                    text = stringResource(R.string.btn_label_delete),
+                                    onClick = {
+                                        onAction(ProductDetailAction.OnConfirmDelete)
+                                    },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(coreR.drawable.delete_24),
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            negativeBtn = {
+                                AppOutlinedButton(
+                                    text = stringResource(R.string.btn_label_cancel),
+                                    onClick = {
+                                        onAction(ProductDetailAction.OnCancelDelete)
+                                    },
+                                    borderColor = Theme.custom.hint,
+                                    contentColor = Theme.custom.hint,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        )
+                    }
                 }
                 is UiState.Error -> {
                     ProductDetailEmptyOrError(
@@ -142,6 +235,8 @@ fun ProductDetailContent(
                     )
                 }
             }
+
+            Spacer(Modifier.height(80.dp))
         }
     }
 }
@@ -171,7 +266,7 @@ private fun ProductDetailSuccess(
 
     SectionTotalQtyAndPriceRange(
         stockStatus = stringResource(productDetailState.stockStatus),
-        quantity = productDetailState.productTotalQtyText,
+        quantity = if (productDetailState.productTotalQtyText != "0") productDetailState.productTotalQtyText else null,
         minPrice = productDetailState.productMinPrice,
         maxPrice = productDetailState.productMaxPrice,
     )
@@ -180,7 +275,10 @@ private fun ProductDetailSuccess(
         minQuantity = productDetailState.productMinQtyText,
         expirationText = productDetailState.productNearestExpDate,
         modifier = Modifier
-            .padding(horizontal = 8.dp)
+            .padding(
+                horizontal = 8.dp,
+                vertical = 16.dp
+            )
     )
 
     SectionDescription(
@@ -269,6 +367,8 @@ fun ProductDetailScreenPreview() {
     InventoryTheme {
         ProductDetailContent(
             onNavigate = {},
+            showDeleteDialog = false,
+            onAction = {},
             uiState = UiState.Success(
                 ProductDetailState(
                     imageUri = "",
@@ -276,6 +376,7 @@ fun ProductDetailScreenPreview() {
                     productCategory = "Electronic",
                     productSku = "#SKU-1234-B",
                     productMinQty = 5,
+                    productTotalQty = 2,
                     productNearestExpDate = null,
                     productDescription = LoremIpsum(words = 50).values.first(),
                     productBarcode = "1234567890",
@@ -347,6 +448,8 @@ fun ProductDetailScreenPreview_Loading() {
     InventoryTheme {
         ProductDetailContent(
             uiState = UiState.Loading,
+            showDeleteDialog = false,
+            onAction = {},
             onNavigate = {}
         )
     }
@@ -361,6 +464,8 @@ fun ProductDetailScreenPreview_Empty() {
     InventoryTheme {
         ProductDetailContent(
             uiState = UiState.Empty,
+            showDeleteDialog = false,
+            onAction = {},
             onNavigate = {}
         )
     }
@@ -375,6 +480,8 @@ fun ProductDetailScreenPreview_Error() {
     InventoryTheme {
         ProductDetailContent(
             uiState = UiState.Error(""),
+            showDeleteDialog = false,
+            onAction = {},
             onNavigate = {}
         )
     }

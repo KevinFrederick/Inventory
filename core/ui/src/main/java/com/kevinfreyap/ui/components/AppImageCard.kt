@@ -2,6 +2,7 @@ package com.kevinfreyap.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -40,6 +41,7 @@ fun AppImageCard(
         ),
         modifier = modifier
             .size(160.dp)
+            .padding(12.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -83,6 +85,7 @@ fun AppImageCardPlaceholder(
         ),
         modifier = Modifier
             .size(160.dp)
+            .padding(12.dp)
     ) {
         Box(
             modifier = Modifier

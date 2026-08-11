@@ -105,7 +105,7 @@ class ProductRepository @Inject constructor(
     }
 
     override suspend fun deleteProduct(productId: ProductId) {
-        TODO("Not yet implemented")
+        productDao.deleteProduct(productId.value)
     }
 
 }
