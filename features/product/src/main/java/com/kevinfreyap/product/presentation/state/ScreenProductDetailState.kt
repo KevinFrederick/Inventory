@@ -17,9 +17,7 @@ data class ScreenProductDetailState(
     val productNearestExpDate: String? = null,
     val productDescription: String? = null,
     val productBarcode: String? = null,
-    val batchesPreviewList: List<StockBatchUi> = emptyList(),
     val batchesList: List<StockBatchUi> = emptyList(),
-    val totalBatchCount: Int = 0
 ) {
     val stockStatus: Int
         get() = calculateStockLevel(

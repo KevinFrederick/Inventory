@@ -87,9 +87,11 @@
     <string name="btn_label_go_back">Go Back</string>
     <string name="btn_label_delete">Delete</string>
     <string name="btn_label_edit_product">Edit Product</string>
+    <string name="btn_label_add_stock">Add Stock</string>
 
     <string name="txt_btn_label_tap_to_retry_load_more">Tap to retry loading more</string>
     <string name="txt_btn_label_see_all_batch">See all %1$d batches</string>
+    <string name="txt_btn_label_see_less">Show less</string>
 
     <!--  OPTIONS  -->
     <string name="sort_option_date">Date</string>

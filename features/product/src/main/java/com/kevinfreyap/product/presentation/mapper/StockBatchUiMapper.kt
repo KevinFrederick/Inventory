@@ -6,8 +6,11 @@ import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerD
 import com.kevinfreyap.product.presentation.util.toFormattedCurrency
 
 fun StockBatch.toUiModel(): StockBatchUi {
+    val shortId = this.batchId.value.substring(6, 12).uppercase()
+
     return StockBatchUi(
         id = this.batchId.value,
+        shortId = shortId,
         quantity = this.quantity,
         price = this.price.toFormattedCurrency(),
         location = this.location.name,

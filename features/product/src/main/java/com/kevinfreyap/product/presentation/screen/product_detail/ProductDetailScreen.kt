@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,11 +14,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -133,34 +135,57 @@ fun ProductDetailContent(
                 },
                 isLoading = false,
                 actionButton = {
-                    IconButton(
-                        onClick = {
-                            onAction(ProductDetailAction.OnDeleteButtonClick)
-                        },
-                        enabled = uiState is UiState.Success
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            painter = painterResource(coreR.drawable.delete_24),
-                            contentDescription = "Delete product",
-                            tint = Theme.custom.primaryText,
-                        )
+                        IconButton(
+                            onClick = {
+                                onAction(ProductDetailAction.OnEditButtonClick)
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(coreR.drawable.edit_24),
+                                contentDescription = null,
+                                tint = Theme.custom.secondaryText,
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                onAction(ProductDetailAction.OnDeleteButtonClick)
+                            },
+                            enabled = uiState is UiState.Success
+                        ) {
+                            Icon(
+                                painter = painterResource(coreR.drawable.delete_24),
+                                contentDescription = "Delete product",
+                                tint = Theme.custom.secondaryText,
+                            )
+                        }
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = {
-                    onAction(ProductDetailAction.OnEditButtonClick)
+
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    painter = painterResource(coreR.drawable.edit_24),
-                    contentDescription = "Edit Product"
-                )
-            }
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                icon = {
+                    Icon(
+                        painter = painterResource(coreR.drawable.add_24),
+                        contentDescription = "Edit Product"
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.btn_label_add_stock),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            )
         }
     ) { innerPadding ->
         Column(
@@ -247,10 +272,12 @@ private fun ProductDetailShimmer() {
     AppImageCardPlaceholder()
     SectionProductCorePlaceholder()
     SectionTotalQtyAndPriceRangePlaceholder()
+    Spacer(Modifier.height(4.dp))
     SectionMinQtyAndExpDatePlaceholder()
+    Spacer(Modifier.height(8.dp))
     SectionDescriptionPlaceholder()
-    SectionBatchesPlaceholder()
     SectionBarcodePlaceholder()
+    SectionBatchesPlaceholder()
 }
 
 @Composable
@@ -286,16 +313,15 @@ private fun ProductDetailSuccess(
         description = screenProductDetailState.productDescription
     )
 
-    SectionBatches(
-        batches = screenProductDetailState.batchesPreviewList,
-        totalBatchCount = screenProductDetailState.totalBatchCount,
-        onSeeAllBatchClick = {  },
-        onBatchItemClick = {  },
-    )
-
     SectionBarcode(
         barcodeText = screenProductDetailState.productBarcode
     )
+
+    SectionBatches(
+        batches = screenProductDetailState.batchesList,
+        onBatchItemClick = {  },
+    )
+
 }
 
 @Composable
@@ -381,35 +407,10 @@ fun ProductDetailScreenPreview() {
                     productNearestExpDate = null,
                     productDescription = LoremIpsum(words = 50).values.first(),
                     productBarcode = "1234567890",
-                    batchesPreviewList = listOf(
-                        StockBatchUi(
-                            id = "batch-550e84",
-                            quantity = 2,
-                            price = "Rp 1.000.000",
-                            location = "Garage",
-                            expDate = "31 September 2020",
-                            supplier = null
-                        ),
-                        StockBatchUi(
-                            id = "batch-50e84a",
-                            quantity = 3,
-                            price = "",
-                            location = "Garage",
-                            expDate = "31 September 2020",
-                            supplier = null
-                        ),
-                        StockBatchUi(
-                            id = "batch-0e84b3",
-                            quantity = 2,
-                            price = "Rp 1.000.000",
-                            location = "Garage",
-                            expDate = "31 September 2020",
-                            supplier = null
-                        ),
-                    ),
                     batchesList = listOf(
                         StockBatchUi(
-                            id = "batch-550e84",
+                            id = "batch-3f8d9b21-4c6e-4a12-9e83-7b5c1a9f0e2d",
+                            shortId = "3F8D9B",
                             quantity = 2,
                             price = "Rp 1.000.000",
                             location = "Garage",
@@ -417,7 +418,8 @@ fun ProductDetailScreenPreview() {
                             supplier = null
                         ),
                         StockBatchUi(
-                            id = "batch-50e84a",
+                            id = "batch-4c6e4a12-9e83-7b5c1a9f0e2d-3f8d9b21",
+                            shortId = "4C6E4A",
                             quantity = 3,
                             price = "",
                             location = "Garage",
@@ -425,7 +427,17 @@ fun ProductDetailScreenPreview() {
                             supplier = null
                         ),
                         StockBatchUi(
-                            id = "batch-0e84b3",
+                            id = "batch-7b5c1a9f-9e83-7b5c1a9f0e2d-3f8d9b21",
+                            shortId = "7B5C1A",
+                            quantity = 2,
+                            price = "Rp 1.000.000",
+                            location = "Garage",
+                            expDate = "31 September 2020",
+                            supplier = null
+                        ),
+                        StockBatchUi(
+                            id = "batch-1a9f0e2d-9e83-7b5c1a9f0e2d-3f8d9b21",
+                            shortId = "1A9F0E",
                             quantity = 2,
                             price = "Rp 1.000.000",
                             location = "Garage",
@@ -433,7 +445,6 @@ fun ProductDetailScreenPreview() {
                             supplier = null
                         ),
                     ),
-                    totalBatchCount = 7
                 )
             )
         )
@@ -449,38 +460,6 @@ fun ProductDetailScreenPreview_Loading() {
     InventoryTheme {
         ProductDetailContent(
             uiState = UiState.Loading,
-            showDeleteDialog = false,
-            onAction = {},
-            onNavigate = {}
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:width=1080px,height=3340px,dpi=416",
-)
-@Composable
-fun ProductDetailScreenPreview_Empty() {
-    InventoryTheme {
-        ProductDetailContent(
-            uiState = UiState.Empty,
-            showDeleteDialog = false,
-            onAction = {},
-            onNavigate = {}
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:width=1080px,height=3340px,dpi=416",
-)
-@Composable
-fun ProductDetailScreenPreview_Error() {
-    InventoryTheme {
-        ProductDetailContent(
-            uiState = UiState.Error(""),
             showDeleteDialog = false,
             onAction = {},
             onNavigate = {}

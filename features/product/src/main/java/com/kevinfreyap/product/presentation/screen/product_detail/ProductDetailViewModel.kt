@@ -57,9 +57,7 @@ class ProductDetailViewModel @Inject constructor(
                         productNearestExpDate = formatDatePickerDate(product.nearestExpiringBatch),
                         productDescription = product.description,
                         productBarcode = product.barcode,
-                        batchesPreviewList = product.batches.take(3).toUiModel(),
                         batchesList = product.batches.toUiModel(),
-                        totalBatchCount = product.batches.size
                     )
                 )
             }
