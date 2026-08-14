@@ -8,11 +8,12 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.usecase.DeleteProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetProductByIdUseCase
+import com.kevinfreyap.product.presentation.action.ProductDetailAction
 import com.kevinfreyap.product.presentation.event.ProductDetailUiEvent
 import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.ScreenProductDetailState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import com.kevinfreyap.product.presentation.util.toFormattedCurrency
 import com.kevinfreyap.ui.state.UiState
@@ -38,13 +39,13 @@ class ProductDetailViewModel @Inject constructor(
     private val _uiEvent = Channel<ProductDetailUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    val uiState: StateFlow<UiState<ProductDetailState>> = getProductById(productId)
+    val uiState: StateFlow<UiState<ScreenProductDetailState>> = getProductById(productId)
         .map { product ->
             if (product == null) {
                 UiState.Error("Not Found")
             } else {
                 UiState.Success(
-                    ProductDetailState(
+                    ScreenProductDetailState(
                         imageUri = product.imageUri,
                         productName = product.name,
                         productCategory = product.category.name,
@@ -68,6 +69,14 @@ class ProductDetailViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UiState.Idle
         )
+
+    fun onAction(action: ProductDetailAction) {
+        if (action == ProductDetailAction.OnEditButtonClick) {
+            viewModelScope.launch {
+                _uiEvent.send(ProductDetailUiEvent.Navigate(ProductDetailNavigation.EditProduct(productId.value)))
+            }
+        }
+    }
 
     fun deleteProduct() {
         viewModelScope.launch {

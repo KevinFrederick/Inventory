@@ -42,7 +42,7 @@ import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGree
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetingsPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeader
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeaderPlaceholder
-import com.kevinfreyap.product.presentation.state.DashboardState
+import com.kevinfreyap.product.presentation.state.ScreenDashboardState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppIconName
 import com.kevinfreyap.ui.components.AppPrimaryButton
@@ -71,7 +71,7 @@ fun DashboardScreen(
 
 @Composable
 fun DashboardContent(
-    state: UiState<DashboardState>,
+    state: UiState<ScreenDashboardState>,
     onNavigate: (DashboardNavigation) -> Unit,
     onRetryClicked: () ->  Unit,
     modifier: Modifier = Modifier
@@ -188,7 +188,7 @@ private fun DashboardEmpty(
 
 @Composable
 private fun DashboardSuccess(
-    state: DashboardState,
+    state: ScreenDashboardState,
     onNavigate: (DashboardNavigation) -> Unit,
 ) {
     val listData = state.alertList
@@ -290,7 +290,7 @@ fun DashboardScreenPreview() {
     InventoryTheme {
         DashboardContent(
             state = UiState.Success(
-                DashboardState(
+                ScreenDashboardState(
                     totalProductCount = 1700,
                     lowStockProductCount = 7,
                     alertList = AlertListUi(

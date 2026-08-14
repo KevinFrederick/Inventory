@@ -23,7 +23,7 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchExpirationError
 import com.kevinfreyap.product.domain.model.error.BatchSupplierError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
 import com.kevinfreyap.product.presentation.state.AddBatchInformationState
 import com.kevinfreyap.product.presentation.util.DateInputTransformation
@@ -36,7 +36,7 @@ import com.kevinfreyap.ui.theme.Theme
 fun SectionBatchInformation(
     addBatchInformationState: AddBatchInformationState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.BatchInformationAction) -> Unit,
+    onAction: (ProductFormAction.BatchInformationAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -77,7 +77,7 @@ fun SectionBatchInformation(
                         modifier = Modifier
                             .matchParentSize()
                             .clickable {
-                                onAction(AddProductAction.BatchInformationAction.OnOpenExpirationDialog)
+                                onAction(ProductFormAction.BatchInformationAction.OnOpenExpirationDialog)
                                 showDatePicker = true
                             }
                     )
@@ -86,7 +86,7 @@ fun SectionBatchInformation(
                 AppTextField(
                     value = addBatchInformationState.batchSupplier ?: "",
                     onValueChange = { supplier ->
-                        onAction(AddProductAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
+                        onAction(ProductFormAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
                     },
                     label = stringResource(R.string.label_field_batch_supplier),
                     minLines = 1,
@@ -113,10 +113,10 @@ fun SectionBatchInformation(
             visualTransformation = DateInputTransformation,
             onDateChanged = { newDateTyped ->
                 val onlyDigit = newDateTyped.filter { it.isDigit() }
-                onAction(AddProductAction.BatchInformationAction.OnBatchExpirationChanged(onlyDigit))
+                onAction(ProductFormAction.BatchInformationAction.OnBatchExpirationChanged(onlyDigit))
             },
             onConfirm = {
-                onAction(AddProductAction.BatchInformationAction.OnBatchExpirationConfirm)
+                onAction(ProductFormAction.BatchInformationAction.OnBatchExpirationConfirm)
                 showDatePicker = false
             },
             onDismiss = {

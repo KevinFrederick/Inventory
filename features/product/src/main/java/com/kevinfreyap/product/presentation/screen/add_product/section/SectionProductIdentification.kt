@@ -15,18 +15,18 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.ProductBarcodeError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductSkuError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.AddProductIdentificationState
+import com.kevinfreyap.product.presentation.state.ProductFormIdentificationState
 import com.kevinfreyap.ui.components.AppTextField
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionProductIdentification(
-    addProductIdentificationState: AddProductIdentificationState,
+    productFormIdentificationState: ProductFormIdentificationState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.ProductIdentificationAction) -> Unit,
+    onAction: (ProductFormAction.ProductIdentificationAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     FieldListHeader(
@@ -39,10 +39,10 @@ fun SectionProductIdentification(
                     .fillMaxWidth()
             ) {
                 AppTextField(
-                    value = addProductIdentificationState.productSku ?: "",
+                    value = productFormIdentificationState.productSku ?: "",
                     onValueChange = { sku ->
                         val sanitizedSku = sku.replace(" ", "")
-                        onAction(AddProductAction.ProductIdentificationAction.OnSkuChanged(sanitizedSku))
+                        onAction(ProductFormAction.ProductIdentificationAction.OnSkuChanged(sanitizedSku))
                     },
                     label = stringResource(R.string.label_field_product_sku),
                     minLines = 1,
@@ -62,10 +62,10 @@ fun SectionProductIdentification(
                 )
 
                 AppTextField(
-                    value = addProductIdentificationState.productBarcode ?: "",
+                    value = productFormIdentificationState.productBarcode ?: "",
                     onValueChange = { barcode ->
                         val sanitizedBarcode = barcode.replace(" ", "")
-                        onAction(AddProductAction.ProductIdentificationAction.OnBarcodeChanged(sanitizedBarcode))
+                        onAction(ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(sanitizedBarcode))
                     },
                     label = stringResource(R.string.label_field_product_barcode),
                     minLines = 1,
@@ -94,7 +94,7 @@ fun SectionProductIdentification(
 fun SectionProductIdentificationPreview() {
     InventoryTheme {
         SectionProductIdentification(
-            addProductIdentificationState = AddProductIdentificationState(),
+            productFormIdentificationState = ProductFormIdentificationState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

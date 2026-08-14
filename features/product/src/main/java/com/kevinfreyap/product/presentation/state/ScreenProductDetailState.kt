@@ -5,7 +5,7 @@ import com.kevinfreyap.product.presentation.model.StockBatchUi
 import com.kevinfreyap.product.presentation.util.StockLevelCalculator.calculateStockLevel
 import com.kevinfreyap.product.presentation.util.toFormattedNumber
 
-data class ProductDetailState(
+data class ScreenProductDetailState(
     val imageUri: String? = null,
     val productName: String = "",
     val productCategory: String = "",

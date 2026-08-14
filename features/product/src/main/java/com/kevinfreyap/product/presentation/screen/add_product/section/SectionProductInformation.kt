@@ -21,9 +21,9 @@ import com.kevinfreyap.product.domain.model.error.ProductDescriptionError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductNameError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.AddProductDetailState
+import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.product.presentation.util.ThousandSeparatorVisualTransformation
 import com.kevinfreyap.ui.components.AppDropdownField
 import com.kevinfreyap.ui.components.AppTextField
@@ -32,9 +32,9 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionProductInformation(
-    addProductDetailState: AddProductDetailState,
+    productDetailState: ProductFormDetailState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.ProductDetailAction) -> Unit,
+    onAction: (ProductFormAction.ProductDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     FieldListHeader(
@@ -47,9 +47,9 @@ fun SectionProductInformation(
                     .fillMaxWidth()
             ) {
                 AppTextField(
-                    value = addProductDetailState.productName,
+                    value = productDetailState.productName,
                     onValueChange = { name ->
-                        onAction(AddProductAction.ProductDetailAction.OnNameChanged(name))
+                        onAction(ProductFormAction.ProductDetailAction.OnNameChanged(name))
                     },
                     label = stringResource(R.string.label_field_product_name),
                     minLines = 1,
@@ -74,22 +74,22 @@ fun SectionProductInformation(
                         .fillMaxWidth()
                 ) {
                     AppDropdownField(
-                        value = addProductDetailState.productCategoryName,
+                        value = productDetailState.productCategoryName,
                         label = stringResource(R.string.label_field_product_category),
-                        options = addProductDetailState.filteredCategories,
+                        options = productDetailState.filteredCategories,
                         optionText = { it },
                         onSearchQueryChange = { typedString ->
-                            onAction(AddProductAction.ProductDetailAction.OnCategoryChanged(typedString))
+                            onAction(ProductFormAction.ProductDetailAction.OnCategoryChanged(typedString))
                         },
                         onOptionSelected = { selectedCategory ->
-                            onAction(AddProductAction.ProductDetailAction.OnCategoryChanged(selectedCategory))
+                            onAction(ProductFormAction.ProductDetailAction.OnCategoryChanged(selectedCategory))
                         },
                         unfocusedColor = Theme.custom.hint,
                         enableAddNew = true,
                         onAddNewOption = {
-                            onAction(AddProductAction.ProductDetailAction.OnCreateNewCategory(addProductDetailState.productCategoryName))
+                            onAction(ProductFormAction.ProductDetailAction.OnCreateNewCategory(productDetailState.productCategoryName))
                         },
-                        addNewText = stringResource(R.string.dropdown_new_category, addProductDetailState.productCategoryName),
+                        addNewText = stringResource(R.string.dropdown_new_category, productDetailState.productCategoryName),
                         isError = formErrors?.categoryError != null,
                         errorMessage = if (formErrors?.categoryError != null) {
                             when(formErrors.categoryError) {
@@ -103,19 +103,19 @@ fun SectionProductInformation(
                     )
 
                     AppTextField(
-                        value = addProductDetailState.productMinQuantity,
+                        value = productDetailState.productMinQuantity,
                         onValueChange = { qty ->
                             val onlyDigit = qty.filter { it.isDigit() }
 
                             val cleanNumber = when {
                                 onlyDigit.isEmpty() -> "0"
-                                addProductDetailState.productMinQuantity == "0" && onlyDigit.length == 2 -> {
+                                productDetailState.productMinQuantity == "0" && onlyDigit.length == 2 -> {
                                     onlyDigit.replaceFirst("0", "")
                                 }
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
                             }
 
-                            onAction(AddProductAction.ProductDetailAction.OnMinQuantityChanged(cleanNumber))
+                            onAction(ProductFormAction.ProductDetailAction.OnMinQuantityChanged(cleanNumber))
                         },
                         label = stringResource(R.string.label_field_product_min_quantity),
                         minLines = 1,
@@ -139,9 +139,9 @@ fun SectionProductInformation(
 
 
                 AppTextField(
-                    value = addProductDetailState.productDescription ?: "",
+                    value = productDetailState.productDescription ?: "",
                     onValueChange = { text ->
-                        onAction(AddProductAction.ProductDetailAction.OnDescriptionChanged(text))
+                        onAction(ProductFormAction.ProductDetailAction.OnDescriptionChanged(text))
                     },
                     label = stringResource(R.string.label_field_product_description),
                     minLines = 5,
@@ -170,7 +170,7 @@ fun SectionProductInformation(
 fun SectionProductInformationPreview() {
     InventoryTheme {
         SectionProductInformation(
-            addProductDetailState = AddProductDetailState(),
+            productDetailState = ProductFormDetailState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

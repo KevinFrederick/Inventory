@@ -11,8 +11,11 @@ import com.kevinfreyap.product.domain.usecase.GetAllLocationUseCase
 import com.kevinfreyap.product.domain.usecase.InsertNewProductUseCase
 import com.kevinfreyap.product.domain.usecase.ValidateBatchLocationUseCase
 import com.kevinfreyap.product.domain.usecase.ValidateProductCategoryUseCase
-import com.kevinfreyap.product.presentation.action.AddProductAction
-import com.kevinfreyap.product.presentation.state.AddProductState
+import com.kevinfreyap.product.presentation.action.ProductFormAction
+import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductDetailAction
+import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductIdentificationAction
+import com.kevinfreyap.product.presentation.state.ScreenAddProductState
+import com.kevinfreyap.product.presentation.state.SharedProductFormState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDateLongToString
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import com.kevinfreyap.product.presentation.util.DateFormatter.parseDateStringToLong
@@ -32,7 +35,7 @@ class AddProductViewModel @Inject constructor(
     private val validateLocation: ValidateBatchLocationUseCase,
     private val insertNewProduct: InsertNewProductUseCase
 ): ViewModel() {
-    private val _formState = MutableStateFlow(AddProductState())
+    private val _formState = MutableStateFlow(ScreenAddProductState())
     val formState = _formState.asStateFlow()
 
     init {
@@ -40,19 +43,19 @@ class AddProductViewModel @Inject constructor(
         loadLocations()
     }
 
-    fun onAction(action:  AddProductAction) {
+    fun onAction(action:  ProductFormAction) {
         when (action) {
-            is AddProductAction.ProductDetailAction -> handleProductDetailActions(action)
-            is AddProductAction.ProductIdentificationAction -> handleProductIdentification(action)
-            is AddProductAction.BatchDetailAction -> handleBatchDetail(action)
-            is AddProductAction.BatchInformationAction -> handleBatchInformation(action)
-            is AddProductAction.SummaryDialogAction -> handleSummaryDialog(action)
-            is AddProductAction.StatusDialogAction -> handleStatusDialog(action)
-            is AddProductAction.SaveProduct -> saveProduct()
-            is AddProductAction.ResetForm -> {
-                _formState.update { AddProductState() }
+            is ProductFormAction.ProductDetailAction -> handleProductDetailActions(action)
+            is ProductFormAction.ProductIdentificationAction -> handleProductIdentification(action)
+            is ProductFormAction.BatchDetailAction -> handleBatchDetail(action)
+            is ProductFormAction.BatchInformationAction -> handleBatchInformation(action)
+            is ProductFormAction.SummaryDialogAction -> handleSummaryDialog(action)
+            is ProductFormAction.StatusDialogAction -> handleStatusDialog(action)
+            is ProductFormAction.SaveProduct -> saveProduct()
+            is ProductFormAction.ResetForm -> {
+                _formState.update { ScreenAddProductState() }
             }
-            is AddProductAction.ImagePickerAction -> Unit
+            is ProductFormAction.ImagePickerAction -> Unit
         }
     }
 
@@ -98,115 +101,57 @@ class AddProductViewModel @Inject constructor(
         }
     }
 
-    private fun handleProductDetailActions(action: AddProductAction.ProductDetailAction) {
-        when(action) {
-            is AddProductAction.ProductDetailAction.OnNameChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productDetail = currentState.productDetail.copy(productName = action.name),
-                        formErrors = currentState.formErrors?.copy(nameError = null)
-                    )
-                }
-            }
-            is AddProductAction.ProductDetailAction.OnCategoryChanged -> {
-                _formState.update { currentState ->
-                    val newName = action.category
+    private inline fun updateSharedState(
+        crossinline updater: (SharedProductFormState) -> SharedProductFormState
+    ) {
+        _formState.update { currentState ->
+            // Pack
+            val currentSharedState = SharedProductFormState(
+                productDetail = currentState.productDetail,
+                productIdentification = currentState.productIdentification,
+                formErrors = currentState.formErrors
+            )
 
-                    currentState.copy(
-                        productDetail = currentState.productDetail.copy(
-                            productCategoryName = newName,
-                            filteredCategories = currentState.productDetail.allCategories.filter {
-                                it.contains(newName, ignoreCase = true)
-                            }
-                        ),
-                        formErrors = currentState.formErrors?.copy(categoryError = null)
-                    )
-                }
-            }
-            is AddProductAction.ProductDetailAction.OnCreateNewCategory -> {
-                when (
-                    val validationResult = validateCategory(action.newCategory)
-                ) {
-                    is Result.Success -> {
-                        _formState.update { currentState ->
-                            currentState.copy(
-                                productDetail = currentState.productDetail.copy(productCategoryName = validationResult.data),
-                                formErrors = currentState.formErrors?.copy(categoryError = null)
-                            )
-                        }
-                    }
-                    is Result.Error -> {
-                        _formState.update { currentState ->
-                            currentState.copy(
-                                formErrors = currentState.formErrors?.copy(
-                                    categoryError = validationResult.error
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-            is AddProductAction.ProductDetailAction.OnDescriptionChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productDetail = currentState.productDetail.copy(productDescription = action.desc),
-                        formErrors = currentState.formErrors?.copy(descriptionError = null)
-                    )
-                }
-            }
-            is AddProductAction.ProductDetailAction.OnImageUriChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productDetail = currentState.productDetail.copy(productImageUriString = action.uri),
-                        formErrors = currentState.formErrors?.copy(imageError = null)
-                    )
-                }
-            }
-            is AddProductAction.ProductDetailAction.OnMinQuantityChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productDetail = currentState.productDetail.copy(
-                            productMinQuantity = action.qty,
-                            isMinQuantityConfirmed = false
-                        ),
-                        formErrors = currentState.formErrors?.copy(minQuantityError = null)
-                    )
-                }
-            }
+            val updatedSharedState = updater(currentSharedState)
+
+            // Unpack
+            currentState.copy(
+                productDetail = updatedSharedState.productDetail,
+                productIdentification = updatedSharedState.productIdentification,
+                formErrors = updatedSharedState.formErrors
+            )
         }
     }
 
-    private fun handleProductIdentification(action: AddProductAction.ProductIdentificationAction) {
-        when(action) {
-            is AddProductAction.ProductIdentificationAction.OnSkuChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productIdentification = currentState.productIdentification.copy(productSku = action.sku),
-                        formErrors = currentState.formErrors?.copy(skuError = null)
-                    )
-                }
-            }
-            is AddProductAction.ProductIdentificationAction.OnBarcodeChanged -> {
-                _formState.update { currentState ->
-                    currentState.copy(
-                        productIdentification = currentState.productIdentification.copy(productBarcode = action.barcode),
-                        formErrors = currentState.formErrors?.copy(barcodeError = null)
-                    )
-                }
-            }
+    private fun handleProductDetailActions(action: ProductFormAction.ProductDetailAction) {
+        updateSharedState { currentShared ->
+            sharedProductDetailAction(
+                action = action,
+                currentState = currentShared,
+                validateCategory = validateCategory::invoke
+            )
         }
     }
 
-    private fun handleBatchDetail(action: AddProductAction.BatchDetailAction) {
+    private fun handleProductIdentification(action: ProductFormAction.ProductIdentificationAction) {
+        updateSharedState { currentShared ->
+            sharedProductIdentificationAction(
+                action = action,
+                currentState = currentShared,
+            )
+        }
+    }
+
+    private fun handleBatchDetail(action: ProductFormAction.BatchDetailAction) {
         when(action) {
-            is AddProductAction.BatchDetailAction.OnAddInitialStockToggled -> {
+            is ProductFormAction.BatchDetailAction.OnAddInitialStockToggled -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         batchDetail = currentState.batchDetail.copy(addInitialStock = action.isChecked)
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnBatchQuantityChanged -> {
+            is ProductFormAction.BatchDetailAction.OnBatchQuantityChanged -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         batchDetail = currentState.batchDetail.copy(
@@ -217,7 +162,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnQuantityIncremented -> {
+            is ProductFormAction.BatchDetailAction.OnQuantityIncremented -> {
                 _formState.update { currentState ->
                     val current = currentState.batchDetail.batchQuantity.toIntOrNull() ?: 0
                     val newQty = (current + 1).toString()
@@ -228,7 +173,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnQuantityDecremented -> {
+            is ProductFormAction.BatchDetailAction.OnQuantityDecremented -> {
                 _formState.update { currentState ->
                     val current = currentState.batchDetail.batchQuantity.toIntOrNull() ?: 0
                     val newQty = if (current > 0) {
@@ -243,7 +188,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnBatchPriceChanged -> {
+            is ProductFormAction.BatchDetailAction.OnBatchPriceChanged -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         batchDetail = currentState.batchDetail.copy(batchPrice = action.price),
@@ -251,7 +196,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnBatchLocationChanged -> {
+            is ProductFormAction.BatchDetailAction.OnBatchLocationChanged -> {
                 _formState.update { currentState ->
                     val newLocation = action.loc
 
@@ -266,7 +211,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchDetailAction.OnCreateNewLocation -> {
+            is ProductFormAction.BatchDetailAction.OnCreateNewLocation -> {
                 when (
                     val validationResult = validateLocation(action.newLocName)
                 ) {
@@ -292,16 +237,16 @@ class AddProductViewModel @Inject constructor(
         }
     }
 
-    private fun handleBatchInformation(action: AddProductAction.BatchInformationAction) {
+    private fun handleBatchInformation(action: ProductFormAction.BatchInformationAction) {
         when(action) {
-            is AddProductAction.BatchInformationAction.OnBatchExpirationChanged -> {
+            is ProductFormAction.BatchInformationAction.OnBatchExpirationChanged -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         batchInformation = currentState.batchInformation.copy(batchExpirationFieldText = action.expString)
                     )
                 }
             }
-            is AddProductAction.BatchInformationAction.OnOpenExpirationDialog -> {
+            is ProductFormAction.BatchInformationAction.OnOpenExpirationDialog -> {
                 _formState.update { currentState ->
                     val savedMillis = currentState.batchInformation.batchExpirationMillis
 
@@ -310,7 +255,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchInformationAction.OnBatchExpirationConfirm -> {
+            is ProductFormAction.BatchInformationAction.OnBatchExpirationConfirm -> {
                 _formState.update { currentState ->
                     val rawString = currentState.batchInformation.batchExpirationFieldText
 
@@ -329,7 +274,7 @@ class AddProductViewModel @Inject constructor(
                     )
                 }
             }
-            is AddProductAction.BatchInformationAction.OnBatchSupplierChanged -> {
+            is ProductFormAction.BatchInformationAction.OnBatchSupplierChanged -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         batchInformation = currentState.batchInformation.copy(batchSupplier = action.supplier),
@@ -340,9 +285,9 @@ class AddProductViewModel @Inject constructor(
         }
     }
 
-    private fun handleSummaryDialog(action: AddProductAction.SummaryDialogAction) {
+    private fun handleSummaryDialog(action: ProductFormAction.SummaryDialogAction) {
         when(action) {
-            AddProductAction.SummaryDialogAction.OnConfirmAllWarnings -> {
+            ProductFormAction.SummaryDialogAction.OnConfirmAllWarnings -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         productDetail = currentState.productDetail.copy(
@@ -358,7 +303,7 @@ class AddProductViewModel @Inject constructor(
 
                 saveProduct()
             }
-            AddProductAction.SummaryDialogAction.OnDismissWarningsDialog -> {
+            ProductFormAction.SummaryDialogAction.OnDismissWarningsDialog -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         showSummaryConfirmationDialog = false
@@ -368,9 +313,9 @@ class AddProductViewModel @Inject constructor(
         }
     }
 
-    private fun handleStatusDialog(action: AddProductAction.StatusDialogAction) {
+    private fun handleStatusDialog(action: ProductFormAction.StatusDialogAction) {
         when(action) {
-            AddProductAction.StatusDialogAction.OnDismissError -> {
+            ProductFormAction.StatusDialogAction.OnDismissError -> {
                 _formState.update { currentState ->
                     currentState.copy(
                         uiState = UiState.Idle

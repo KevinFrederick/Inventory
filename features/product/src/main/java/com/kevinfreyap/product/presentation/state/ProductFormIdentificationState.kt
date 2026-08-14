@@ -1,6 +1,6 @@
 package com.kevinfreyap.product.presentation.state
 
-data class AddProductIdentificationState(
+data class ProductFormIdentificationState(
     val productBarcode: String? = null,
     val productSku: String? = null,
 )

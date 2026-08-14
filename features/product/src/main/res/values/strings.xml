@@ -3,6 +3,7 @@
     <!--  PAGE TITLE  -->
     <string name="title_filter_sort">Filter &amp; Sort</string>
     <string name="title_add_product">Add Product</string>
+    <string name="title_edit_product">Edit Product</string>
     <string name="title_image_picker">Select Image Source</string>
     <string name="title_product_detail">Product Detail</string>
 
@@ -85,6 +86,7 @@
     <string name="btn_label_close">Close</string>
     <string name="btn_label_go_back">Go Back</string>
     <string name="btn_label_delete">Delete</string>
+    <string name="btn_label_edit_product">Edit Product</string>
 
     <string name="txt_btn_label_tap_to_retry_load_more">Tap to retry loading more</string>
     <string name="txt_btn_label_see_all_batch">See all %1$d batches</string>

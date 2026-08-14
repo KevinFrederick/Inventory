@@ -16,7 +16,8 @@ class ValidateProductImageUseCase @Inject constructor(
         val isValidScheme = sanitizedUri.startsWith("content://") ||
                             sanitizedUri.startsWith("file://") ||
                             sanitizedUri.startsWith("http://") ||
-                            sanitizedUri.startsWith("https://")
+                            sanitizedUri.startsWith("https://") ||
+                            sanitizedUri.startsWith("/")
 
         when {
             !isValidScheme -> return Result.Error(ProductImageError.INVALID_FORMAT)

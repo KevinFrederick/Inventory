@@ -21,7 +21,7 @@ import com.kevinfreyap.product.domain.model.error.BatchLocationError
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.CurrencyTextField
 import com.kevinfreyap.product.presentation.components.FieldListHeader
 import com.kevinfreyap.product.presentation.components.QuantitySelector
@@ -35,7 +35,7 @@ import com.kevinfreyap.ui.theme.Theme
 fun SectionBatchDetail(
     addBatchDetailState: AddBatchDetailState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.BatchDetailAction) -> Unit,
+    onAction: (ProductFormAction.BatchDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     FieldListHeader(
@@ -77,13 +77,13 @@ fun SectionBatchDetail(
                                 }
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
                             }
-                            onAction(AddProductAction.BatchDetailAction.OnBatchQuantityChanged(cleanNumber))
+                            onAction(ProductFormAction.BatchDetailAction.OnBatchQuantityChanged(cleanNumber))
                         },
                         onIncrementClick = { 
-                            onAction(AddProductAction.BatchDetailAction.OnQuantityIncremented)
+                            onAction(ProductFormAction.BatchDetailAction.OnQuantityIncremented)
                         },
                         onDecrementClick = {
-                            onAction(AddProductAction.BatchDetailAction.OnQuantityDecremented)
+                            onAction(ProductFormAction.BatchDetailAction.OnQuantityDecremented)
                         },
                         visualTransformation = ThousandSeparatorVisualTransformation,
                         isError = (formErrors?.quantityError != null && formErrors.quantityError != BatchQuantityError.REQUIRES_CONFIRMATION),
@@ -107,15 +107,15 @@ fun SectionBatchDetail(
                     options = addBatchDetailState.filteredLocations,
                     optionText = { it },
                     onSearchQueryChange = { typedString ->
-                        onAction(AddProductAction.BatchDetailAction.OnBatchLocationChanged(typedString))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchLocationChanged(typedString))
                     },
                     onOptionSelected = { selectedLocation ->
-                        onAction(AddProductAction.BatchDetailAction.OnBatchLocationChanged(selectedLocation))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchLocationChanged(selectedLocation))
                     },
                     unfocusedColor = Theme.custom.hint,
                     enableAddNew = true,
                     onAddNewOption = {
-                        onAction(AddProductAction.BatchDetailAction.OnCreateNewLocation(addBatchDetailState.batchLocation))
+                        onAction(ProductFormAction.BatchDetailAction.OnCreateNewLocation(addBatchDetailState.batchLocation))
                     },
                     addNewText = stringResource(R.string.dropdown_new_location, addBatchDetailState.batchLocation),
                     isError = formErrors?.locationError != null,
@@ -134,7 +134,7 @@ fun SectionBatchDetail(
                     currencySymbol = stringResource(R.string.currency_idr_rp),
                     onPriceChange = { newPrice ->
                         val onlyDigit = newPrice.filter { it.isDigit() }
-                        onAction(AddProductAction.BatchDetailAction.OnBatchPriceChanged(onlyDigit))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchPriceChanged(onlyDigit))
                     },
                     visualTransformation = ThousandSeparatorVisualTransformation,
                     isError = (formErrors?.priceError != null && formErrors.priceError != BatchPriceError.REQUIRES_CONFIRMATION),

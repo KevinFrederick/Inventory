@@ -1,9 +1,7 @@
-package com.kevinfreyap.product.presentation.screen.add_product
+package com.kevinfreyap.product.presentation.screen.edit_product
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,25 +34,17 @@ import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
-import com.kevinfreyap.product.domain.model.error.BatchPriceError
-import com.kevinfreyap.product.domain.model.error.BatchQuantityError
-import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.model.error.ProductImageError
-import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.ui.R as coreR
+import com.kevinfreyap.product.domain.model.error.ProductImageError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
-import com.kevinfreyap.product.presentation.components.TextSwitchRow
 import com.kevinfreyap.product.presentation.components.rememberImagePicker
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
+import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.screen.add_product.section.DialogSummaryList
-import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchDetail
-import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchInformation
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductIdentification
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
-import com.kevinfreyap.product.presentation.state.ScreenAddProductState
-import com.kevinfreyap.product.presentation.state.AddBatchDetailState
-import com.kevinfreyap.product.presentation.state.ProductFormDetailState
+import com.kevinfreyap.product.presentation.state.ScreenEditProductState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageUpload
 import com.kevinfreyap.ui.components.AppOutlinedButton
@@ -65,28 +54,24 @@ import com.kevinfreyap.ui.components.AppTextIconDialog
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
-import kotlinx.coroutines.delay
 import java.io.File
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun AddProductScreen(
+fun EditProductScreen(
     modifier: Modifier = Modifier,
-    onNavigate: (AddProductNavigation) -> Unit,
-    viewmodel: AddProductViewModel = hiltViewModel()
+    onNavigate: (EditProductNavigation) -> Unit,
+    viewModel: EditProductViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val state by viewmodel.formState.collectAsStateWithLifecycle()
+    val state by viewModel.formState.collectAsStateWithLifecycle()
 
     var showImagePickerBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showRemoveImageDialog by rememberSaveable { mutableStateOf(false) }
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
-    val scrollState = rememberScrollState()
-
     val imagePicker = rememberImagePicker (
         onImagePicked = { uriString ->
-            viewmodel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(uriString))
+            viewModel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(uriString))
         }
     )
 
@@ -94,7 +79,7 @@ fun AddProductScreen(
         if (state.hasUnsavedChanges) {
             showDiscardDialog = true
         } else {
-            onNavigate(AddProductNavigation.NavigateUp)
+            onNavigate(EditProductNavigation.NavigateUp)
         }
     }
 
@@ -106,16 +91,8 @@ fun AddProductScreen(
                 Toast.LENGTH_SHORT
             ).show()
 
-            onNavigate(AddProductNavigation.NavigateUp)
-            viewmodel.onAction(ProductFormAction.ResetForm)
-        }
-    }
-
-    LaunchedEffect(state.batchDetail.addInitialStock) {
-        if (state.batchDetail.addInitialStock) {
-            delay(150.milliseconds)
-
-            scrollState.animateScrollTo(scrollState.maxValue)
+            onNavigate(EditProductNavigation.NavigateUp)
+            viewModel.onAction(ProductFormAction.ResetForm)
         }
     }
 
@@ -123,9 +100,8 @@ fun AddProductScreen(
         showDiscardDialog = true
     }
 
-    AddProductContent(
+    EditProductContent(
         state = state,
-        scrollState = scrollState,
         showImagePickerBottomSheet = showImagePickerBottomSheet,
         showRemoveImageDialog = showRemoveImageDialog,
         showDiscardDialog = showDiscardDialog,
@@ -165,10 +141,10 @@ fun AddProductScreen(
                     showRemoveImageDialog = false
                 }
                 is ProductFormAction.ImagePickerAction.OnConfirmRemoveDialog -> {
-                    viewmodel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(null))
+                    viewModel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(null))
                     showRemoveImageDialog = false
                 }
-                else -> viewmodel.onAction(action)
+                else -> viewModel.onAction(action)
             }
         },
         onNavigate = onNavigate,
@@ -177,16 +153,15 @@ fun AddProductScreen(
 }
 
 @Composable
-fun AddProductContent(
-    state: ScreenAddProductState,
-    scrollState: ScrollState,
+fun EditProductContent(
+    state: ScreenEditProductState,
     showImagePickerBottomSheet: Boolean,
     showRemoveImageDialog: Boolean,
     showDiscardDialog: Boolean,
     handleBackNavigation: () -> Unit,
     onDismissDiscardDialog: () -> Unit,
+    onNavigate: (EditProductNavigation) -> Unit,
     onAction: (ProductFormAction) -> Unit,
-    onNavigate: (AddProductNavigation) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -203,7 +178,7 @@ fun AddProductContent(
             },
         topBar = {
             AppCenterTopBar(
-                title = stringResource(R.string.title_add_product),
+                title = stringResource(R.string.title_edit_product),
                 onBackClick = handleBackNavigation,
                 isLoading = state.uiState is UiState.Loading,
             )
@@ -220,7 +195,7 @@ fun AddProductContent(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
@@ -255,38 +230,6 @@ fun AddProductContent(
                     formErrors = state.formErrors,
                     onAction = onAction,
                 )
-
-                TextSwitchRow(
-                    text = stringResource(R.string.label_add_initial_stock),
-                    subtitle = stringResource(R.string.label_initial_stock_subtitle),
-                    isChecked = state.batchDetail.addInitialStock,
-                    onClick = { isChecked ->
-                        onAction(ProductFormAction.BatchDetailAction.OnAddInitialStockToggled(isChecked))
-                    },
-                )
-
-                AnimatedVisibility(
-                    visible = state.batchDetail.addInitialStock
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        SectionBatchDetail(
-                            addBatchDetailState = state.batchDetail,
-                            formErrors = state.formErrors,
-                            onAction = onAction,
-                        )
-
-                        SectionBatchInformation(
-                            addBatchInformationState = state.batchInformation,
-                            formErrors = state.formErrors,
-                            onAction = onAction
-                        )
-                    }
-                }
             }
 
             Box(
@@ -295,14 +238,14 @@ fun AddProductContent(
                     .padding(16.dp)
             ) {
                 AppPrimaryButton(
-                    text = stringResource(R.string.btn_label_save_product),
-                    enabled = state.isSavedEnabled,
+                    text = stringResource(R.string.btn_label_edit_product),
+                    enabled = state.isEditEnabled,
                     onClick = {
                         onAction(ProductFormAction.SaveProduct)
                     },
                     icon = {
                         Icon(
-                            painter = painterResource(coreR.drawable.check_24),
+                            painter = painterResource(coreR.drawable.edit_24),
                             contentDescription = stringResource(R.string.btn_label_add_first_item),
                         )
                     },
@@ -363,7 +306,7 @@ fun AddProductContent(
             subtitle = stringResource(R.string.dialog_subtitle_review_value),
             formErrors = state.formErrors,
             productDetail = state.productDetail,
-            batchDetail = state.batchDetail,
+            batchDetail = null,
             onDismissRequest = {
                 onAction(ProductFormAction.SummaryDialogAction.OnDismissWarningsDialog)
             },
@@ -399,7 +342,7 @@ fun AddProductContent(
                 AppPrimaryButton(
                     text = stringResource(R.string.btn_label_discard),
                     onClick = {
-                        onNavigate(AddProductNavigation.NavigateUp)
+                        onNavigate(EditProductNavigation.NavigateUp)
                         onDismissDiscardDialog()
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -440,71 +383,22 @@ fun AddProductContent(
     }
 }
 
-@Preview (
+@Preview(
     showBackground = true,
     device = "spec:width=1080px,height=1900px,dpi=416"
 )
 @Composable
-fun AddProductContentPreview() {
+fun EditProductScreenPreview() {
     InventoryTheme {
-        var isChecked by remember { mutableStateOf(true) }
-
-        AddProductContent(
-            state = ScreenAddProductState(),
-            scrollState = rememberScrollState(),
+        EditProductContent(
+            state = ScreenEditProductState(),
+            onAction = {},
             showImagePickerBottomSheet = false,
             showRemoveImageDialog = false,
             showDiscardDialog = false,
-            handleBackNavigation = {},
-            onDismissDiscardDialog = {},
-            onAction = {action ->
-                if (action is ProductFormAction.BatchDetailAction.OnAddInitialStockToggled) {
-                    isChecked = !isChecked
-                }
-            },
-            onNavigate = {}
-        )
-    }
-}
-
-@Preview (
-    showBackground = true,
-    device = "spec:width=1080px,height=3600px,dpi=416"
-)
-@Composable
-fun AddProductContentPreview_Filled() {
-    InventoryTheme {
-        var isChecked by remember { mutableStateOf(true) }
-
-        AddProductContent(
-            state = ScreenAddProductState(
-                showSummaryConfirmationDialog = false,
-                batchDetail = AddBatchDetailState(
-                    addInitialStock = isChecked,
-                    batchQuantity = "11000",
-                    batchPrice = "1000000000"
-                ),
-                productDetail = ProductFormDetailState(
-                    productMinQuantity = "10000"
-                ),
-                formErrors = ProductFormError(
-                    minQuantityError = ProductMinimumQuantityError.REQUIRES_CONFIRMATION,
-                    quantityError = BatchQuantityError.REQUIRES_CONFIRMATION,
-                    priceError = BatchPriceError.REQUIRES_CONFIRMATION
-                )
-            ),
-            scrollState = rememberScrollState(),
-            showImagePickerBottomSheet = false,
-            showRemoveImageDialog = false,
-            showDiscardDialog = false,
-            handleBackNavigation = {},
-            onDismissDiscardDialog = {},
-            onAction = {action ->
-                if (action is ProductFormAction.BatchDetailAction.OnAddInitialStockToggled) {
-                    isChecked = !isChecked
-                }
-            },
-            onNavigate = {}
+            handleBackNavigation = { },
+            onDismissDiscardDialog = {  },
+            onNavigate = {  },
         )
     }
 }

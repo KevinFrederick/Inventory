@@ -14,4 +14,7 @@ sealed interface ProductScreen {
 
     @Serializable
     data class ProductDetail(val productId: String): ProductScreen
+
+    @Serializable
+    data class EditProduct(val productId: String): ProductScreen
 }

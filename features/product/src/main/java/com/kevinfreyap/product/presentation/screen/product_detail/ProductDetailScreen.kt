@@ -47,7 +47,7 @@ import com.kevinfreyap.product.presentation.screen.product_detail.section.Sectio
 import com.kevinfreyap.product.presentation.screen.product_detail.section.SectionProductCorePlaceholder
 import com.kevinfreyap.product.presentation.screen.product_detail.section.SectionTotalQtyAndPriceRange
 import com.kevinfreyap.product.presentation.screen.product_detail.section.SectionTotalQtyAndPriceRangePlaceholder
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.ScreenProductDetailState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.ProductDetailAction
@@ -109,6 +109,7 @@ fun ProductDetailScreen(
                 ProductDetailAction.OnCancelDelete -> {
                     showDeleteDialog = false
                 }
+                else -> viewModel.onAction(action)
             }
         },
         modifier = modifier
@@ -117,7 +118,7 @@ fun ProductDetailScreen(
 
 @Composable
 fun ProductDetailContent(
-    uiState: UiState<ProductDetailState>,
+    uiState: UiState<ScreenProductDetailState>,
     showDeleteDialog: Boolean,
     onAction: (ProductDetailAction) -> Unit,
     onNavigate: (ProductDetailNavigation) -> Unit,
@@ -150,7 +151,7 @@ fun ProductDetailContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                    onAction(ProductDetailAction.OnEditButtonClick)
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -184,7 +185,7 @@ fun ProductDetailContent(
                 }
                 is UiState.Success -> {
                     ProductDetailSuccess(
-                        productDetailState = uiState.data
+                        screenProductDetailState = uiState.data
                     )
 
                     if (showDeleteDialog) {
@@ -254,26 +255,26 @@ private fun ProductDetailShimmer() {
 
 @Composable
 private fun ProductDetailSuccess(
-    productDetailState: ProductDetailState
+    screenProductDetailState: ScreenProductDetailState
 ) {
-    AppImageCard(imageUri = productDetailState.imageUri)
+    AppImageCard(imageUri = screenProductDetailState.imageUri)
 
     SectionProductCore(
-        name = productDetailState.productName,
-        sku = productDetailState.productSku,
-        category = productDetailState.productCategory,
+        name = screenProductDetailState.productName,
+        sku = screenProductDetailState.productSku,
+        category = screenProductDetailState.productCategory,
     )
 
     SectionTotalQtyAndPriceRange(
-        stockStatus = stringResource(productDetailState.stockStatus),
-        quantity = if (productDetailState.productTotalQtyText != "0") productDetailState.productTotalQtyText else null,
-        minPrice = productDetailState.productMinPrice,
-        maxPrice = productDetailState.productMaxPrice,
+        stockStatus = stringResource(screenProductDetailState.stockStatus),
+        quantity = if (screenProductDetailState.productTotalQtyText != "0") screenProductDetailState.productTotalQtyText else null,
+        minPrice = screenProductDetailState.productMinPrice,
+        maxPrice = screenProductDetailState.productMaxPrice,
     )
 
     SectionMinQtyAndExpDate(
-        minQuantity = productDetailState.productMinQtyText,
-        expirationText = productDetailState.productNearestExpDate,
+        minQuantity = screenProductDetailState.productMinQtyText,
+        expirationText = screenProductDetailState.productNearestExpDate,
         modifier = Modifier
             .padding(
                 horizontal = 8.dp,
@@ -282,18 +283,18 @@ private fun ProductDetailSuccess(
     )
 
     SectionDescription(
-        description = productDetailState.productDescription
+        description = screenProductDetailState.productDescription
     )
 
     SectionBatches(
-        batches = productDetailState.batchesPreviewList,
-        totalBatchCount = productDetailState.totalBatchCount,
+        batches = screenProductDetailState.batchesPreviewList,
+        totalBatchCount = screenProductDetailState.totalBatchCount,
         onSeeAllBatchClick = {  },
         onBatchItemClick = {  },
     )
 
     SectionBarcode(
-        barcodeText = productDetailState.productBarcode
+        barcodeText = screenProductDetailState.productBarcode
     )
 }
 
@@ -370,7 +371,7 @@ fun ProductDetailScreenPreview() {
             showDeleteDialog = false,
             onAction = {},
             uiState = UiState.Success(
-                ProductDetailState(
+                ScreenProductDetailState(
                     imageUri = "",
                     productName = "Something Very Long Text",
                     productCategory = "Electronic",

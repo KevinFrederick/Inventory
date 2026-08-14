@@ -9,7 +9,7 @@ import com.kevinfreyap.product.domain.usecase.GetTotalProductCountUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
-import com.kevinfreyap.product.presentation.state.DashboardState
+import com.kevinfreyap.product.presentation.state.ScreenDashboardState
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,7 +66,7 @@ class DashboardViewModel @Inject constructor(
     private val retryTrigger = MutableStateFlow(0)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<UiState<DashboardState>> = retryTrigger
+    val uiState: StateFlow<UiState<ScreenDashboardState>> = retryTrigger
         .flatMapLatest { _ ->
             combine(
                 flow = getTotalProductCount(),
@@ -81,7 +81,7 @@ class DashboardViewModel @Inject constructor(
                 }
 
                 UiState.Success(
-                    DashboardState(
+                    ScreenDashboardState(
                         totalProductCount = totalProductCount,
                         lowStockProductCount = lowStockProductCount,
                         alertList = alertList

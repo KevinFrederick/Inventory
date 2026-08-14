@@ -3,10 +3,10 @@ package com.kevinfreyap.product.presentation.state
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.ui.state.UiState
 
-data class AddProductState(
+data class ScreenAddProductState(
     // Product Details
-    val productDetail: AddProductDetailState = AddProductDetailState(),
-    val productIdentification: AddProductIdentificationState = AddProductIdentificationState(),
+    val productDetail: ProductFormDetailState = ProductFormDetailState(),
+    val productIdentification: ProductFormIdentificationState = ProductFormIdentificationState(),
 
     // Stock Batch Details
     val batchDetail: AddBatchDetailState = AddBatchDetailState(),
