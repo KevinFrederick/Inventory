@@ -69,6 +69,9 @@ interface ProductDao {
     @Update
     suspend fun updateProduct(product: ProductEntity)
 
+    @Query("UPDATE product SET lastUpdated = :timestamp WHERE productId = :productId")
+    suspend fun updateProductTimestamp(productId: String, timestamp: Long)
+
     @Query("DELETE FROM product WHERE productId = :id")
     suspend fun deleteProduct(id: String)
 }

@@ -361,7 +361,10 @@ class BatchFormViewModel @Inject constructor(
             _formState.update { it.copy(uiState = UiState.Loading) }
 
             try {
-                deleteBatchById(batchId)
+                deleteBatchById(
+                    batchId = batchId,
+                    productId = productId
+                )
 
                 _uiEvent.send(
                     UiEvent.ShowToast(R.string.success_batch_deleted)
