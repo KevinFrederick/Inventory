@@ -38,6 +38,7 @@ fun AppTextField(
     maxLines: Int = 1,
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
+    enabled: Boolean = true,
     label: String? = null,
     placeholder: String? = null,
     isError: Boolean = false,
@@ -91,6 +92,7 @@ fun AppTextField(
         minLines = minLines,
         maxLines = maxLines,
         readOnly = readOnly,
+        enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = unfocusedColor,
@@ -98,6 +100,11 @@ fun AppTextField(
 
             unfocusedLabelColor = unfocusedColor,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
+
+            disabledLabelColor = unfocusedColor,
+            disabledBorderColor = unfocusedColor,
+            disabledTrailingIconColor = unfocusedColor,
+            disabledTextColor = Theme.custom.primaryText,
 
             unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,

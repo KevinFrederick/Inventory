@@ -9,8 +9,8 @@ data class ScreenAddProductState(
     val productIdentification: ProductFormIdentificationState = ProductFormIdentificationState(),
 
     // Stock Batch Details
-    val batchDetail: AddBatchDetailState = AddBatchDetailState(),
-    val batchInformation: AddBatchInformationState = AddBatchInformationState(),
+    val batchDetail: BatchFormDetailState = BatchFormDetailState(),
+    val batchInformation: BatchFormInformationState = BatchFormInformationState(),
 
     // UI Status
     val formErrors: ProductFormError? = null,
@@ -28,7 +28,7 @@ data class ScreenAddProductState(
                 (batchDetail.batchQuantity.isNotBlank() && batchDetail.batchQuantity != "0") ||
                 batchDetail.batchLocation.isNotBlank() ||
                 batchDetail.batchPrice.isNotBlank() ||
-                batchInformation.batchExpirationText?.isNotBlank() == true ||
+                batchInformation.batchExpirationTextFormatted?.isNotBlank() == true ||
                 batchInformation.batchSupplier?.isNotBlank() == true
 
     val isSavedEnabled: Boolean

@@ -5,6 +5,7 @@ import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
+import com.kevinfreyap.product.domain.model.error.DatabaseError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.repository.IImageManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
@@ -69,7 +70,11 @@ class UpdateProductUseCase @Inject constructor(
         val categoryDomain = createOrGetCategory(validCategoryName)
 
         val existingProduct = repository.getProductById(productId).firstOrNull()
-            ?: throw IllegalStateException("Cannot update product: Product not found")
+            ?: return Result.Error(
+                ProductFormError(
+                    databaseError = DatabaseError.NOT_FOUND
+                )
+            )
 
         val currentUri = imageResult.getOrNull()
 

@@ -39,6 +39,7 @@ fun <T> AppDropdownField(
     modifier: Modifier = Modifier,
     unfocusedColor: Color = Theme.custom.hint,
     readOnly: Boolean = false,
+    enabled: Boolean = true,
     floatingLabel: Boolean = true,
     enableAddNew: Boolean = false,
     isError: Boolean = false,
@@ -56,9 +57,11 @@ fun <T> AppDropdownField(
     }
 
     ExposedDropdownMenuBox(
-        expanded = isMenuVisible,
+        expanded = if (enabled) isMenuVisible else false,
         onExpandedChange = { newExpand ->
-            expanded = newExpand
+            if (enabled) {
+                expanded = newExpand
+            }
         },
         modifier = modifier
     ) {
@@ -82,7 +85,7 @@ fun <T> AppDropdownField(
                 } else {
                     ExposedDropdownMenuAnchorType.PrimaryEditable
                 },
-                enabled = true
+                enabled = enabled
             ),
             trailingIcon = {
                 if (customTrailingIcon != null) {
@@ -93,12 +96,13 @@ fun <T> AppDropdownField(
             },
             unfocusedColor = unfocusedColor,
             readOnly = readOnly,
+            enabled = enabled,
             isError = isError,
             errorMessage = errorMessage
         )
 
         ExposedDropdownMenu (
-            expanded = isMenuVisible,
+            expanded = if (enabled) isMenuVisible else false,
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             shape = RoundedCornerShape(16.dp),

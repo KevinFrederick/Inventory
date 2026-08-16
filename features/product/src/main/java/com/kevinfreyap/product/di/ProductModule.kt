@@ -4,11 +4,13 @@ import com.kevinfreyap.product.data.repository.CategoryRepository
 import com.kevinfreyap.product.data.repository.ImageManager
 import com.kevinfreyap.product.data.repository.LocationRepository
 import com.kevinfreyap.product.data.repository.ProductRepository
+import com.kevinfreyap.product.data.repository.StockBatchRepository
 import com.kevinfreyap.product.data.repository.TransactionRepository
 import com.kevinfreyap.product.domain.repository.ICategoryRepository
 import com.kevinfreyap.product.domain.repository.IImageManager
 import com.kevinfreyap.product.domain.repository.ILocationRepository
 import com.kevinfreyap.product.domain.repository.IProductRepository
+import com.kevinfreyap.product.domain.repository.IStockBatchRepository
 import com.kevinfreyap.product.domain.repository.ITransactionRepository
 import dagger.Binds
 import dagger.Module
@@ -37,6 +39,11 @@ abstract class ProductModule {
     abstract fun bindLocationRepository(
         impl: LocationRepository
     ): ILocationRepository
+
+    @Binds
+    abstract fun bindStockBatchRepository(
+        impl: StockBatchRepository
+    ): IStockBatchRepository
 
     @Binds
     abstract fun bindImageManager(

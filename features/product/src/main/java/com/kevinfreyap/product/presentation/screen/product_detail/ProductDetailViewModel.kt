@@ -9,7 +9,7 @@ import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.usecase.DeleteProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetProductByIdUseCase
 import com.kevinfreyap.product.presentation.action.ProductDetailAction
-import com.kevinfreyap.product.presentation.event.ProductDetailUiEvent
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
@@ -36,7 +36,7 @@ class ProductDetailViewModel @Inject constructor(
     private val route = savedStateHandle.toRoute<ProductScreen.ProductDetail>()
     private val productId = ProductId(route.productId)
 
-    private val _uiEvent = Channel<ProductDetailUiEvent>()
+    private val _uiEvent = Channel<UiEvent<ProductDetailNavigation>>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     val uiState: StateFlow<UiState<ScreenProductDetailState>> = getProductById(productId)
@@ -69,10 +69,44 @@ class ProductDetailViewModel @Inject constructor(
         )
 
     fun onAction(action: ProductDetailAction) {
-        if (action == ProductDetailAction.OnEditButtonClick) {
-            viewModelScope.launch {
-                _uiEvent.send(ProductDetailUiEvent.Navigate(ProductDetailNavigation.EditProduct(productId.value)))
+        when(action) {
+            ProductDetailAction.OnAddBatchClick -> {
+                viewModelScope.launch {
+                    _uiEvent.send(
+                        UiEvent.Navigate(
+                            ProductDetailNavigation.AddBatch(
+                                productId = productId.value
+                            )
+                        )
+                    )
+                }
             }
+            ProductDetailAction.OnEditProductClick -> {
+                viewModelScope.launch {
+                    _uiEvent.send(
+                        UiEvent.Navigate(
+                            ProductDetailNavigation.EditProduct(
+                                productId = productId.value
+                            )
+                        )
+                    )
+                }
+            }
+            is ProductDetailAction.OnBatchDetailClick -> {
+                viewModelScope.launch { 
+                    _uiEvent.send(
+                        UiEvent.Navigate(
+                            ProductDetailNavigation.BatchDetail(
+                                productId = productId.value,
+                                batchId = action.batchId
+                            )
+                        )
+                    )
+                }
+            }
+            ProductDetailAction.OnCancelDelete -> Unit
+            ProductDetailAction.OnConfirmDelete -> Unit
+            ProductDetailAction.OnDeleteButtonClick -> Unit
         }
     }
 
@@ -82,16 +116,16 @@ class ProductDetailViewModel @Inject constructor(
                 deleteProductById(productId)
 
                 _uiEvent.send(
-                    ProductDetailUiEvent.ShowToast(R.string.success_product_deleted)
+                    UiEvent.ShowToast(R.string.success_product_deleted)
                 )
 
                 _uiEvent.send(
-                    ProductDetailUiEvent.Navigate(ProductDetailNavigation.NavigateUp)
+                    UiEvent.Navigate(ProductDetailNavigation.NavigateUp)
                 )
 
             } catch (_: Exception) {
                 _uiEvent.send(
-                    ProductDetailUiEvent.ShowToast(R.string.error_delete_product)
+                    UiEvent.ShowToast(R.string.error_delete_product)
                 )
             }
         }

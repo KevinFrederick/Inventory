@@ -17,4 +17,10 @@ sealed interface ProductScreen {
 
     @Serializable
     data class EditProduct(val productId: String): ProductScreen
+
+    @Serializable
+    data class BatchForm (
+        val productId: String,
+        val batchId: String? = null
+    ): ProductScreen
 }

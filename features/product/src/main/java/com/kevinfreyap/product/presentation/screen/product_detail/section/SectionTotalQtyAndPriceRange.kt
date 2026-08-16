@@ -59,7 +59,8 @@ fun SectionTotalQtyAndPriceRange (
             modifier = Modifier
                 .weight(0.3f)
                 .fillMaxHeight()
-        ) {
+        )
+        {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +71,8 @@ fun SectionTotalQtyAndPriceRange (
                 Text(
                     text = stockStatus,
                     style = MaterialTheme.typography.labelLarge,
-                    color = Theme.custom.secondaryText
+                    color = Theme.custom.secondaryText,
+                    textAlign = TextAlign.Center
                 )
                 if (!quantity.isNullOrBlank()) {
                     Box(
@@ -112,7 +114,8 @@ fun SectionTotalQtyAndPriceRange (
             modifier = Modifier
                 .weight(0.7f)
                 .fillMaxHeight()
-        ) {
+        )
+        {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,

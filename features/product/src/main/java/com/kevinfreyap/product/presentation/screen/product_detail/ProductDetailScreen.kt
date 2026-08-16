@@ -53,7 +53,7 @@ import com.kevinfreyap.product.presentation.state.ScreenProductDetailState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.action.ProductDetailAction
-import com.kevinfreyap.product.presentation.event.ProductDetailUiEvent
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageCard
@@ -81,10 +81,10 @@ fun ProductDetailScreen(
     LaunchedEffect(true) {
         viewModel.uiEvent.collect { event ->
             when(event) {
-                is ProductDetailUiEvent.Navigate -> {
+                is UiEvent.Navigate -> {
                     onNavigate(event.destination)
                 }
-                is ProductDetailUiEvent.ShowToast -> {
+                is UiEvent.ShowToast -> {
                     Toast.makeText(
                         context,
                         event.messageRes,
@@ -140,7 +140,7 @@ fun ProductDetailContent(
                     ) {
                         IconButton(
                             onClick = {
-                                onAction(ProductDetailAction.OnEditButtonClick)
+                                onAction(ProductDetailAction.OnEditProductClick)
                             }
                         ) {
                             Icon(
@@ -169,7 +169,7 @@ fun ProductDetailContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-
+                    onAction(ProductDetailAction.OnAddBatchClick)
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -210,7 +210,8 @@ fun ProductDetailContent(
                 }
                 is UiState.Success -> {
                     ProductDetailSuccess(
-                        screenProductDetailState = uiState.data
+                        screenProductDetailState = uiState.data,
+                        onAction = onAction
                     )
 
                     if (showDeleteDialog) {
@@ -282,7 +283,8 @@ private fun ProductDetailShimmer() {
 
 @Composable
 private fun ProductDetailSuccess(
-    screenProductDetailState: ScreenProductDetailState
+    screenProductDetailState: ScreenProductDetailState,
+    onAction: (ProductDetailAction) -> Unit,
 ) {
     AppImageCard(imageUri = screenProductDetailState.imageUri)
 
@@ -319,7 +321,9 @@ private fun ProductDetailSuccess(
 
     SectionBatches(
         batches = screenProductDetailState.batchesList,
-        onBatchItemClick = {  },
+        onBatchItemClick = { batchId ->
+            onAction(ProductDetailAction.OnBatchDetailClick(batchId = batchId))
+        },
     )
 
 }

@@ -46,6 +46,7 @@ fun QuantitySelector(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
     errorMessage: String? = null,
+    isReadOnly: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -59,7 +60,7 @@ fun QuantitySelector(
         unfocusedColor
     }
 
-    OutlinedTextField(
+     OutlinedTextField(
         value = quantity,
         onValueChange = { newValue ->
             val filteredText = newValue.filter { it.isDigit() }
@@ -81,12 +82,19 @@ fun QuantitySelector(
             unfocusedLabelColor = unfocusedColor,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
 
+            disabledLabelColor = unfocusedColor,
+            disabledBorderColor = unfocusedColor,
+            disabledTrailingIconColor = unfocusedColor,
+            disabledTextColor = Theme.custom.primaryText,
+
             unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
+        readOnly = isReadOnly,
+        enabled = !isReadOnly,
         leadingIcon = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -97,7 +105,10 @@ fun QuantitySelector(
                         .fillMaxHeight()
                         .width(48.dp)
                         .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp))
-                        .clickable(onClick = onDecrementClick),
+                        .clickable(
+                            onClick = onDecrementClick,
+                            enabled = !isReadOnly
+                        ),
                     contentAlignment = Alignment.Center
                 ){
                     Icon(
@@ -128,7 +139,10 @@ fun QuantitySelector(
                         .fillMaxHeight()
                         .width(48.dp)
                         .clip(RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp))
-                        .clickable(onClick = onIncrementClick),
+                        .clickable(
+                            onClick = onIncrementClick,
+                            enabled = !isReadOnly
+                        ),
                     contentAlignment = Alignment.Center
                 ){
                     Icon(

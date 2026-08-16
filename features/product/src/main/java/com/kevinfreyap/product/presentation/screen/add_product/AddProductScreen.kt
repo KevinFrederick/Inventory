@@ -54,7 +54,7 @@ import com.kevinfreyap.product.presentation.screen.add_product.section.SectionPr
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
 import com.kevinfreyap.product.presentation.state.ScreenAddProductState
-import com.kevinfreyap.product.presentation.state.AddBatchDetailState
+import com.kevinfreyap.product.presentation.state.BatchFormDetailState
 import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageUpload
@@ -62,6 +62,7 @@ import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppTextDialog
 import com.kevinfreyap.ui.components.AppTextIconDialog
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -98,16 +99,20 @@ fun AddProductScreen(
         }
     }
 
-    LaunchedEffect(state.uiState) {
-        if (state.uiState is UiState.Success) {
-            Toast.makeText(
-                context,
-                R.string.success_product_saved,
-                Toast.LENGTH_SHORT
-            ).show()
-
-            onNavigate(AddProductNavigation.NavigateUp)
-            viewmodel.onAction(ProductFormAction.ResetForm)
+    LaunchedEffect(true) {
+        viewmodel.uiEvent.collect { event ->
+            when(event) {
+                is UiEvent.Navigate -> {
+                    onNavigate(event.destination)
+                }
+                is UiEvent.ShowToast -> {
+                    Toast.makeText(
+                        context,
+                        event.messageRes,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 
@@ -275,13 +280,13 @@ fun AddProductContent(
                             .fillMaxWidth()
                     ) {
                         SectionBatchDetail(
-                            addBatchDetailState = state.batchDetail,
+                            batchFormDetailState = state.batchDetail,
                             formErrors = state.formErrors,
                             onAction = onAction,
                         )
 
                         SectionBatchInformation(
-                            addBatchInformationState = state.batchInformation,
+                            batchFormInformationState = state.batchInformation,
                             formErrors = state.formErrors,
                             onAction = onAction
                         )
@@ -298,12 +303,12 @@ fun AddProductContent(
                     text = stringResource(R.string.btn_label_save_product),
                     enabled = state.isSavedEnabled,
                     onClick = {
-                        onAction(ProductFormAction.SaveProduct)
+                        onAction(ProductFormAction.Save)
                     },
                     icon = {
                         Icon(
                             painter = painterResource(coreR.drawable.check_24),
-                            contentDescription = stringResource(R.string.btn_label_add_first_item),
+                            contentDescription = stringResource(R.string.btn_label_save_product),
                         )
                     },
                     modifier = Modifier
@@ -479,7 +484,7 @@ fun AddProductContentPreview_Filled() {
         AddProductContent(
             state = ScreenAddProductState(
                 showSummaryConfirmationDialog = false,
-                batchDetail = AddBatchDetailState(
+                batchDetail = BatchFormDetailState(
                     addInitialStock = isChecked,
                     batchQuantity = "11000",
                     batchPrice = "1000000000"

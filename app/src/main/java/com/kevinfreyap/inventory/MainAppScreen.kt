@@ -21,12 +21,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
+import com.kevinfreyap.product.presentation.navigation.BatchFormNavigation
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
 import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.screen.add_product.AddProductScreen
+import com.kevinfreyap.product.presentation.screen.batch_form.BatchFormScreen
 import com.kevinfreyap.product.presentation.screen.dashboard.DashboardScreen
 import com.kevinfreyap.product.presentation.screen.edit_product.EditProductScreen
 import com.kevinfreyap.product.presentation.screen.product_detail.ProductDetailScreen
@@ -134,6 +136,29 @@ fun MainAppScreen(
                                     ProductScreen.EditProduct(destination.productId)
                                 )
                             }
+
+                            is ProductDetailNavigation.AddBatch -> {
+                                val productId = destination.productId
+
+                                navController.navigate(
+                                    ProductScreen.BatchForm(
+                                        productId = productId,
+                                        batchId = null
+                                    )
+                                )
+                            }
+
+                            is ProductDetailNavigation.BatchDetail -> {
+                                val productId = destination.productId
+                                val batchId = destination.batchId
+
+                                navController.navigate(
+                                    ProductScreen.BatchForm(
+                                        productId = productId,
+                                        batchId = batchId
+                                    )
+                                )
+                            }
                         }
                     }
                 )
@@ -144,6 +169,18 @@ fun MainAppScreen(
                     onNavigate = {destination ->
                         when (destination) {
                             EditProductNavigation.NavigateUp -> {
+                                navController.navigateUp()
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable<ProductScreen.BatchForm> {
+                BatchFormScreen(
+                    onNavigate = { destination ->
+                        when(destination) {
+                            BatchFormNavigation.NavigateUp -> {
                                 navController.navigateUp()
                             }
                         }

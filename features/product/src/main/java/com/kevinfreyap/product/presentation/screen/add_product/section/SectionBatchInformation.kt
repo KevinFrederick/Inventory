@@ -25,7 +25,7 @@ import com.kevinfreyap.product.domain.model.error.BatchSupplierError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.AddBatchInformationState
+import com.kevinfreyap.product.presentation.state.BatchFormInformationState
 import com.kevinfreyap.product.presentation.util.DateInputTransformation
 import com.kevinfreyap.ui.components.AppDateInputDialog
 import com.kevinfreyap.ui.components.AppTextField
@@ -34,10 +34,11 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionBatchInformation(
-    addBatchInformationState: AddBatchInformationState,
+    batchFormInformationState: BatchFormInformationState,
     formErrors: ProductFormError?,
     onAction: (ProductFormAction.BatchInformationAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isReadOnly: Boolean = false
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -52,7 +53,7 @@ fun SectionBatchInformation(
             ) {
                 Box {
                     AppTextField(
-                        value = addBatchInformationState.batchExpirationText ?: "",
+                        value = batchFormInformationState.batchExpirationTextFormatted ?: "",
                         onValueChange = {},
                         label = stringResource(R.string.label_field_batch_expiration),
                         minLines = 1,
@@ -76,7 +77,9 @@ fun SectionBatchInformation(
                     Spacer(
                         modifier = Modifier
                             .matchParentSize()
-                            .clickable {
+                            .clickable (
+                                enabled = !isReadOnly
+                            ) {
                                 onAction(ProductFormAction.BatchInformationAction.OnOpenExpirationDialog)
                                 showDatePicker = true
                             }
@@ -84,7 +87,7 @@ fun SectionBatchInformation(
                 }
 
                 AppTextField(
-                    value = addBatchInformationState.batchSupplier ?: "",
+                    value = batchFormInformationState.batchSupplier ?: "",
                     onValueChange = { supplier ->
                         onAction(ProductFormAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
                     },
@@ -94,6 +97,8 @@ fun SectionBatchInformation(
                     unfocusedColor = Theme.custom.hint,
                     imeAction = ImeAction.Done,
                     capitalization = KeyboardCapitalization.Sentences,
+                    readOnly = isReadOnly,
+                    enabled = !isReadOnly,
                     isError = formErrors?.supplierError != null,
                     errorMessage = if (formErrors?.supplierError != null) {
                         when(formErrors.supplierError) {
@@ -105,9 +110,9 @@ fun SectionBatchInformation(
         }
     )
 
-    if (showDatePicker) {
+    if (showDatePicker && !isReadOnly) {
         AppDateInputDialog(
-            dateValue = addBatchInformationState.batchExpirationFieldText,
+            dateValue = batchFormInformationState.batchExpirationFieldText,
             fieldLabel = stringResource(R.string.label_field_batch_expiration),
             fieldPlaceholder = stringResource(R.string.placeholder_date_input),
             visualTransformation = DateInputTransformation,
@@ -139,7 +144,7 @@ fun SectionBatchInformation(
 fun SectionBatchInformationPreview() {
     InventoryTheme {
         SectionBatchInformation(
-            addBatchInformationState = AddBatchInformationState(),
+            batchFormInformationState = BatchFormInformationState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

@@ -14,3 +14,7 @@ fun String.toTitleCase(): String {
             word.replaceFirstChar { it.titlecase() }
         }
 }
+
+fun String.toShortId(): String {
+    return this.substring(6, 12).uppercase()
+}

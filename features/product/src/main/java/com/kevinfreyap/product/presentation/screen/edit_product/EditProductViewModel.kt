@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.ProductId
+import com.kevinfreyap.product.domain.model.error.DatabaseError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.product.domain.usecase.GetAllCategoryUseCase
 import com.kevinfreyap.product.domain.usecase.GetProductByIdUseCase
@@ -14,15 +16,19 @@ import com.kevinfreyap.product.domain.usecase.ValidateProductCategoryUseCase
 import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductDetailAction
 import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductIdentificationAction
+import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenEditProductState
 import com.kevinfreyap.product.presentation.state.SharedProductFormState
 import com.kevinfreyap.product.presentation.util.toFormattedNumber
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +47,9 @@ class EditProductViewModel @Inject constructor(
 
     private val productId = ProductId(route.productId)
 
+    private val _uiEvent = Channel<UiEvent<EditProductNavigation>>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     private val _formState = MutableStateFlow(ScreenEditProductState())
     val formState = _formState.asStateFlow()
 
@@ -55,13 +64,11 @@ class EditProductViewModel @Inject constructor(
             is ProductFormAction.ProductIdentificationAction -> handleProductIdentification(action)
             is ProductFormAction.SummaryDialogAction -> handleSummaryDialog(action)
             is ProductFormAction.StatusDialogAction -> handleStatusDialog(action)
-            is ProductFormAction.SaveProduct -> updateProduct()
-            is ProductFormAction.ResetForm -> {
-                _formState.update { ScreenEditProductState() }
-            }
+            is ProductFormAction.Save -> updateProduct()
             is ProductFormAction.ImagePickerAction -> Unit
             is ProductFormAction.BatchDetailAction -> Unit
             is ProductFormAction.BatchInformationAction -> Unit
+            is ProductFormAction.BatchToggleAction -> Unit
         }
     }
 
@@ -72,7 +79,7 @@ class EditProductViewModel @Inject constructor(
             if (product == null) {
                 _formState.update { currentState ->
                     currentState.copy(
-                        uiState = UiState.Error("")
+                        uiState = UiState.Error("Product not found")
                     )
                 }
                 return@launch
@@ -236,9 +243,24 @@ class EditProductViewModel @Inject constructor(
                                 uiState = UiState.Success(Unit)
                             )
                         }
+
+                        _uiEvent.send(UiEvent.ShowToast(R.string.success_product_saved))
+                        _uiEvent.send(UiEvent.Navigate(EditProductNavigation.NavigateUp))
+
+                        _formState.update { ScreenEditProductState() }
                     }
                     is Result.Error -> {
                         val errors = result.error
+
+                        if (errors.databaseError == DatabaseError.NOT_FOUND) {
+                            _formState.update {
+                                it.copy(
+                                    uiState = UiState.Error("Cannot update product: Product has been deleted or not found."),
+                                    formErrors = null
+                                )
+                            }
+                            return@launch
+                        }
 
                         val needsConfirmation =
                             errors.minQuantityError == ProductMinimumQuantityError.REQUIRES_CONFIRMATION

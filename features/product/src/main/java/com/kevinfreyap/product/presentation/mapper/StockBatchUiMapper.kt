@@ -1,16 +1,15 @@
 package com.kevinfreyap.product.presentation.mapper
 
+import com.kevinfreyap.domain.util.toShortId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.presentation.model.StockBatchUi
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import com.kevinfreyap.product.presentation.util.toFormattedCurrency
 
 fun StockBatch.toUiModel(): StockBatchUi {
-    val shortId = this.batchId.value.substring(6, 12).uppercase()
-
     return StockBatchUi(
         id = this.batchId.value,
-        shortId = shortId,
+        shortId = this.batchId.value.toShortId(),
         quantity = this.quantity,
         price = this.price.toFormattedCurrency(),
         location = this.location.name,

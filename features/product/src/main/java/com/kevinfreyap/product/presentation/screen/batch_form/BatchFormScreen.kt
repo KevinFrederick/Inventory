@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.presentation.screen.edit_product
+package com.kevinfreyap.product.presentation.screen.batch_form
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,22 +32,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
-import com.kevinfreyap.ui.R as coreR
-import com.kevinfreyap.product.domain.model.error.ProductImageError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
-import com.kevinfreyap.product.presentation.components.rememberImagePicker
-import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
+import com.kevinfreyap.product.presentation.navigation.BatchFormNavigation
 import com.kevinfreyap.product.presentation.screen.add_product.section.DialogSummaryList
-import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductIdentification
-import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
-import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
-import com.kevinfreyap.product.presentation.state.ScreenEditProductState
+import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchDetail
+import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchInformation
+import com.kevinfreyap.product.presentation.screen.batch_form.section.SectionBatchHeadline
+import com.kevinfreyap.product.presentation.state.ScreenBatchFormState
+import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppCenterTopBar
-import com.kevinfreyap.ui.components.AppImageUpload
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppTextDialog
@@ -54,32 +52,25 @@ import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
-import java.io.File
 
 @Composable
-fun EditProductScreen(
+fun BatchFormScreen(
     modifier: Modifier = Modifier,
-    onNavigate: (EditProductNavigation) -> Unit,
-    viewModel: EditProductViewModel = hiltViewModel()
+    onNavigate: (BatchFormNavigation) -> Unit,
+    viewModel: BatchFormViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+
     val state by viewModel.formState.collectAsStateWithLifecycle()
 
-    var showImagePickerBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var showRemoveImageDialog by rememberSaveable { mutableStateOf(false) }
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
-
-    val imagePicker = rememberImagePicker (
-        onImagePicked = { uriString ->
-            viewModel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(uriString))
-        }
-    )
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     val handleBackNavigation = {
         if (state.hasUnsavedChanges) {
             showDiscardDialog = true
         } else {
-            onNavigate(EditProductNavigation.NavigateUp)
+            onNavigate(BatchFormNavigation.NavigateUp)
         }
     }
 
@@ -104,68 +95,42 @@ fun EditProductScreen(
         showDiscardDialog = true
     }
 
-    EditProductContent(
+    BatchFormContent(
         state = state,
-        showImagePickerBottomSheet = showImagePickerBottomSheet,
-        showRemoveImageDialog = showRemoveImageDialog,
         showDiscardDialog = showDiscardDialog,
+        showDeleteDialog = showDeleteDialog,
         handleBackNavigation = handleBackNavigation,
         onDismissDiscardDialog = {
             showDiscardDialog = false
         },
-        onAction = {action ->
-            when(action) {
-                is ProductFormAction.ImagePickerAction.OnUploadClick -> {
-                    showImagePickerBottomSheet = true
-                }
-                is ProductFormAction.ImagePickerAction.OnDismissSheet -> {
-                    showImagePickerBottomSheet = false
-                }
-                is ProductFormAction.ImagePickerAction.OnGalleryClick -> {
-                    showImagePickerBottomSheet = false
-                    imagePicker.launchGallery()
-                }
-                is ProductFormAction.ImagePickerAction.OnCameraClick -> {
-                    showImagePickerBottomSheet = false
-
-                    val tempFile = File.createTempFile("product_img_", ".jpg", context.cacheDir)
-
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.provider",
-                        tempFile
-                    )
-
-                    imagePicker.launchCamera(uri)
-                }
-                is ProductFormAction.ImagePickerAction.OnRemoveImage -> {
-                    showRemoveImageDialog = true
-                }
-                is ProductFormAction.ImagePickerAction.OnDismissRemoveDialog -> {
-                    showRemoveImageDialog = false
-                }
-                is ProductFormAction.ImagePickerAction.OnConfirmRemoveDialog -> {
-                    viewModel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(null))
-                    showRemoveImageDialog = false
-                }
-                else -> viewModel.onAction(action)
+        onShowDeleteDialog = {
+            showDeleteDialog = true
+        },
+        onDeleteDialogAction = { isConfirm ->
+            if (isConfirm) {
+                viewModel.deleteBatch()
+                showDeleteDialog = false
+            } else {
+                showDeleteDialog = false
             }
         },
+        onAction = viewModel::onAction,
         onNavigate = onNavigate,
         modifier = modifier
     )
 }
 
 @Composable
-fun EditProductContent(
-    state: ScreenEditProductState,
-    showImagePickerBottomSheet: Boolean,
-    showRemoveImageDialog: Boolean,
+fun BatchFormContent(
+    state: ScreenBatchFormState,
     showDiscardDialog: Boolean,
+    showDeleteDialog: Boolean,
     handleBackNavigation: () -> Unit,
     onDismissDiscardDialog: () -> Unit,
-    onNavigate: (EditProductNavigation) -> Unit,
+    onShowDeleteDialog: () -> Unit,
+    onDeleteDialogAction: (isConfirm: Boolean) -> Unit,
     onAction: (ProductFormAction) -> Unit,
+    onNavigate: (BatchFormNavigation) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -182,10 +147,44 @@ fun EditProductContent(
             },
         topBar = {
             AppCenterTopBar(
-                title = stringResource(R.string.title_edit_product),
+                title = if (state.isReadOnly) {
+                    stringResource(R.string.title_batch_detail)
+                } else if (state.isExistingBatch) {
+                    stringResource(R.string.title_edit_batch)
+                } else {
+                    stringResource(R.string.title_add_batch)
+                },
                 onBackClick = handleBackNavigation,
                 isLoading = state.uiState is UiState.Loading,
+                actionButton = {
+                    if (state.isExistingBatch) {
+                        IconButton(
+                            onClick = onShowDeleteDialog,
+                        ) {
+                            Icon(
+                                painter = painterResource(coreR.drawable.delete_24),
+                                contentDescription = "Delete product",
+                                tint = Theme.custom.secondaryText,
+                            )
+                        }
+                    }
+                }
             )
+        },
+        floatingActionButton = {
+            if (state.isReadOnly) {
+                FloatingActionButton(
+                    onClick = {
+                        onAction(ProductFormAction.BatchToggleAction.ToggleEditMode)
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        painter = painterResource(coreR.drawable.edit_24),
+                        contentDescription = stringResource(R.string.btn_label_edit)
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -203,105 +202,50 @@ fun EditProductContent(
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                AppImageUpload(
-                    uriString = state.productDetail.productImageUriString,
-                    icon = painterResource(R.drawable.add_a_photo_24),
-                    label = stringResource(R.string.btn_label_upload_image),
-                    onClick = {
-                        onAction(ProductFormAction.ImagePickerAction.OnUploadClick)
-                    },
-                    onRemove = {
-                        onAction(ProductFormAction.ImagePickerAction.OnRemoveImage)
-                    },
-                    isError = state.formErrors?.imageError != null,
-                    errorMessage = if (state.formErrors?.imageError != null) {
-                        when (state.formErrors.imageError) {
-                            ProductImageError.INVALID_FORMAT -> stringResource(R.string.error_product_image_invalid_format)
-                            ProductImageError.PATH_TOO_LONG -> stringResource(R.string.error_product_image_path_too_long)
-                            ProductImageError.FILE_TOO_LARGE -> stringResource(R.string.error_product_image_file_too_large)
-                        }
-                    } else null
+                SectionBatchHeadline(
+                    productName = state.productName,
+                    batchShortId = state.batchShortId
                 )
 
-                SectionProductInformation(
-                    productDetailState = state.productDetail,
+                SectionBatchDetail(
+                    batchFormDetailState = state.batchDetail,
                     formErrors = state.formErrors,
                     onAction = onAction,
+                    isReadOnly = state.isReadOnly
                 )
 
-                SectionProductIdentification(
-                    productFormIdentificationState = state.productIdentification,
+                SectionBatchInformation(
+                    batchFormInformationState = state.batchInformation,
                     formErrors = state.formErrors,
                     onAction = onAction,
+                    isReadOnly = state.isReadOnly
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                AppPrimaryButton(
-                    text = stringResource(R.string.btn_label_edit_product),
-                    enabled = state.isEditEnabled,
-                    onClick = {
-                        onAction(ProductFormAction.Save)
-                    },
-                    icon = {
-                        Icon(
-                            painter = painterResource(coreR.drawable.edit_24),
-                            contentDescription = stringResource(R.string.btn_label_edit_product),
-                        )
-                    },
+            if (!state.isReadOnly) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                )
+                        .padding(16.dp)
+                ) {
+                    AppPrimaryButton(
+                        text = stringResource(R.string.btn_label_save_batch),
+                        enabled = state.isSavedEnabled && state.uiState !is UiState.Loading,
+                        onClick = {
+                            onAction(ProductFormAction.Save)
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(coreR.drawable.check_24),
+                                contentDescription = stringResource(R.string.btn_label_save_batch),
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
-    }
-
-    if (showImagePickerBottomSheet) {
-        ImagePickerBottomSheet(
-            onDismiss = {
-                onAction(ProductFormAction.ImagePickerAction.OnDismissSheet)
-            },
-            onCameraClick = {
-                onAction(ProductFormAction.ImagePickerAction.OnCameraClick)
-            },
-            onGalleryClick = {
-                onAction(ProductFormAction.ImagePickerAction.OnGalleryClick)
-            }
-        )
-    }
-
-    if (showRemoveImageDialog) {
-        AppTextDialog(
-            title = stringResource(R.string.dialog_title_remove_image),
-            subtitle = stringResource(R.string.dialog_subtitle_remove_image),
-            onDismissRequest = {
-                onAction(ProductFormAction.ImagePickerAction.OnDismissRemoveDialog)
-            },
-            positiveBtn = {
-                AppPrimaryButton(
-                    text = stringResource(R.string.btn_label_confirm),
-                    onClick = {
-                        onAction(ProductFormAction.ImagePickerAction.OnConfirmRemoveDialog)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            negativeBtn = {
-                AppOutlinedButton(
-                    text = stringResource(R.string.btn_label_cancel),
-                    onClick = {
-                        onAction(ProductFormAction.ImagePickerAction.OnDismissRemoveDialog)
-                    },
-                    borderColor = Theme.custom.hint,
-                    contentColor = Theme.custom.hint,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-        )
     }
 
     if (state.showSummaryConfirmationDialog) {
@@ -309,8 +253,8 @@ fun EditProductContent(
             title = stringResource(R.string.dialog_title_review_value),
             subtitle = stringResource(R.string.dialog_subtitle_review_value),
             formErrors = state.formErrors,
-            productDetail = state.productDetail,
-            batchDetail = null,
+            productDetail = null,
+            batchDetail = state.batchDetail,
             onDismissRequest = {
                 onAction(ProductFormAction.SummaryDialogAction.OnDismissWarningsDialog)
             },
@@ -346,7 +290,7 @@ fun EditProductContent(
                 AppPrimaryButton(
                     text = stringResource(R.string.btn_label_discard),
                     onClick = {
-                        onNavigate(EditProductNavigation.NavigateUp)
+                        onNavigate(BatchFormNavigation.NavigateUp)
                         onDismissDiscardDialog()
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -385,24 +329,75 @@ fun EditProductContent(
             },
         )
     }
+
+    if (showDeleteDialog) {
+        AppTextIconDialog(
+            icon = painterResource(R.drawable.custom_warning_icon),
+            title = stringResource(R.string.dialog_title_delete_batch),
+            subtitle = stringResource(R.string.dialog_subtitle_delete_batch),
+            iconColor = MaterialTheme.colorScheme.error,
+            onDismissRequest = {
+                onDeleteDialogAction(
+                    false
+                )
+            },
+            positiveBtn = {
+                AppPrimaryButton(
+                    text = stringResource(R.string.btn_label_delete),
+                    onClick = {
+                        onDeleteDialogAction(
+                            true
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(coreR.drawable.delete_24),
+                            contentDescription = null,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            negativeBtn = {
+                AppOutlinedButton(
+                    text = stringResource(R.string.btn_label_cancel),
+                    onClick = {
+                        onDeleteDialogAction(
+                            false
+                        )
+                    },
+                    borderColor = Theme.custom.hint,
+                    contentColor = Theme.custom.hint,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        )
+    }
 }
 
 @Preview(
-    showBackground = true,
-    device = "spec:width=1080px,height=1900px,dpi=416"
+    showBackground = true
 )
 @Composable
-fun EditProductScreenPreview() {
+fun BatchFormScreenPreview() {
     InventoryTheme {
-        EditProductContent(
-            state = ScreenEditProductState(),
+        BatchFormContent(
+            state = ScreenBatchFormState(
+                productName = "Smartphone",
+                batchShortId = "123AB3",
+                isReadOnly = true,
+                isExistingBatch = true
+            ),
             onAction = {},
-            showImagePickerBottomSheet = false,
-            showRemoveImageDialog = false,
             showDiscardDialog = false,
-            handleBackNavigation = { },
+            handleBackNavigation = {  },
             onDismissDiscardDialog = {  },
             onNavigate = {  },
+            showDeleteDialog = false,
+            onDeleteDialogAction = {},
+            onShowDeleteDialog = {}
         )
     }
 }

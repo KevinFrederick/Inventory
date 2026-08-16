@@ -56,7 +56,10 @@ sealed interface ProductFormAction {
         data object OnDismissError: StatusDialogAction
     }
 
+    sealed interface BatchToggleAction: ProductFormAction {
+        data object ToggleEditMode: BatchToggleAction
+    }
+
     // Submit
-    data object SaveProduct: ProductFormAction
-    data object ResetForm: ProductFormAction
+    data object Save: ProductFormAction
 }

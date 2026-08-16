@@ -27,7 +27,7 @@ import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
-import com.kevinfreyap.product.presentation.state.AddBatchDetailState
+import com.kevinfreyap.product.presentation.state.BatchFormDetailState
 import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
@@ -39,8 +39,8 @@ fun DialogSummaryList(
     title: String,
     subtitle: String,
     formErrors: ProductFormError?,
-    productDetail: ProductFormDetailState,
-    batchDetail: AddBatchDetailState?,
+    productDetail: ProductFormDetailState?,
+    batchDetail: BatchFormDetailState?,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     positiveBtn: @Composable (() -> Unit)? = null,
@@ -67,16 +67,18 @@ fun DialogSummaryListContent(
     title: String,
     subtitle: String,
     formErrors: ProductFormError?,
-    productDetail: ProductFormDetailState,
-    batchDetail: AddBatchDetailState?,
+    productDetail: ProductFormDetailState?,
+    batchDetail: BatchFormDetailState?,
     modifier: Modifier = Modifier,
     positiveBtn: @Composable (() -> Unit)? = null,
     negativeBtn: @Composable (() -> Unit)? = null
 ) {
     val hasBothButton = positiveBtn != null && negativeBtn != null
     val warnings = buildList {
-        if (formErrors?.minQuantityError == ProductMinimumQuantityError.REQUIRES_CONFIRMATION) {
-            add(stringResource(R.string.dialog_summary_list_min_quantity, productDetail.productMinQuantity))
+        productDetail?.let {
+            if (formErrors?.minQuantityError == ProductMinimumQuantityError.REQUIRES_CONFIRMATION) {
+                add(stringResource(R.string.dialog_summary_list_min_quantity, productDetail.productMinQuantity))
+            }
         }
         batchDetail?.let {
             if (formErrors?.quantityError == BatchQuantityError.REQUIRES_CONFIRMATION) {
@@ -172,7 +174,7 @@ fun DialogSummaryListPreview() {
             productDetail = ProductFormDetailState(
                 productMinQuantity = "10000"
             ),
-            batchDetail = AddBatchDetailState(
+            batchDetail = BatchFormDetailState(
                 batchQuantity = "11000",
                 batchPrice = "1000000000"
             ),
