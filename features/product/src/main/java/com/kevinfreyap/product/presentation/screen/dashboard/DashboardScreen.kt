@@ -37,10 +37,12 @@ import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionCountRow
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionCountRowPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetings
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetingsPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeader
-import com.kevinfreyap.product.presentation.state.DashboardState
-import com.kevinfreyap.product.presentation.state.FilterState
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeaderPlaceholder
+import com.kevinfreyap.product.presentation.state.ScreenDashboardState
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppIconName
 import com.kevinfreyap.ui.components.AppPrimaryButton
@@ -69,7 +71,7 @@ fun DashboardScreen(
 
 @Composable
 fun DashboardContent(
-    state: UiState<DashboardState>,
+    state: UiState<ScreenDashboardState>,
     onNavigate: (DashboardNavigation) -> Unit,
     onRetryClicked: () ->  Unit,
     modifier: Modifier = Modifier
@@ -115,130 +117,167 @@ fun DashboardContent(
             when (state) {
                 UiState.Idle -> {}
                 UiState.Empty -> {
-                    SectionGreetings(
-                        title = "Good Morning, User",
-                        subtitle = "Let's set up your inventory"
-                    )
-
-                    SectionCountRow(
-                        totalProductValue = 0,
-                        lowStockValue = 0
-                    )
-
-                    AppStateBanner(
-                        bannerIcon = R.drawable.custom_empty_storage_icon,
-                        bannerTitle = stringResource(R.string.title_banner_empty_inventory),
-                        bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
-                        actionButton = {
-                            AppPrimaryButton(
-                                text = stringResource(R.string.btn_label_add_first_item),
-                                onClick = {
-                                    onNavigate(DashboardNavigation.AddProduct)
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(coreR.drawable.add_24),
-                                        contentDescription = stringResource(R.string.btn_label_add_first_item),
-                                    )
-                                },
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
+                    DashboardEmpty (
+                        onNavigate = onNavigate
                     )
                 }
                 UiState.Loading -> {
                     DashboardShimmer()
                 }
                 is UiState.Error -> {
-                    SectionGreetings(
-                        title = "Good Morning, User",
-                        subtitle = ""
-                    )
-
-                    AppStateBanner(
-                        bannerIcon = R.drawable.custom_error_load_icon,
-                        bannerTitle = stringResource(R.string.title_banner_load_error),
-                        bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
-                        actionButton = {
-                            AppPrimaryButton(
-                                text = stringResource(R.string.btn_label_try_again),
-                                onClick = onRetryClicked,
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(coreR.drawable.refresh_24),
-                                        contentDescription = stringResource(R.string.btn_label_try_again),
-                                    )
-                                },
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
+                    DashboardError(
+                        onRetryClicked = onRetryClicked
                     )
                 }
                 is UiState.Success -> {
-                    val listData = state.data.alertList
-
-                    SectionGreetings(
-                        title = "Good Morning, User",
-                        subtitle = "Data last synced at 09:11"
-                    )
-
-                    SectionCountRow(
-                        totalProductValue = state.data.totalProductCount,
-                        lowStockValue = state.data.lowStockProductCount,
-                    )
-
-                    SectionListWithHeader(
-                        title = stringResource(listData.title),
-                        list = listData.products,
-                        textButton = {
-                            val totalCount = listData.textButtonArg ?: listData.products.size
-
-                            if (totalCount > 3) {
-                                Text(
-                                    text = listData.textButtonArg?.let { arg ->
-                                        stringResource(listData.textButton, arg)
-                                    } ?: stringResource(listData.textButton),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(50))
-                                        .clickable  {
-                                            when(listData.activeList) {
-                                                ActiveAlertList.LOW_STOCK -> {
-                                                    onNavigate(
-                                                        DashboardNavigation.LowStockProduct(FilterStockOption.STOCK_WARNING.name)
-                                                    )
-                                                }
-
-                                                ActiveAlertList.RECENTLY_UPDATED -> {
-                                                    onNavigate(DashboardNavigation.AllProduct)
-                                                }
-                                            }
-                                        }
-                                        .padding(
-                                            vertical = 8.dp,
-                                        )
-                                )
-                            }
-                        }
-                    ) { product ->
-                        ProductListItem(
-                            product = product,
-                            onClick = {
-                                onNavigate(DashboardNavigation.ProductDetail(product.id))
-                            }
-                        )
-                    }
+                    DashboardSuccess(
+                        state = state.data,
+                        onNavigate = onNavigate
+                    ) 
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DashboardShimmer() {
+    SectionGreetingsPlaceholder()
+    SectionCountRowPlaceholder()
+    SectionListWithHeaderPlaceholder()
+    SectionListWithHeaderPlaceholder()
+}
+
+@Composable
+private fun DashboardEmpty(
+    onNavigate: (DashboardNavigation) -> Unit
+) {
+    SectionGreetings(
+        title = "Good Morning, User",
+        subtitle = "Let's set up your inventory"
+    )
+
+    SectionCountRow(
+        totalProductValue = 0,
+        lowStockValue = 0
+    )
+
+    AppStateBanner(
+        bannerIcon = R.drawable.custom_empty_storage_icon,
+        bannerTitle = stringResource(R.string.title_banner_empty_inventory),
+        bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
+        actionButton = {
+            AppPrimaryButton(
+                text = stringResource(R.string.btn_label_add_first_item),
+                onClick = {
+                    onNavigate(DashboardNavigation.AddProduct)
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(coreR.drawable.add_24),
+                        contentDescription = stringResource(R.string.btn_label_add_first_item),
+                    )
+                },
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    )
+}
+
+@Composable
+private fun DashboardSuccess(
+    state: ScreenDashboardState,
+    onNavigate: (DashboardNavigation) -> Unit,
+) {
+    val listData = state.alertList
+
+    SectionGreetings(
+        title = "Good Morning, User",
+        subtitle = "Data last synced at 09:11"
+    )
+
+    SectionCountRow(
+        totalProductValue = state.totalProductCount,
+        lowStockValue = state.lowStockProductCount,
+    )
+
+    SectionListWithHeader(
+        title = stringResource(listData.title),
+        list = listData.products,
+        textButton = {
+            val totalCount = listData.textButtonArg ?: listData.products.size
+
+            if (totalCount > 3) {
+                Text(
+                    text = listData.textButtonArg?.let { arg ->
+                        stringResource(listData.textButton, arg)
+                    } ?: stringResource(listData.textButton),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(50))
+                        .clickable  {
+                            when(listData.activeList) {
+                                ActiveAlertList.LOW_STOCK -> {
+                                    onNavigate(
+                                        DashboardNavigation.LowStockProduct(FilterStockOption.STOCK_WARNING.name)
+                                    )
+                                }
+
+                                ActiveAlertList.RECENTLY_UPDATED -> {
+                                    onNavigate(DashboardNavigation.AllProduct)
+                                }
+                            }
+                        }
+                        .padding(
+                            vertical = 8.dp,
+                        )
+                )
+            }
+        }
+    ) { product ->
+        ProductListItem(
+            product = product,
+            onClick = {
+                onNavigate(DashboardNavigation.ProductDetail(product.id))
+            }
+        )
+    }
+}
+
+@Composable
+private fun DashboardError(
+    onRetryClicked: () -> Unit
+) {
+    SectionGreetings(
+        title = "Good Morning, User",
+        subtitle = ""
+    )
+
+    AppStateBanner(
+        bannerIcon = R.drawable.custom_error_load_icon,
+        bannerTitle = stringResource(R.string.title_banner_load_error),
+        bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
+        actionButton = {
+            AppPrimaryButton(
+                text = stringResource(R.string.btn_label_try_again),
+                onClick = onRetryClicked,
+                icon = {
+                    Icon(
+                        painter = painterResource(coreR.drawable.refresh_24),
+                        contentDescription = stringResource(R.string.btn_label_try_again),
+                    )
+                },
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    )
 }
 
 @Preview(
@@ -251,7 +290,7 @@ fun DashboardScreenPreview() {
     InventoryTheme {
         DashboardContent(
             state = UiState.Success(
-                DashboardState(
+                ScreenDashboardState(
                     totalProductCount = 1700,
                     lowStockProductCount = 7,
                     alertList = AlertListUi(

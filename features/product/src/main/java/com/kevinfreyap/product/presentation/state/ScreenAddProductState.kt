@@ -3,14 +3,14 @@ package com.kevinfreyap.product.presentation.state
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.ui.state.UiState
 
-data class AddProductState(
+data class ScreenAddProductState(
     // Product Details
-    val productDetail: ProductDetailState = ProductDetailState(),
-    val productIdentification: ProductIdentificationState = ProductIdentificationState(),
+    val productDetail: ProductFormDetailState = ProductFormDetailState(),
+    val productIdentification: ProductFormIdentificationState = ProductFormIdentificationState(),
 
     // Stock Batch Details
-    val batchDetail: BatchDetailState = BatchDetailState(),
-    val batchInformation: BatchInformationState = BatchInformationState(),
+    val batchDetail: BatchFormDetailState = BatchFormDetailState(),
+    val batchInformation: BatchFormInformationState = BatchFormInformationState(),
 
     // UI Status
     val formErrors: ProductFormError? = null,
@@ -28,7 +28,7 @@ data class AddProductState(
                 (batchDetail.batchQuantity.isNotBlank() && batchDetail.batchQuantity != "0") ||
                 batchDetail.batchLocation.isNotBlank() ||
                 batchDetail.batchPrice.isNotBlank() ||
-                batchInformation.batchExpirationText.isNotBlank() ||
+                batchInformation.batchExpirationTextFormatted?.isNotBlank() == true ||
                 batchInformation.batchSupplier?.isNotBlank() == true
 
     val isSavedEnabled: Boolean

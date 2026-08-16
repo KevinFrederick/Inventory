@@ -23,10 +23,9 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchExpirationError
 import com.kevinfreyap.product.domain.model.error.BatchSupplierError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.BatchInformationState
-import com.kevinfreyap.ui.util.DateInputFieldValidationHelper.isValidPartialDate
+import com.kevinfreyap.product.presentation.state.BatchFormInformationState
 import com.kevinfreyap.product.presentation.util.DateInputTransformation
 import com.kevinfreyap.ui.components.AppDateInputDialog
 import com.kevinfreyap.ui.components.AppTextField
@@ -35,10 +34,11 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionBatchInformation(
-    batchInformationState: BatchInformationState,
+    batchFormInformationState: BatchFormInformationState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.BatchInformationAction) -> Unit,
-    modifier: Modifier = Modifier
+    onAction: (ProductFormAction.BatchInformationAction) -> Unit,
+    modifier: Modifier = Modifier,
+    isReadOnly: Boolean = false
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -53,7 +53,7 @@ fun SectionBatchInformation(
             ) {
                 Box {
                     AppTextField(
-                        value = batchInformationState.batchExpirationText,
+                        value = batchFormInformationState.batchExpirationTextFormatted ?: "",
                         onValueChange = {},
                         label = stringResource(R.string.label_field_batch_expiration),
                         minLines = 1,
@@ -77,17 +77,19 @@ fun SectionBatchInformation(
                     Spacer(
                         modifier = Modifier
                             .matchParentSize()
-                            .clickable {
-                                onAction(AddProductAction.BatchInformationAction.OnOpenExpirationDialog)
+                            .clickable (
+                                enabled = !isReadOnly
+                            ) {
+                                onAction(ProductFormAction.BatchInformationAction.OnOpenExpirationDialog)
                                 showDatePicker = true
                             }
                     )
                 }
 
                 AppTextField(
-                    value = batchInformationState.batchSupplier ?: "",
+                    value = batchFormInformationState.batchSupplier ?: "",
                     onValueChange = { supplier ->
-                        onAction(AddProductAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
+                        onAction(ProductFormAction.BatchInformationAction.OnBatchSupplierChanged(supplier))
                     },
                     label = stringResource(R.string.label_field_batch_supplier),
                     minLines = 1,
@@ -95,6 +97,8 @@ fun SectionBatchInformation(
                     unfocusedColor = Theme.custom.hint,
                     imeAction = ImeAction.Done,
                     capitalization = KeyboardCapitalization.Sentences,
+                    readOnly = isReadOnly,
+                    enabled = !isReadOnly,
                     isError = formErrors?.supplierError != null,
                     errorMessage = if (formErrors?.supplierError != null) {
                         when(formErrors.supplierError) {
@@ -106,18 +110,18 @@ fun SectionBatchInformation(
         }
     )
 
-    if (showDatePicker) {
+    if (showDatePicker && !isReadOnly) {
         AppDateInputDialog(
-            dateValue = batchInformationState.batchExpirationFieldText,
+            dateValue = batchFormInformationState.batchExpirationFieldText,
             fieldLabel = stringResource(R.string.label_field_batch_expiration),
             fieldPlaceholder = stringResource(R.string.placeholder_date_input),
             visualTransformation = DateInputTransformation,
             onDateChanged = { newDateTyped ->
                 val onlyDigit = newDateTyped.filter { it.isDigit() }
-                onAction(AddProductAction.BatchInformationAction.OnBatchExpirationChanged(onlyDigit))
+                onAction(ProductFormAction.BatchInformationAction.OnBatchExpirationChanged(onlyDigit))
             },
             onConfirm = {
-                onAction(AddProductAction.BatchInformationAction.OnBatchExpirationConfirm)
+                onAction(ProductFormAction.BatchInformationAction.OnBatchExpirationConfirm)
                 showDatePicker = false
             },
             onDismiss = {
@@ -140,7 +144,7 @@ fun SectionBatchInformation(
 fun SectionBatchInformationPreview() {
     InventoryTheme {
         SectionBatchInformation(
-            batchInformationState = BatchInformationState(),
+            batchFormInformationState = BatchFormInformationState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

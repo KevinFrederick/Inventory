@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.kevinfreyap.database.entity.StockBatchEntity
+import com.kevinfreyap.database.entity.relation.BatchWithLocation
 import com.kevinfreyap.database.entity.relation.BatchWithProductAndLocation
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +18,7 @@ interface BatchDao {
 
     @Transaction
     @Query("SELECT * FROM stock_batch WHERE batchId = :id")
-    fun getBatchDetails(id: String): Flow<BatchWithProductAndLocation>
+    fun getBatchById(id: String): Flow<BatchWithProductAndLocation?>
 
     @Query("SELECT * FROM stock_batch WHERE expirationDate IS NOT NULL ORDER BY expirationDate ASC LIMIT :limit")
     fun getExpiringBatches(limit: Int = 10): Flow<List<StockBatchEntity>>
@@ -26,7 +27,7 @@ interface BatchDao {
     fun getBatchesByLocation(locationId: String): Flow<List<StockBatchEntity>>
 
     @Update
-    suspend fun updateBatch(batch: StockBatchEntity)
+    suspend fun updateBatch(batch: StockBatchEntity): Int
 
     @Query("DELETE FROM stock_batch WHERE batchId = :id")
     suspend fun deleteBatch(id: String)

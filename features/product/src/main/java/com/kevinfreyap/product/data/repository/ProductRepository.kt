@@ -95,15 +95,17 @@ class ProductRepository @Inject constructor(
     }
 
     override fun getProductById(productId: ProductId): Flow<Product?> {
-        TODO("Not yet implemented")
+        return productDao.getProduct(productId.value).map { productWithDetails ->
+            productWithDetails?.toDomain()
+        }
     }
 
     override suspend fun updateProduct(product: Product) {
-        TODO("Not yet implemented")
+        productDao.updateProduct(product.toEntity())
     }
 
     override suspend fun deleteProduct(productId: ProductId) {
-        TODO("Not yet implemented")
+        productDao.deleteProduct(productId.value)
     }
 
 }

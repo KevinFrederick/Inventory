@@ -9,7 +9,9 @@ import java.util.TimeZone
 
 object DateFormatter {
 
-    fun formatDatePickerDate(dateMillis: Long): String {
+    fun formatDatePickerDate(dateMillis: Long?): String? {
+        if (dateMillis == null) return null
+
         val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
             .withZone(ZoneId.systemDefault())
 

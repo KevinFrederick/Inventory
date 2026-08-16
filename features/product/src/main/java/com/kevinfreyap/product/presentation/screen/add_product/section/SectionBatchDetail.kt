@@ -21,11 +21,11 @@ import com.kevinfreyap.product.domain.model.error.BatchLocationError
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.CurrencyTextField
 import com.kevinfreyap.product.presentation.components.FieldListHeader
 import com.kevinfreyap.product.presentation.components.QuantitySelector
-import com.kevinfreyap.product.presentation.state.BatchDetailState
+import com.kevinfreyap.product.presentation.state.BatchFormDetailState
 import com.kevinfreyap.product.presentation.util.ThousandSeparatorVisualTransformation
 import com.kevinfreyap.ui.components.AppDropdownField
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -33,10 +33,11 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionBatchDetail(
-    batchDetailState: BatchDetailState,
+    batchFormDetailState: BatchFormDetailState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.BatchDetailAction) -> Unit,
-    modifier: Modifier = Modifier
+    onAction: (ProductFormAction.BatchDetailAction) -> Unit,
+    modifier: Modifier = Modifier,
+    isReadOnly: Boolean = false,
 ) {
     FieldListHeader(
         title = stringResource(R.string.label_batch_stock_detail),
@@ -66,26 +67,27 @@ fun SectionBatchDetail(
                     Spacer(Modifier.width(16.dp))
 
                     QuantitySelector(
-                        quantity = batchDetailState.batchQuantity,
+                        quantity = batchFormDetailState.batchQuantity,
                         onQuantityTextChange = { typedText ->
                             val onlyDigit = typedText.filter { it.isDigit() }
 
                             val cleanNumber = when {
                                 onlyDigit.isEmpty() -> "0"
-                                batchDetailState.batchQuantity == "0" && onlyDigit.length == 2 -> {
+                                batchFormDetailState.batchQuantity == "0" && onlyDigit.length == 2 -> {
                                     onlyDigit.replaceFirst("0", "")
                                 }
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
                             }
-                            onAction(AddProductAction.BatchDetailAction.OnBatchQuantityChanged(cleanNumber))
+                            onAction(ProductFormAction.BatchDetailAction.OnBatchQuantityChanged(cleanNumber))
                         },
                         onIncrementClick = { 
-                            onAction(AddProductAction.BatchDetailAction.OnQuantityIncremented)
+                            onAction(ProductFormAction.BatchDetailAction.OnQuantityIncremented)
                         },
                         onDecrementClick = {
-                            onAction(AddProductAction.BatchDetailAction.OnQuantityDecremented)
+                            onAction(ProductFormAction.BatchDetailAction.OnQuantityDecremented)
                         },
                         visualTransformation = ThousandSeparatorVisualTransformation,
+                        isReadOnly = isReadOnly,
                         isError = (formErrors?.quantityError != null && formErrors.quantityError != BatchQuantityError.REQUIRES_CONFIRMATION),
                         errorMessage = if (formErrors?.quantityError != null) {
                             when(formErrors.quantityError) {
@@ -102,22 +104,24 @@ fun SectionBatchDetail(
                 }
 
                 AppDropdownField(
-                    value = batchDetailState.batchLocation,
+                    value = batchFormDetailState.batchLocation,
                     label = stringResource(R.string.label_field_batch_location),
-                    options = batchDetailState.filteredLocations,
+                    options = batchFormDetailState.filteredLocations,
                     optionText = { it },
                     onSearchQueryChange = { typedString ->
-                        onAction(AddProductAction.BatchDetailAction.OnBatchLocationChanged(typedString))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchLocationChanged(typedString))
                     },
                     onOptionSelected = { selectedLocation ->
-                        onAction(AddProductAction.BatchDetailAction.OnBatchLocationChanged(selectedLocation))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchLocationChanged(selectedLocation))
                     },
                     unfocusedColor = Theme.custom.hint,
                     enableAddNew = true,
                     onAddNewOption = {
-                        onAction(AddProductAction.BatchDetailAction.OnCreateNewLocation(batchDetailState.batchLocation))
+                        onAction(ProductFormAction.BatchDetailAction.OnCreateNewLocation(batchFormDetailState.batchLocation))
                     },
-                    addNewText = stringResource(R.string.dropdown_new_location, batchDetailState.batchLocation),
+                    addNewText = stringResource(R.string.dropdown_new_location, batchFormDetailState.batchLocation),
+                    readOnly = isReadOnly,
+                    enabled = !isReadOnly,
                     isError = formErrors?.locationError != null,
                     errorMessage = if (formErrors?.locationError != null) {
                         when(formErrors.locationError) {
@@ -129,14 +133,16 @@ fun SectionBatchDetail(
                 )
 
                 CurrencyTextField(
-                    price = batchDetailState.batchPrice,
+                    price = batchFormDetailState.batchPrice,
                     placeholder = stringResource(R.string.label_field_batch_price),
                     currencySymbol = stringResource(R.string.currency_idr_rp),
                     onPriceChange = { newPrice ->
                         val onlyDigit = newPrice.filter { it.isDigit() }
-                        onAction(AddProductAction.BatchDetailAction.OnBatchPriceChanged(onlyDigit))
+                        onAction(ProductFormAction.BatchDetailAction.OnBatchPriceChanged(onlyDigit))
                     },
                     visualTransformation = ThousandSeparatorVisualTransformation,
+                    isReadOnly = isReadOnly,
+                    enabled = !isReadOnly,
                     isError = (formErrors?.priceError != null && formErrors.priceError != BatchPriceError.REQUIRES_CONFIRMATION),
                     errorMessage = if (formErrors?.priceError != null) {
                         when(formErrors.priceError) {
@@ -158,7 +164,7 @@ fun SectionBatchDetail(
 fun SectionBatchDetailPreview() {
     InventoryTheme {
         SectionBatchDetail(
-            batchDetailState = BatchDetailState(),
+            batchFormDetailState = BatchFormDetailState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

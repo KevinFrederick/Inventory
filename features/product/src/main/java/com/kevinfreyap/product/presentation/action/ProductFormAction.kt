@@ -1,8 +1,8 @@
 package com.kevinfreyap.product.presentation.action
 
-sealed interface AddProductAction {
+sealed interface ProductFormAction {
     // Product Detail Actions
-    sealed interface ProductDetailAction: AddProductAction {
+    sealed interface ProductDetailAction: ProductFormAction {
         data class OnImageUriChanged(val uri: String?): ProductDetailAction
         data class OnNameChanged(val name: String): ProductDetailAction
         data class OnCategoryChanged(val category: String): ProductDetailAction
@@ -12,7 +12,7 @@ sealed interface AddProductAction {
     }
 
     // Product Image Actions
-    sealed interface ImagePickerAction : AddProductAction {
+    sealed interface ImagePickerAction : ProductFormAction {
         data object OnUploadClick : ImagePickerAction
         data object OnDismissSheet : ImagePickerAction
         data object OnGalleryClick : ImagePickerAction
@@ -23,13 +23,13 @@ sealed interface AddProductAction {
     }
 
     // Product Identification Actions
-    sealed interface ProductIdentificationAction: AddProductAction {
+    sealed interface ProductIdentificationAction: ProductFormAction {
         data class OnBarcodeChanged(val barcode: String?): ProductIdentificationAction
         data class OnSkuChanged(val sku: String?): ProductIdentificationAction
     }
 
     // Batch Quantity & Price Actions
-    sealed interface BatchDetailAction: AddProductAction {
+    sealed interface BatchDetailAction: ProductFormAction {
         data class OnAddInitialStockToggled(val isChecked: Boolean): BatchDetailAction
         data class OnBatchQuantityChanged(val qty: String): BatchDetailAction
         data object OnQuantityIncremented: BatchDetailAction
@@ -40,23 +40,26 @@ sealed interface AddProductAction {
     }
 
     // Batch Logistic Actions
-    sealed interface BatchInformationAction: AddProductAction {
+    sealed interface BatchInformationAction: ProductFormAction {
         data class OnBatchSupplierChanged(val supplier: String?): BatchInformationAction
         data class OnBatchExpirationChanged(val expString: String): BatchInformationAction
         data object OnOpenExpirationDialog: BatchInformationAction
         data object OnBatchExpirationConfirm: BatchInformationAction
     }
 
-    sealed interface SummaryDialogAction: AddProductAction {
+    sealed interface SummaryDialogAction: ProductFormAction {
         data object OnConfirmAllWarnings: SummaryDialogAction
         data object OnDismissWarningsDialog: SummaryDialogAction
     }
 
-    sealed interface StatusDialogAction: AddProductAction {
+    sealed interface StatusDialogAction: ProductFormAction {
         data object OnDismissError: StatusDialogAction
     }
 
+    sealed interface BatchToggleAction: ProductFormAction {
+        data object ToggleEditMode: BatchToggleAction
+    }
+
     // Submit
-    data object SaveProduct: AddProductAction
-    data object ResetForm: AddProductAction
+    data object Save: ProductFormAction
 }

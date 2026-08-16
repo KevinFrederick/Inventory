@@ -21,9 +21,9 @@ import com.kevinfreyap.product.domain.model.error.ProductDescriptionError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductNameError
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.FieldListHeader
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.product.presentation.util.ThousandSeparatorVisualTransformation
 import com.kevinfreyap.ui.components.AppDropdownField
 import com.kevinfreyap.ui.components.AppTextField
@@ -32,9 +32,9 @@ import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun SectionProductInformation(
-    productDetailState: ProductDetailState,
+    productDetailState: ProductFormDetailState,
     formErrors: ProductFormError?,
-    onAction: (AddProductAction.ProductDetailAction) -> Unit,
+    onAction: (ProductFormAction.ProductDetailAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     FieldListHeader(
@@ -49,7 +49,7 @@ fun SectionProductInformation(
                 AppTextField(
                     value = productDetailState.productName,
                     onValueChange = { name ->
-                        onAction(AddProductAction.ProductDetailAction.OnNameChanged(name))
+                        onAction(ProductFormAction.ProductDetailAction.OnNameChanged(name))
                     },
                     label = stringResource(R.string.label_field_product_name),
                     minLines = 1,
@@ -79,15 +79,15 @@ fun SectionProductInformation(
                         options = productDetailState.filteredCategories,
                         optionText = { it },
                         onSearchQueryChange = { typedString ->
-                            onAction(AddProductAction.ProductDetailAction.OnCategoryChanged(typedString))
+                            onAction(ProductFormAction.ProductDetailAction.OnCategoryChanged(typedString))
                         },
                         onOptionSelected = { selectedCategory ->
-                            onAction(AddProductAction.ProductDetailAction.OnCategoryChanged(selectedCategory))
+                            onAction(ProductFormAction.ProductDetailAction.OnCategoryChanged(selectedCategory))
                         },
                         unfocusedColor = Theme.custom.hint,
                         enableAddNew = true,
                         onAddNewOption = {
-                            onAction(AddProductAction.ProductDetailAction.OnCreateNewCategory(productDetailState.productCategoryName))
+                            onAction(ProductFormAction.ProductDetailAction.OnCreateNewCategory(productDetailState.productCategoryName))
                         },
                         addNewText = stringResource(R.string.dropdown_new_category, productDetailState.productCategoryName),
                         isError = formErrors?.categoryError != null,
@@ -115,7 +115,7 @@ fun SectionProductInformation(
                                 else -> onlyDigit.trimStart('0').ifEmpty { "0" }
                             }
 
-                            onAction(AddProductAction.ProductDetailAction.OnMinQuantityChanged(cleanNumber))
+                            onAction(ProductFormAction.ProductDetailAction.OnMinQuantityChanged(cleanNumber))
                         },
                         label = stringResource(R.string.label_field_product_min_quantity),
                         minLines = 1,
@@ -141,7 +141,7 @@ fun SectionProductInformation(
                 AppTextField(
                     value = productDetailState.productDescription ?: "",
                     onValueChange = { text ->
-                        onAction(AddProductAction.ProductDetailAction.OnDescriptionChanged(text))
+                        onAction(ProductFormAction.ProductDetailAction.OnDescriptionChanged(text))
                     },
                     label = stringResource(R.string.label_field_product_description),
                     minLines = 5,
@@ -170,7 +170,7 @@ fun SectionProductInformation(
 fun SectionProductInformationPreview() {
     InventoryTheme {
         SectionProductInformation(
-            productDetailState = ProductDetailState(),
+            productDetailState = ProductFormDetailState(),
             formErrors = ProductFormError(),
             onAction = {}
         )

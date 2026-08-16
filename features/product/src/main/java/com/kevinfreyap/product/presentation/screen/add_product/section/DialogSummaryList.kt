@@ -27,9 +27,8 @@ import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
-import com.kevinfreyap.product.presentation.state.AddProductState
-import com.kevinfreyap.product.presentation.state.BatchDetailState
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.BatchFormDetailState
+import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -39,7 +38,9 @@ import com.kevinfreyap.ui.theme.Theme
 fun DialogSummaryList(
     title: String,
     subtitle: String,
-    addProductState: AddProductState,
+    formErrors: ProductFormError?,
+    productDetail: ProductFormDetailState?,
+    batchDetail: BatchFormDetailState?,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     positiveBtn: @Composable (() -> Unit)? = null,
@@ -51,7 +52,9 @@ fun DialogSummaryList(
         DialogSummaryListContent(
             title = title,
             subtitle = subtitle,
-            addProductState = addProductState,
+            formErrors = formErrors,
+            productDetail = productDetail,
+            batchDetail = batchDetail,
             modifier = modifier,
             positiveBtn = positiveBtn,
             negativeBtn = negativeBtn
@@ -63,21 +66,27 @@ fun DialogSummaryList(
 fun DialogSummaryListContent(
     title: String,
     subtitle: String,
-    addProductState: AddProductState,
+    formErrors: ProductFormError?,
+    productDetail: ProductFormDetailState?,
+    batchDetail: BatchFormDetailState?,
     modifier: Modifier = Modifier,
     positiveBtn: @Composable (() -> Unit)? = null,
     negativeBtn: @Composable (() -> Unit)? = null
 ) {
     val hasBothButton = positiveBtn != null && negativeBtn != null
     val warnings = buildList {
-        if (addProductState.formErrors?.minQuantityError == ProductMinimumQuantityError.REQUIRES_CONFIRMATION) {
-            add(stringResource(R.string.dialog_summary_list_min_quantity, addProductState.productDetail.productMinQuantity))
+        productDetail?.let {
+            if (formErrors?.minQuantityError == ProductMinimumQuantityError.REQUIRES_CONFIRMATION) {
+                add(stringResource(R.string.dialog_summary_list_min_quantity, productDetail.productMinQuantity))
+            }
         }
-        if (addProductState.formErrors?.quantityError == BatchQuantityError.REQUIRES_CONFIRMATION) {
-            add(stringResource(R.string.dialog_summary_list_quantity, addProductState.batchDetail.batchQuantity))
-        }
-        if (addProductState.formErrors?.priceError == BatchPriceError.REQUIRES_CONFIRMATION) {
-            add(stringResource(R.string.dialog_summary_list_price, addProductState.batchDetail.batchPrice))
+        batchDetail?.let {
+            if (formErrors?.quantityError == BatchQuantityError.REQUIRES_CONFIRMATION) {
+                add(stringResource(R.string.dialog_summary_list_quantity, batchDetail.batchQuantity))
+            }
+            if (formErrors?.priceError == BatchPriceError.REQUIRES_CONFIRMATION) {
+                add(stringResource(R.string.dialog_summary_list_price, batchDetail.batchPrice))
+            }
         }
     }
 
@@ -162,19 +171,17 @@ fun DialogSummaryListPreview() {
         DialogSummaryListContent(
             title = "Confirm Values",
             subtitle = "Please review these unusual values:",
-            addProductState = AddProductState(
-                productDetail = ProductDetailState(
-                    productMinQuantity = "10000"
-                ),
-                batchDetail = BatchDetailState(
-                    batchQuantity = "11000",
-                    batchPrice = "1000000000"
-                ),
-                formErrors = ProductFormError(
-                    minQuantityError = ProductMinimumQuantityError.REQUIRES_CONFIRMATION,
-                    quantityError = BatchQuantityError.REQUIRES_CONFIRMATION,
-                    priceError = BatchPriceError.REQUIRES_CONFIRMATION
-                )
+            productDetail = ProductFormDetailState(
+                productMinQuantity = "10000"
+            ),
+            batchDetail = BatchFormDetailState(
+                batchQuantity = "11000",
+                batchPrice = "1000000000"
+            ),
+            formErrors = ProductFormError(
+                minQuantityError = ProductMinimumQuantityError.REQUIRES_CONFIRMATION,
+                quantityError = BatchQuantityError.REQUIRES_CONFIRMATION,
+                priceError = BatchPriceError.REQUIRES_CONFIRMATION
             ),
             positiveBtn = {
                 AppPrimaryButton(

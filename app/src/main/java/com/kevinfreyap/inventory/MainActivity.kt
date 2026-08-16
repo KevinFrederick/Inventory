@@ -23,8 +23,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    MainAppScreen(
-                        startDestination = Screen.Dashboard.route
+                    RootAppNavigation(
+                        isLoggedIn = true
                     )
                 }
             }

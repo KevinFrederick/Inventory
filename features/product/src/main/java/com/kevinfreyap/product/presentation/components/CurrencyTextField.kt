@@ -39,6 +39,8 @@ fun CurrencyTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
     errorMessage: String? = null,
+    isReadOnly: Boolean = false,
+    enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -70,6 +72,11 @@ fun CurrencyTextField(
             unfocusedLabelColor = unfocusedColor,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
 
+            disabledLabelColor = unfocusedColor,
+            disabledBorderColor = unfocusedColor,
+            disabledTrailingIconColor = unfocusedColor,
+            disabledTextColor = Theme.custom.primaryText,
+
             unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             errorTrailingIconColor = MaterialTheme.colorScheme.error
@@ -78,6 +85,8 @@ fun CurrencyTextField(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
+        readOnly = isReadOnly,
+        enabled = enabled,
         singleLine = true,
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,

@@ -14,37 +14,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
+import com.kevinfreyap.product.presentation.navigation.BatchFormNavigation
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
+import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
+import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductListNavigation
+import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.screen.add_product.AddProductScreen
+import com.kevinfreyap.product.presentation.screen.batch_form.BatchFormScreen
 import com.kevinfreyap.product.presentation.screen.dashboard.DashboardScreen
+import com.kevinfreyap.product.presentation.screen.edit_product.EditProductScreen
+import com.kevinfreyap.product.presentation.screen.product_detail.ProductDetailScreen
 import com.kevinfreyap.product.presentation.screen.product_list.ProductListScreen
 
 @Composable
 fun MainAppScreen(
-    startDestination: String,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
 
-    val bottomBarRoutes = listOf(
-        Screen.Dashboard.route,
-        Screen.ProductList.route,
-        Screen.ProductList.ROUTE_WITH_ARGS
-    )
-
-    val showBottomBar = currentRoute in bottomBarRoutes
+    val showBottomBar = currentDestination?.let { destination ->
+        destination.hasRoute<ProductScreen.Dashboard>() ||
+        destination.hasRoute<ProductScreen.ProductList>()
+    } ?: false
 
     Scaffold(
         bottomBar = {
@@ -55,24 +57,22 @@ fun MainAppScreen(
     ) { innerPadding ->
         NavHost (
             navController = navController,
-            startDestination = startDestination,
+            startDestination = ProductScreen.Dashboard,
             modifier = modifier
                 .padding(innerPadding)
         ) {
-            composable(Screen.Dashboard.route) {
+            composable<ProductScreen.Dashboard> {
                 DashboardScreen(
                     onNavigate = {destination ->
                         when(destination) {
                             is DashboardNavigation.AddProduct -> {
-                                navController.navigate(Screen.AddProduct.route)
+                                navController.navigate(ProductScreen.AddProduct)
                             }
                             is DashboardNavigation.ProductDetail -> {
-                                navController.navigate(
-                                    Screen.ProductDetail.createRoute(destination.productId)
-                                )
+                                navController.navigate(ProductScreen.ProductDetail(productId = destination.productId))
                             }
                             is DashboardNavigation.AllProduct -> {
-                                navController.navigate(Screen.ProductList.route) {
+                                navController.navigate(ProductScreen.ProductList(stockFilter = null)) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -82,7 +82,7 @@ fun MainAppScreen(
                             }
                             is DashboardNavigation.LowStockProduct -> {
                                 val filter = destination.stockFilter
-                                navController.navigate(Screen.ProductList.createRoute(stockFilter = filter)) {
+                                navController.navigate(ProductScreen.ProductList(stockFilter = filter)) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -94,27 +94,16 @@ fun MainAppScreen(
                 )
             }
 
-            composable(
-                route = Screen.ProductList.ROUTE_WITH_ARGS,
-                arguments = listOf(
-                    navArgument(
-                        "stockFilter"
-                    ) {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                )
-            ) {
+            composable<ProductScreen.ProductList> {
                 ProductListScreen(
                     onNavigate = { destination ->
                         when(destination) {
                             is ProductListNavigation.AddProduct -> {
-                                navController.navigate(Screen.AddProduct.route)
+                                navController.navigate(ProductScreen.AddProduct)
                             }
                             is ProductListNavigation.ProductDetail -> {
                                 navController.navigate(
-                                    Screen.ProductDetail.createRoute(destination.productId)
+                                    ProductScreen.ProductDetail(destination.productId)
                                 )
                             }
                         }
@@ -122,11 +111,76 @@ fun MainAppScreen(
                 )
             }
 
-            composable(Screen.AddProduct.route) {
+            composable<ProductScreen.AddProduct> {
                 AddProductScreen(
                     onNavigate = { destination ->
                         when (destination) {
                             AddProductNavigation.NavigateUp -> {
+                                navController.navigateUp()
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable<ProductScreen.ProductDetail> {
+                ProductDetailScreen(
+                    onNavigate = { destination ->
+                        when (destination) {
+                            is ProductDetailNavigation.NavigateUp -> {
+                                navController.navigateUp()
+                            }
+
+                            is ProductDetailNavigation.EditProduct -> {
+                                navController.navigate(
+                                    ProductScreen.EditProduct(destination.productId)
+                                )
+                            }
+
+                            is ProductDetailNavigation.AddBatch -> {
+                                val productId = destination.productId
+
+                                navController.navigate(
+                                    ProductScreen.BatchForm(
+                                        productId = productId,
+                                        batchId = null
+                                    )
+                                )
+                            }
+
+                            is ProductDetailNavigation.BatchDetail -> {
+                                val productId = destination.productId
+                                val batchId = destination.batchId
+
+                                navController.navigate(
+                                    ProductScreen.BatchForm(
+                                        productId = productId,
+                                        batchId = batchId
+                                    )
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable<ProductScreen.EditProduct> {
+                EditProductScreen(
+                    onNavigate = {destination ->
+                        when (destination) {
+                            EditProductNavigation.NavigateUp -> {
+                                navController.navigateUp()
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable<ProductScreen.BatchForm> {
+                BatchFormScreen(
+                    onNavigate = { destination ->
+                        when(destination) {
+                            BatchFormNavigation.NavigateUp -> {
                                 navController.navigateUp()
                             }
                         }
@@ -146,16 +200,16 @@ fun BottomBar(
         modifier = modifier
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute =navBackStackEntry?.destination?.route
+        val currentDestination = navBackStackEntry?.destination
 
         val navigationItems = listOf(
             BottomTabItem(
-                route = Screen.Dashboard.route,
+                route = ProductScreen.Dashboard,
                 title = stringResource(R.string.bottom_tab_dashboard),
                 icon = R.drawable.dashboard_24
             ),
             BottomTabItem(
-                route = Screen.ProductList.createRoute(stockFilter = null),
+                route = ProductScreen.ProductList(stockFilter = null),
                 title = stringResource(R.string.bottom_tab_product_list),
                 icon = R.drawable.format_list_bulleted_24
             )
@@ -163,7 +217,7 @@ fun BottomBar(
 
         navigationItems.forEach { item ->
             NavigationBarItem(
-                selected = currentRoute?.contains(item.route) == true,
+                selected = currentDestination?.hasRoute(item.route::class) == true,
                 icon = {
                     Icon(
                         painter = painterResource(item.icon),
@@ -179,10 +233,9 @@ fun BottomBar(
                 ),
                 onClick = {
                     navController.navigate(item.route){
-                        val startRoute = navController.graph.startDestinationRoute
-                            ?: Screen.Dashboard.route
-
-                        popUpTo(startRoute)
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
 
                         launchSingleTop = true
                     }

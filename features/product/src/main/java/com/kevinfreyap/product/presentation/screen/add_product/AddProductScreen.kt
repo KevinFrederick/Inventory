@@ -2,9 +2,6 @@ package com.kevinfreyap.product.presentation.screen.add_product
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -46,8 +43,9 @@ import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductImageError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.ui.R as coreR
-import com.kevinfreyap.product.presentation.action.AddProductAction
+import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.TextSwitchRow
+import com.kevinfreyap.product.presentation.components.rememberImagePicker
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
 import com.kevinfreyap.product.presentation.screen.add_product.section.DialogSummaryList
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchDetail
@@ -55,15 +53,16 @@ import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBa
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductIdentification
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
 import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
-import com.kevinfreyap.product.presentation.state.AddProductState
-import com.kevinfreyap.product.presentation.state.BatchDetailState
-import com.kevinfreyap.product.presentation.state.ProductDetailState
+import com.kevinfreyap.product.presentation.state.ScreenAddProductState
+import com.kevinfreyap.product.presentation.state.BatchFormDetailState
+import com.kevinfreyap.product.presentation.state.ProductFormDetailState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageUpload
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppTextDialog
 import com.kevinfreyap.ui.components.AppTextIconDialog
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -84,25 +83,11 @@ fun AddProductScreen(
     var showRemoveImageDialog by rememberSaveable { mutableStateOf(false) }
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
-    var tempCameraUri by rememberSaveable { mutableStateOf<String?>(null) }
-
     val scrollState = rememberScrollState()
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                viewmodel.onAction(AddProductAction.ProductDetailAction.OnImageUriChanged(uri.toString()))
-            }
-        }
-    )
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
-            if (success && tempCameraUri != null) {
-                viewmodel.onAction(AddProductAction.ProductDetailAction.OnImageUriChanged(tempCameraUri))
-            }
+    val imagePicker = rememberImagePicker (
+        onImagePicked = { uriString ->
+            viewmodel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(uriString))
         }
     )
 
@@ -114,16 +99,20 @@ fun AddProductScreen(
         }
     }
 
-    LaunchedEffect(state.uiState) {
-        if (state.uiState is UiState.Success) {
-            Toast.makeText(
-                context,
-                R.string.success_product_saved,
-                Toast.LENGTH_SHORT
-            ).show()
-
-            onNavigate(AddProductNavigation.NavigateUp)
-            viewmodel.onAction(AddProductAction.ResetForm)
+    LaunchedEffect(true) {
+        viewmodel.uiEvent.collect { event ->
+            when(event) {
+                is UiEvent.Navigate -> {
+                    onNavigate(event.destination)
+                }
+                is UiEvent.ShowToast -> {
+                    Toast.makeText(
+                        context,
+                        event.messageRes,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 
@@ -151,19 +140,17 @@ fun AddProductScreen(
         },
         onAction = {action ->
             when(action) {
-                is AddProductAction.ImagePickerAction.OnUploadClick -> {
+                is ProductFormAction.ImagePickerAction.OnUploadClick -> {
                     showImagePickerBottomSheet = true
                 }
-                is AddProductAction.ImagePickerAction.OnDismissSheet -> {
+                is ProductFormAction.ImagePickerAction.OnDismissSheet -> {
                     showImagePickerBottomSheet = false
                 }
-                is AddProductAction.ImagePickerAction.OnGalleryClick -> {
+                is ProductFormAction.ImagePickerAction.OnGalleryClick -> {
                     showImagePickerBottomSheet = false
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    imagePicker.launchGallery()
                 }
-                is AddProductAction.ImagePickerAction.OnCameraClick -> {
+                is ProductFormAction.ImagePickerAction.OnCameraClick -> {
                     showImagePickerBottomSheet = false
 
                     val tempFile = File.createTempFile("product_img_", ".jpg", context.cacheDir)
@@ -174,17 +161,16 @@ fun AddProductScreen(
                         tempFile
                     )
 
-                    tempCameraUri = uri.toString()
-                    cameraLauncher.launch(uri)
+                    imagePicker.launchCamera(uri)
                 }
-                is AddProductAction.ImagePickerAction.OnRemoveImage -> {
+                is ProductFormAction.ImagePickerAction.OnRemoveImage -> {
                     showRemoveImageDialog = true
                 }
-                is AddProductAction.ImagePickerAction.OnDismissRemoveDialog -> {
+                is ProductFormAction.ImagePickerAction.OnDismissRemoveDialog -> {
                     showRemoveImageDialog = false
                 }
-                is AddProductAction.ImagePickerAction.OnConfirmRemoveDialog -> {
-                    viewmodel.onAction(AddProductAction.ProductDetailAction.OnImageUriChanged(null))
+                is ProductFormAction.ImagePickerAction.OnConfirmRemoveDialog -> {
+                    viewmodel.onAction(ProductFormAction.ProductDetailAction.OnImageUriChanged(null))
                     showRemoveImageDialog = false
                 }
                 else -> viewmodel.onAction(action)
@@ -197,14 +183,14 @@ fun AddProductScreen(
 
 @Composable
 fun AddProductContent(
-    state: AddProductState,
+    state: ScreenAddProductState,
     scrollState: ScrollState,
     showImagePickerBottomSheet: Boolean,
     showRemoveImageDialog: Boolean,
     showDiscardDialog: Boolean,
     handleBackNavigation: () -> Unit,
     onDismissDiscardDialog: () -> Unit,
-    onAction: (AddProductAction) -> Unit,
+    onAction: (ProductFormAction) -> Unit,
     onNavigate: (AddProductNavigation) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -248,10 +234,10 @@ fun AddProductContent(
                     icon = painterResource(R.drawable.add_a_photo_24),
                     label = stringResource(R.string.btn_label_upload_image),
                     onClick = {
-                        onAction(AddProductAction.ImagePickerAction.OnUploadClick)
+                        onAction(ProductFormAction.ImagePickerAction.OnUploadClick)
                     },
                     onRemove = {
-                        onAction(AddProductAction.ImagePickerAction.OnRemoveImage)
+                        onAction(ProductFormAction.ImagePickerAction.OnRemoveImage)
                     },
                     isError = state.formErrors?.imageError != null,
                     errorMessage = if (state.formErrors?.imageError != null) {
@@ -270,7 +256,7 @@ fun AddProductContent(
                 )
 
                 SectionProductIdentification(
-                    productIdentificationState = state.productIdentification,
+                    productFormIdentificationState = state.productIdentification,
                     formErrors = state.formErrors,
                     onAction = onAction,
                 )
@@ -280,7 +266,7 @@ fun AddProductContent(
                     subtitle = stringResource(R.string.label_initial_stock_subtitle),
                     isChecked = state.batchDetail.addInitialStock,
                     onClick = { isChecked ->
-                        onAction(AddProductAction.BatchDetailAction.OnAddInitialStockToggled(isChecked))
+                        onAction(ProductFormAction.BatchDetailAction.OnAddInitialStockToggled(isChecked))
                     },
                 )
 
@@ -294,13 +280,13 @@ fun AddProductContent(
                             .fillMaxWidth()
                     ) {
                         SectionBatchDetail(
-                            batchDetailState = state.batchDetail,
+                            batchFormDetailState = state.batchDetail,
                             formErrors = state.formErrors,
                             onAction = onAction,
                         )
 
                         SectionBatchInformation(
-                            batchInformationState = state.batchInformation,
+                            batchFormInformationState = state.batchInformation,
                             formErrors = state.formErrors,
                             onAction = onAction
                         )
@@ -317,12 +303,12 @@ fun AddProductContent(
                     text = stringResource(R.string.btn_label_save_product),
                     enabled = state.isSavedEnabled,
                     onClick = {
-                        onAction(AddProductAction.SaveProduct)
+                        onAction(ProductFormAction.Save)
                     },
                     icon = {
                         Icon(
                             painter = painterResource(coreR.drawable.check_24),
-                            contentDescription = stringResource(R.string.btn_label_add_first_item),
+                            contentDescription = stringResource(R.string.btn_label_save_product),
                         )
                     },
                     modifier = Modifier
@@ -335,13 +321,13 @@ fun AddProductContent(
     if (showImagePickerBottomSheet) {
         ImagePickerBottomSheet(
             onDismiss = {
-                onAction(AddProductAction.ImagePickerAction.OnDismissSheet)
+                onAction(ProductFormAction.ImagePickerAction.OnDismissSheet)
             },
             onCameraClick = {
-                onAction(AddProductAction.ImagePickerAction.OnCameraClick)
+                onAction(ProductFormAction.ImagePickerAction.OnCameraClick)
             },
             onGalleryClick = {
-                onAction(AddProductAction.ImagePickerAction.OnGalleryClick)
+                onAction(ProductFormAction.ImagePickerAction.OnGalleryClick)
             }
         )
     }
@@ -351,13 +337,13 @@ fun AddProductContent(
             title = stringResource(R.string.dialog_title_remove_image),
             subtitle = stringResource(R.string.dialog_subtitle_remove_image),
             onDismissRequest = {
-                onAction(AddProductAction.ImagePickerAction.OnDismissRemoveDialog)
+                onAction(ProductFormAction.ImagePickerAction.OnDismissRemoveDialog)
             },
             positiveBtn = {
                 AppPrimaryButton(
                     text = stringResource(R.string.btn_label_confirm),
                     onClick = {
-                        onAction(AddProductAction.ImagePickerAction.OnConfirmRemoveDialog)
+                        onAction(ProductFormAction.ImagePickerAction.OnConfirmRemoveDialog)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -366,7 +352,7 @@ fun AddProductContent(
                 AppOutlinedButton(
                     text = stringResource(R.string.btn_label_cancel),
                     onClick = {
-                        onAction(AddProductAction.ImagePickerAction.OnDismissRemoveDialog)
+                        onAction(ProductFormAction.ImagePickerAction.OnDismissRemoveDialog)
                     },
                     borderColor = Theme.custom.hint,
                     contentColor = Theme.custom.hint,
@@ -380,15 +366,17 @@ fun AddProductContent(
         DialogSummaryList(
             title = stringResource(R.string.dialog_title_review_value),
             subtitle = stringResource(R.string.dialog_subtitle_review_value),
-            addProductState = state,
+            formErrors = state.formErrors,
+            productDetail = state.productDetail,
+            batchDetail = state.batchDetail,
             onDismissRequest = {
-                onAction(AddProductAction.SummaryDialogAction.OnDismissWarningsDialog)
+                onAction(ProductFormAction.SummaryDialogAction.OnDismissWarningsDialog)
             },
             positiveBtn = {
                 AppPrimaryButton(
                     text = stringResource(R.string.btn_label_confirm_all),
                     onClick = {
-                        onAction(AddProductAction.SummaryDialogAction.OnConfirmAllWarnings)
+                        onAction(ProductFormAction.SummaryDialogAction.OnConfirmAllWarnings)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -397,7 +385,7 @@ fun AddProductContent(
                 AppOutlinedButton(
                     text = stringResource(R.string.btn_label_edit),
                     onClick = {
-                        onAction(AddProductAction.SummaryDialogAction.OnDismissWarningsDialog)
+                        onAction(ProductFormAction.SummaryDialogAction.OnDismissWarningsDialog)
                     },
                     borderColor = Theme.custom.hint,
                     contentColor = Theme.custom.hint,
@@ -442,13 +430,13 @@ fun AddProductContent(
             iconColor = MaterialTheme.colorScheme.error,
             iconSize = 160.dp,
             onDismissRequest = {
-                onAction(AddProductAction.StatusDialogAction.OnDismissError)
+                onAction(ProductFormAction.StatusDialogAction.OnDismissError)
             },
             positiveBtn = {
                 AppPrimaryButton(
                     text = stringResource(R.string.btn_label_close),
                     onClick = {
-                        onAction(AddProductAction.StatusDialogAction.OnDismissError)
+                        onAction(ProductFormAction.StatusDialogAction.OnDismissError)
                     },
                     modifier = Modifier.fillMaxWidth(0.5f)
                 )
@@ -467,7 +455,7 @@ fun AddProductContentPreview() {
         var isChecked by remember { mutableStateOf(true) }
 
         AddProductContent(
-            state = AddProductState(),
+            state = ScreenAddProductState(),
             scrollState = rememberScrollState(),
             showImagePickerBottomSheet = false,
             showRemoveImageDialog = false,
@@ -475,7 +463,7 @@ fun AddProductContentPreview() {
             handleBackNavigation = {},
             onDismissDiscardDialog = {},
             onAction = {action ->
-                if (action is AddProductAction.BatchDetailAction.OnAddInitialStockToggled) {
+                if (action is ProductFormAction.BatchDetailAction.OnAddInitialStockToggled) {
                     isChecked = !isChecked
                 }
             },
@@ -494,14 +482,14 @@ fun AddProductContentPreview_Filled() {
         var isChecked by remember { mutableStateOf(true) }
 
         AddProductContent(
-            state = AddProductState(
+            state = ScreenAddProductState(
                 showSummaryConfirmationDialog = false,
-                batchDetail = BatchDetailState(
+                batchDetail = BatchFormDetailState(
                     addInitialStock = isChecked,
                     batchQuantity = "11000",
                     batchPrice = "1000000000"
                 ),
-                productDetail = ProductDetailState(
+                productDetail = ProductFormDetailState(
                     productMinQuantity = "10000"
                 ),
                 formErrors = ProductFormError(
@@ -517,7 +505,7 @@ fun AddProductContentPreview_Filled() {
             handleBackNavigation = {},
             onDismissDiscardDialog = {},
             onAction = {action ->
-                if (action is AddProductAction.BatchDetailAction.OnAddInitialStockToggled) {
+                if (action is ProductFormAction.BatchDetailAction.OnAddInitialStockToggled) {
                     isChecked = !isChecked
                 }
             },

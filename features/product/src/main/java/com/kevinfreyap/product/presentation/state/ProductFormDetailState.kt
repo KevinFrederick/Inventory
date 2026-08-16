@@ -1,6 +1,6 @@
 package com.kevinfreyap.product.presentation.state
 
-data class ProductDetailState(
+data class ProductFormDetailState(
     val productImageUriString: String? = null,
     val productName: String = "",
     val productCategoryName: String = "",
