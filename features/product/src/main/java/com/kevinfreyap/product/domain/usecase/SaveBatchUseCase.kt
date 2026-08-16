@@ -73,10 +73,18 @@ class SaveBatchUseCase @Inject constructor(
             lastUpdated = System.currentTimeMillis()
         )
 
+        val timestamp = System.currentTimeMillis()
+
         if (batchId == null) {
-            repository.insertBatchToProduct(batch)
+            repository.insertBatchToProduct(
+                stockBatch = batch,
+                timestamp = timestamp
+            )
         } else {
-            val rowUpdated = repository.updateBatch(batch)
+            val rowUpdated = repository.updateBatch(
+                stockBatch = batch,
+                timestamp = timestamp
+            )
 
             if (rowUpdated == 0) {
                 return Result.Error(
