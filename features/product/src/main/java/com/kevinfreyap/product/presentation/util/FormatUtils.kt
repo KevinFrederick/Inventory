@@ -3,7 +3,7 @@ package com.kevinfreyap.product.presentation.util
 import java.text.NumberFormat
 import java.util.Locale
 
-val locale = Locale.Builder()
+val locale: Locale = Locale.Builder()
     .setLanguage("id")
     .setRegion("ID")
     .build()

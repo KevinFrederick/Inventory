@@ -26,8 +26,6 @@ import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenBatchFormState
 import com.kevinfreyap.product.presentation.state.SharedBatchFormState
-import com.kevinfreyap.product.presentation.util.toFormattedCurrency
-import com.kevinfreyap.product.presentation.util.toFormattedNumber
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -120,8 +118,8 @@ class BatchFormViewModel @Inject constructor(
 
             _formState.update { currentState ->
                 val initialDetailState = currentState.batchDetail.copy(
-                    batchQuantity = batchDetails.batch.quantity.toFormattedNumber(),
-                    batchPrice = batchDetails.batch.price.toFormattedCurrency(),
+                    batchQuantity = batchDetails.batch.quantity.toString(),
+                    batchPrice = batchDetails.batch.price.toLong().toString(),
                     batchLocation = batchDetails.batch.location.name,
                 )
 

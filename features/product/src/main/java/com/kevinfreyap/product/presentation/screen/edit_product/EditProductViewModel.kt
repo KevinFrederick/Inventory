@@ -20,7 +20,6 @@ import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenEditProductState
 import com.kevinfreyap.product.presentation.state.SharedProductFormState
-import com.kevinfreyap.product.presentation.util.toFormattedNumber
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,7 +90,7 @@ class EditProductViewModel @Inject constructor(
                     productName = product.name,
                     productCategoryName = product.category.name,
                     productDescription = product.description,
-                    productMinQuantity = product.minimumQuantity.toFormattedNumber()
+                    productMinQuantity = product.minimumQuantity.toString()
                 )
 
                 val initialIdentificationState = currentState.productIdentification.copy(
