@@ -8,7 +8,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.kevinfreyap.product.domain.model.query.FilterStockOption
+import com.kevinfreyap.product.domain.model.query.sort.SortConfig
 import com.kevinfreyap.product.domain.model.query.sort.SortDirection
+import com.kevinfreyap.product.domain.model.query.sort.SortOption
 import com.kevinfreyap.product.domain.usecase.GetAllCategoryUseCase
 import com.kevinfreyap.product.domain.usecase.GetAllLocationUseCase
 import com.kevinfreyap.product.domain.usecase.GetFilteredProductCountUseCase
@@ -56,20 +58,32 @@ class ProductListViewModel @Inject constructor(
 ): ViewModel() {
     private val route = savedStateHandle.toRoute<ProductScreen.ProductList>()
 
-    private val initialFilter = if (route.stockFilter != null) {
-        FilterStockOption.entries.find { it.name == route.stockFilter }
-    } else {
-        null
-    }
+    private val initialFilter = route.filter?.let { filterString ->
+        val matchedFilterOption = FilterStockOption.entries.find { it.name == filterString }
+        val matchedSortOption = SortOption.entries.find { it.name == filterString }
+
+        when {
+            matchedFilterOption != null -> {
+                FilterState(
+                    filterStockOption = matchedFilterOption
+                )
+            }
+
+            matchedSortOption != null -> {
+                FilterState(
+                    sortConfig = SortConfig(
+                        option = matchedSortOption
+                    )
+                )
+            }
+            else -> null
+        }
+    } ?: FilterState()
 
     private val _filtersOptionList = MutableStateFlow(FilterOptionList())
     val availableFilters = _filtersOptionList.asStateFlow()
 
-    private val _filterState = MutableStateFlow(
-        FilterState(
-            filterStockOption = initialFilter
-        )
-    )
+    private val _filterState = MutableStateFlow(initialFilter)
     val filterState = _filterState.asStateFlow()
 
     private val _draftFilter = MutableStateFlow(FilterState())

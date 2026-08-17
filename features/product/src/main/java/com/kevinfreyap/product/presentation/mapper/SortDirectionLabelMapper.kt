@@ -35,5 +35,13 @@ fun SortConfig.getDirectionLabelRes(): Int {
                 R.string.sort_direction_desc_quantity_price
             }
         }
+
+        SortOption.LAST_UPDATED -> {
+            if (this.direction == SortDirection.ASCENDING) {
+                R.string.sort_direction_asc_date
+            } else {
+                R.string.sort_direction_desc_date
+            }
+        }
     }
 }

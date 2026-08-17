@@ -9,5 +9,6 @@ fun SortOption.toLabel(): Int {
         SortOption.NAME -> R.string.sort_option_product_name
         SortOption.QUANTITY -> R.string.sort_option_quantity
         SortOption.PRICE -> R.string.sort_option_price
+        SortOption.LAST_UPDATED -> R.string.sort_option_update
     }
 }

@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,9 +32,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.query.FilterStockOption
+import com.kevinfreyap.product.domain.model.query.sort.SortOption
 import com.kevinfreyap.product.presentation.components.ProductListItem
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
-import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
@@ -192,8 +194,6 @@ private fun DashboardSuccess(
     state: ScreenDashboardState,
     onNavigate: (DashboardNavigation) -> Unit,
 ) {
-    val listData = state.alertList
-
     SectionGreetings(
         title = "Good Morning, User",
         subtitle = ""
@@ -205,41 +205,65 @@ private fun DashboardSuccess(
         estimatedValue = state.estimatedValue
     )
 
-    SectionListWithHeader(
-        title = stringResource(listData.title),
-        list = listData.products,
-        textButton = {
-            val totalCount = listData.textButtonArg ?: listData.products.size
-
-            if (totalCount > 3) {
-                Text(
-                    text = listData.textButtonArg?.let { arg ->
-                        stringResource(listData.textButton, arg)
-                    } ?: stringResource(listData.textButton),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(50))
-                        .clickable  {
-                            when(listData.activeList) {
-                                ActiveAlertList.LOW_STOCK -> {
-                                    onNavigate(
-                                        DashboardNavigation.LowStockProduct(FilterStockOption.STOCK_WARNING.name)
-                                    )
-                                }
-
-                                ActiveAlertList.RECENTLY_UPDATED -> {
-                                    onNavigate(DashboardNavigation.AllProduct)
-                                }
+    if (state.lowStockAlert != null) {
+        SectionListWithHeader(
+            title = stringResource(state.lowStockAlert.title),
+            list = state.lowStockAlert.products,
+            textButton = {
+                if (state.lowStockAlert.textButtonArg > 3) {
+                    Text(
+                        text = stringResource(state.lowStockAlert.textButton, state.lowStockAlert.textButtonArg),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(50))
+                            .clickable  {
+                                onNavigate(
+                                    DashboardNavigation.ProductList(FilterStockOption.STOCK_WARNING.name)
+                                )
                             }
-                        }
-                        .padding(
-                            vertical = 8.dp,
-                        )
-                )
+                            .padding(
+                                top = 4.dp,
+                                bottom = 8.dp
+                            )
+                    )
+                }
             }
+        ) { product ->
+            ProductListItem(
+                product = product,
+                onClick = {
+                    onNavigate(DashboardNavigation.ProductDetail(product.id))
+                }
+            )
+        }
+
+        Spacer(Modifier.height(4.dp))
+    }
+
+
+    SectionListWithHeader(
+        title = stringResource(state.recentProduct.title),
+        list = state.recentProduct.products,
+        textButton = {
+            Text(
+                text = stringResource(state.recentProduct.textButton),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(50))
+                    .clickable  {
+                        onNavigate(DashboardNavigation.ProductList(SortOption.LAST_UPDATED.name))
+                    }
+                    .padding(
+                        top = 4.dp,
+                        bottom = 8.dp
+                    )
+            )
         }
     ) { product ->
         ProductListItem(
@@ -295,9 +319,9 @@ fun DashboardScreenPreview() {
                     totalProductCount = "1.000",
                     totalItemsCount = "1.700",
                     estimatedValue = "Rp 1.200.000.000",
-                    alertList = AlertListUi(
-                        title = R.string.label_stock_warning,
-                        textButton = R.string.btn_label_view_all_low_stock_product,
+                    recentProduct = AlertListUi(
+                        title = R.string.label_recently_updated,
+                        textButton = R.string.btn_label_view_all_product,
                         products = listOf(
                             ProductListItemUi(
                                 id = "PROD-01",
@@ -311,8 +335,8 @@ fun DashboardScreenPreview() {
                             ProductListItemUi(
                                 id = "PROD-02",
                                 name = "Smartphone 2",
-                                quantity = 10,
-                                stockLevel = StockLevel.LOW_STOCK,
+                                quantity = 100,
+                                stockLevel = StockLevel.IN_STOCK,
                                 category = "Electronic",
                                 imageUri = null,
                                 sku = "#SKU-1234-B"
@@ -320,15 +344,13 @@ fun DashboardScreenPreview() {
                             ProductListItemUi(
                                 id = "PROD-03",
                                 name = "Smartphone 3",
-                                quantity = 0,
-                                stockLevel = StockLevel.OUT_OF_STOCK,
+                                quantity = 100,
+                                stockLevel = StockLevel.IN_STOCK,
                                 category = "Electronic",
                                 imageUri = null,
                                 sku = "#SKU-1234-B"
                             ),
                         ),
-                        activeList = ActiveAlertList.LOW_STOCK,
-                        textButtonArg = 7
                     )
                 )
             ),

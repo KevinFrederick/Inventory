@@ -7,7 +7,6 @@ import com.kevinfreyap.product.domain.usecase.GetLowStockProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetRecentProductListUseCase
 import com.kevinfreyap.product.domain.usecase.GetInventorySummaryUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
-import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.state.ScreenDashboardState
 import com.kevinfreyap.product.presentation.util.toFormattedCurrency
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -31,38 +29,36 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     getLowStockProduct: GetLowStockProductUseCase,
-    private val getRecentProductList: GetRecentProductListUseCase,
+    getRecentProductList: GetRecentProductListUseCase,
     private val getInventorySummary: GetInventorySummaryUseCase,
 ): ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val alertListFlow: Flow<AlertListUi> = getLowStockProduct()
-        .flatMapLatest { lowStock ->
+    private val lowStockFlow: Flow<AlertListUi?> = getLowStockProduct()
+        .map { lowStock ->
             if (lowStock.isNotEmpty()) {
                 val uiProducts = lowStock.take(3).toUiModel()
 
-                val alertListUi = AlertListUi(
+                AlertListUi(
                     title = R.string.label_stock_warning,
                     textButton = R.string.btn_label_view_all_low_stock_product,
                     products = uiProducts,
                     textButtonArg = lowStock.size,
-                    activeList = ActiveAlertList.LOW_STOCK
                 )
-
-                flowOf(alertListUi)
             } else {
-                getRecentProductList()
-                    .map { recentList ->
-                        val uiProducts = recentList.toUiModel()
-
-                        AlertListUi(
-                            title = R.string.label_recently_updated,
-                            textButton = R.string.btn_label_view_all_product,
-                            products = uiProducts,
-                            textButtonArg = null,
-                            activeList = ActiveAlertList.RECENTLY_UPDATED
-                        )
-                    }
+                null
             }
+        }
+
+    private val recentProductFlow: Flow<AlertListUi> = getRecentProductList()
+        .map { recentList ->
+            val uiProducts = recentList.toUiModel()
+
+            AlertListUi(
+                title = R.string.label_recently_updated,
+                textButton = R.string.btn_label_view_all_product,
+                products = uiProducts,
+                textButtonArg = 0,
+            )
         }
 
     private val retryTrigger = MutableStateFlow(0)
@@ -72,16 +68,19 @@ class DashboardViewModel @Inject constructor(
         .flatMapLatest { _ ->
             combine(
                 flow = getInventorySummary(),
-                flow2 = alertListFlow
-            ) { inventorySummary, alertList ->
+                flow2 = lowStockFlow,
+                flow3 = recentProductFlow
+            ) { inventorySummary, lowStock, recentProduct ->
                 if (inventorySummary.totalProduct == 0) return@combine UiState.Empty
 
                 UiState.Success(
                     ScreenDashboardState(
+                        totalProductRaw = inventorySummary.totalProduct,
                         totalProductCount = inventorySummary.totalProduct.toFormattedNumber(),
                         totalItemsCount = inventorySummary.totalItem.toFormattedNumber(),
                         estimatedValue = inventorySummary.totalValue.toFormattedCurrency(),
-                        alertList = alertList
+                        lowStockAlert = lowStock,
+                        recentProduct = recentProduct
                     )
                 )
             }
