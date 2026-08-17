@@ -15,6 +15,7 @@
     <string name="placeholder_select_location">Select location</string>
     <string name="placeholder_date_input">DD/MM/YYYY</string>
     <string name="placeholder_batch_name">Batch-%1$s</string>
+    <string name="placeholder_total_product">%1$s product(s)</string>
 
     <!--  LABELS  -->
     <string name="label_sort_by">Sort By</string>
@@ -28,7 +29,10 @@
     <string name="label_to">To</string>
     <string name="label_quantity">Quantity</string>
     <string name="label_total_product">Total Products</string>
-    <string name="label_low_stock_product">Low Stock Products</string>
+    <string name="label_products">Products</string>
+    <string name="label_total_item">Total Items</string>
+    <string name="label_total_inventory">Total Inventory</string>
+    <string name="label_estimated_value">Est. Value :</string>
     <string name="label_stock_warning">Stock Warnings</string>
     <string name="label_recently_updated">Recently Updated</string>
     <string name="label_add_initial_stock">Add initial stock</string>

@@ -36,8 +36,8 @@ import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
-import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionCountRow
-import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionCountRowPlaceholder
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionDashboardSummary
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionDashboardSummaryPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetings
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetingsPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeader
@@ -143,7 +143,7 @@ fun DashboardContent(
 @Composable
 private fun DashboardShimmer() {
     SectionGreetingsPlaceholder()
-    SectionCountRowPlaceholder()
+    SectionDashboardSummaryPlaceholder()
     SectionListWithHeaderPlaceholder()
     SectionListWithHeaderPlaceholder()
 }
@@ -157,9 +157,10 @@ private fun DashboardEmpty(
         subtitle = "Let's set up your inventory"
     )
 
-    SectionCountRow(
-        totalProductValue = 0,
-        lowStockValue = 0
+    SectionDashboardSummary(
+        totalItem = "0",
+        totalProduct = "0",
+        estimatedValue = null
     )
 
     AppStateBanner(
@@ -195,12 +196,13 @@ private fun DashboardSuccess(
 
     SectionGreetings(
         title = "Good Morning, User",
-        subtitle = "Data last synced at 09:11"
+        subtitle = ""
     )
 
-    SectionCountRow(
-        totalProductValue = state.totalProductCount,
-        lowStockValue = state.lowStockProductCount,
+    SectionDashboardSummary(
+        totalItem = state.totalItemsCount,
+        totalProduct = state.totalProductCount,
+        estimatedValue = state.estimatedValue
     )
 
     SectionListWithHeader(
@@ -283,7 +285,6 @@ private fun DashboardError(
 @Preview(
     showBackground = true,
     device = "spec:width=1080px,height=2340px,dpi=416",
-    showSystemUi = true
 )
 @Composable
 fun DashboardScreenPreview() {
@@ -291,8 +292,9 @@ fun DashboardScreenPreview() {
         DashboardContent(
             state = UiState.Success(
                 ScreenDashboardState(
-                    totalProductCount = 1700,
-                    lowStockProductCount = 7,
+                    totalProductCount = "1.000",
+                    totalItemsCount = "1.700",
+                    estimatedValue = "Rp 1.200.000.000",
                     alertList = AlertListUi(
                         title = R.string.label_stock_warning,
                         textButton = R.string.btn_label_view_all_low_stock_product,

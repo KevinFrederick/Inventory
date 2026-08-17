@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.usecase.GetLowStockProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetRecentProductListUseCase
-import com.kevinfreyap.product.domain.usecase.GetTotalProductCountUseCase
+import com.kevinfreyap.product.domain.usecase.GetInventorySummaryUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.state.ScreenDashboardState
+import com.kevinfreyap.product.presentation.util.toFormattedCurrency
+import com.kevinfreyap.product.presentation.util.toFormattedNumber
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,8 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     getLowStockProduct: GetLowStockProductUseCase,
-    private val getTotalProductCount: GetTotalProductCountUseCase,
     private val getRecentProductList: GetRecentProductListUseCase,
+    private val getInventorySummary: GetInventorySummaryUseCase,
 ): ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val alertListFlow: Flow<AlertListUi> = getLowStockProduct()
@@ -69,21 +71,16 @@ class DashboardViewModel @Inject constructor(
     val uiState: StateFlow<UiState<ScreenDashboardState>> = retryTrigger
         .flatMapLatest { _ ->
             combine(
-                flow = getTotalProductCount(),
+                flow = getInventorySummary(),
                 flow2 = alertListFlow
-            ) { totalProductCount, alertList ->
-                if (totalProductCount == 0) return@combine UiState.Empty
-
-                val lowStockProductCount = if (alertList.activeList == ActiveAlertList.LOW_STOCK) {
-                    alertList.textButtonArg ?: 0
-                } else {
-                    0
-                }
+            ) { inventorySummary, alertList ->
+                if (inventorySummary.totalProduct == 0) return@combine UiState.Empty
 
                 UiState.Success(
                     ScreenDashboardState(
-                        totalProductCount = totalProductCount,
-                        lowStockProductCount = lowStockProductCount,
+                        totalProductCount = inventorySummary.totalProduct.toFormattedNumber(),
+                        totalItemsCount = inventorySummary.totalItem.toFormattedNumber(),
+                        estimatedValue = inventorySummary.totalValue.toFormattedCurrency(),
                         alertList = alertList
                     )
                 )

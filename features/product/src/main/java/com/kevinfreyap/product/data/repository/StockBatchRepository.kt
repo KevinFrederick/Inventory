@@ -7,11 +7,13 @@ import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.BatchId
+import com.kevinfreyap.product.domain.model.InventorySummary
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.StockBatchDetails
 import com.kevinfreyap.product.domain.repository.IStockBatchRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -37,6 +39,18 @@ class StockBatchRepository @Inject constructor(
         return batchDao.getBatchById(id.value).map { batchWithLocation ->
             batchWithLocation?.toDomain()
         }
+    }
+
+    override fun getInventorySummary(): Flow<InventorySummary> {
+        return batchDao.getInventorySummary()
+            .distinctUntilChanged()
+            .map { inventorySummaryDb ->
+                InventorySummary(
+                    totalProduct = inventorySummaryDb.totalProduct,
+                    totalItem = inventorySummaryDb.totalItem,
+                    totalValue = inventorySummaryDb.totalValue
+                )
+            }
     }
 
     override suspend fun updateBatch(
