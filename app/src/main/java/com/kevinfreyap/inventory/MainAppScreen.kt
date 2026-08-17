@@ -71,18 +71,9 @@ fun MainAppScreen(
                             is DashboardNavigation.ProductDetail -> {
                                 navController.navigate(ProductScreen.ProductDetail(productId = destination.productId))
                             }
-                            is DashboardNavigation.AllProduct -> {
-                                navController.navigate(ProductScreen.ProductList(stockFilter = null)) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                            is DashboardNavigation.LowStockProduct -> {
-                                val filter = destination.stockFilter
-                                navController.navigate(ProductScreen.ProductList(stockFilter = filter)) {
+                            is DashboardNavigation.ProductList -> {
+                                val filter = destination.filter
+                                navController.navigate(ProductScreen.ProductList(filter = filter)) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -209,7 +200,7 @@ fun BottomBar(
                 icon = R.drawable.dashboard_24
             ),
             BottomTabItem(
-                route = ProductScreen.ProductList(stockFilter = null),
+                route = ProductScreen.ProductList(filter = null),
                 title = stringResource(R.string.bottom_tab_product_list),
                 icon = R.drawable.format_list_bulleted_24
             )

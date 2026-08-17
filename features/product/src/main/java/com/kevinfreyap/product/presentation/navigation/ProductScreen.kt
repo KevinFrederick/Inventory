@@ -10,7 +10,7 @@ sealed interface ProductScreen {
     data object AddProduct: ProductScreen
 
     @Serializable
-    data class ProductList (val stockFilter: String? = null): ProductScreen
+    data class ProductList (val filter: String? = null): ProductScreen
 
     @Serializable
     data class ProductDetail(val productId: String): ProductScreen

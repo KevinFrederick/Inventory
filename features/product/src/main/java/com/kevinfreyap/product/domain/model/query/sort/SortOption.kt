@@ -14,5 +14,8 @@ enum class SortOption (
     ),
     PRICE (
         columnName = "price",
+    ),
+    LAST_UPDATED(
+        columnName = "lastUpdated"
     )
 }

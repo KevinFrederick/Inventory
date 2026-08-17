@@ -54,6 +54,7 @@ class ProductDetailViewModel @Inject constructor(
                         productMinPrice = product.minBatchCost?.toFormattedCurrency(),
                         productMaxPrice = product.maxBatchCost?.toFormattedCurrency(),
                         productMinQty = product.minimumQuantity,
+                        productTotalValue = product.productTotalValue?.toFormattedCurrency(),
                         productNearestExpDate = formatDatePickerDate(product.nearestExpiringBatch),
                         productDescription = product.description,
                         productBarcode = product.barcode,

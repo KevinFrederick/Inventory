@@ -5,11 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.usecase.GetLowStockProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetRecentProductListUseCase
-import com.kevinfreyap.product.domain.usecase.GetTotalProductCountUseCase
+import com.kevinfreyap.product.domain.usecase.GetInventorySummaryUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
-import com.kevinfreyap.product.presentation.model.ActiveAlertList
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.state.ScreenDashboardState
+import com.kevinfreyap.product.presentation.util.toFormattedCurrency
+import com.kevinfreyap.product.presentation.util.toFormattedNumber
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -29,38 +29,36 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     getLowStockProduct: GetLowStockProductUseCase,
-    private val getTotalProductCount: GetTotalProductCountUseCase,
-    private val getRecentProductList: GetRecentProductListUseCase,
+    getRecentProductList: GetRecentProductListUseCase,
+    private val getInventorySummary: GetInventorySummaryUseCase,
 ): ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val alertListFlow: Flow<AlertListUi> = getLowStockProduct()
-        .flatMapLatest { lowStock ->
+    private val lowStockFlow: Flow<AlertListUi?> = getLowStockProduct()
+        .map { lowStock ->
             if (lowStock.isNotEmpty()) {
                 val uiProducts = lowStock.take(3).toUiModel()
 
-                val alertListUi = AlertListUi(
+                AlertListUi(
                     title = R.string.label_stock_warning,
                     textButton = R.string.btn_label_view_all_low_stock_product,
                     products = uiProducts,
                     textButtonArg = lowStock.size,
-                    activeList = ActiveAlertList.LOW_STOCK
                 )
-
-                flowOf(alertListUi)
             } else {
-                getRecentProductList()
-                    .map { recentList ->
-                        val uiProducts = recentList.toUiModel()
-
-                        AlertListUi(
-                            title = R.string.label_recently_updated,
-                            textButton = R.string.btn_label_view_all_product,
-                            products = uiProducts,
-                            textButtonArg = null,
-                            activeList = ActiveAlertList.RECENTLY_UPDATED
-                        )
-                    }
+                null
             }
+        }
+
+    private val recentProductFlow: Flow<AlertListUi> = getRecentProductList()
+        .map { recentList ->
+            val uiProducts = recentList.toUiModel()
+
+            AlertListUi(
+                title = R.string.label_recently_updated,
+                textButton = R.string.btn_label_view_all_product,
+                products = uiProducts,
+                textButtonArg = 0,
+            )
         }
 
     private val retryTrigger = MutableStateFlow(0)
@@ -69,22 +67,20 @@ class DashboardViewModel @Inject constructor(
     val uiState: StateFlow<UiState<ScreenDashboardState>> = retryTrigger
         .flatMapLatest { _ ->
             combine(
-                flow = getTotalProductCount(),
-                flow2 = alertListFlow
-            ) { totalProductCount, alertList ->
-                if (totalProductCount == 0) return@combine UiState.Empty
-
-                val lowStockProductCount = if (alertList.activeList == ActiveAlertList.LOW_STOCK) {
-                    alertList.textButtonArg ?: 0
-                } else {
-                    0
-                }
+                flow = getInventorySummary(),
+                flow2 = lowStockFlow,
+                flow3 = recentProductFlow
+            ) { inventorySummary, lowStock, recentProduct ->
+                if (inventorySummary.totalProduct == 0) return@combine UiState.Empty
 
                 UiState.Success(
                     ScreenDashboardState(
-                        totalProductCount = totalProductCount,
-                        lowStockProductCount = lowStockProductCount,
-                        alertList = alertList
+                        totalProductRaw = inventorySummary.totalProduct,
+                        totalProductCount = inventorySummary.totalProduct.toFormattedNumber(),
+                        totalItemsCount = inventorySummary.totalItem.toFormattedNumber(),
+                        estimatedValue = inventorySummary.totalValue.toFormattedCurrency(),
+                        lowStockAlert = lowStock,
+                        recentProduct = recentProduct
                     )
                 )
             }

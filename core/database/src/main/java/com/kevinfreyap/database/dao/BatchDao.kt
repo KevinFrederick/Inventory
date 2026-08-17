@@ -7,8 +7,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.kevinfreyap.database.entity.StockBatchEntity
-import com.kevinfreyap.database.entity.relation.BatchWithLocation
 import com.kevinfreyap.database.entity.relation.BatchWithProductAndLocation
+import com.kevinfreyap.database.model.InventorySummaryDb
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,6 +25,15 @@ interface BatchDao {
 
     @Query("SELECT * FROM stock_batch WHERE locationId = :locationId")
     fun getBatchesByLocation(locationId: String): Flow<List<StockBatchEntity>>
+
+    @Query("""
+        SELECT 
+            (SELECT COUNT(*) FROM product) AS totalProduct,
+            COALESCE(SUM(quantity), 0) AS totalItem,
+            COALESCE(SUM(quantity * COALESCE(price, 0)), 0.0) AS totalValue
+        FROM stock_batch
+    """)
+    fun getInventorySummary(): Flow<InventorySummaryDb>
 
     @Update
     suspend fun updateBatch(batch: StockBatchEntity): Int
