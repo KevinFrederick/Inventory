@@ -40,41 +40,270 @@ fun SectionTotalQtyAndPriceRange (
     quantity: String?,
     minPrice: String?,
     maxPrice: String?,
+    totalValue: String?,
     modifier: Modifier = Modifier
 ) {
     val isPriceRange = !minPrice.isNullOrBlank() && !maxPrice.isNullOrBlank()
     val combinedText = if (isPriceRange) "$minPrice - $maxPrice" else if (!minPrice.isNullOrBlank()) minPrice else ""
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
     ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .weight(0.3f)
+                    .fillMaxHeight()
+            )
+            {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = stockStatus,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Theme.custom.secondaryText,
+                        textAlign = TextAlign.Center
+                    )
+                    if (!quantity.isNullOrBlank()) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    text = quantity,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Theme.custom.primaryText,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState())
+                                )
+
+                                Text(
+                                    text = stringResource(R.string.label_quantity_items),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Theme.custom.hint
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .weight(0.7f)
+                    .fillMaxHeight()
+            )
+            {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (isPriceRange) R.string.label_price_range
+                            else R.string.label_item_price
+                        ),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Theme.custom.secondaryText,
+                    )
+
+                    if (isPriceRange) {
+                        AdaptiveTextLayout(
+                            modifier = Modifier
+                                .weight(1f),
+                            singleLineContent = {
+                                Text(
+                                    text = combinedText,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Theme.custom.primaryText,
+                                    textAlign = TextAlign.Center,
+                                )
+                            },
+                            stackedContent = {
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Text(
+                                        text = minPrice,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Theme.custom.primaryText,
+                                        textAlign = TextAlign.Center,
+                                    )
+
+                                    Text(
+                                        text = stringResource(R.string.label_to),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = Theme.custom.hint
+                                    )
+
+                                    Text(
+                                        text = maxPrice,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Theme.custom.primaryText,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                        )
+                    } else if (!minPrice.isNullOrBlank()) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = minPrice,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = Theme.custom.primaryText,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    } else {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.warning_no_price),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = Theme.custom.primaryText,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             ),
             modifier = Modifier
-                .weight(0.3f)
-                .fillMaxHeight()
-        )
-        {
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
             Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    )
             ) {
                 Text(
-                    text = stockStatus,
+                    text = stringResource(R.string.label_product_total_value),
                     style = MaterialTheme.typography.labelLarge,
                     color = Theme.custom.secondaryText,
-                    textAlign = TextAlign.Center
                 )
-                if (!quantity.isNullOrBlank()) {
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = totalValue ?: stringResource(R.string.warning_no_price_short),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = Theme.custom.primaryText,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 4.dp,
+                                vertical = 8.dp
+                            )
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun SectionTotalQtyAndPriceRangePlaceholder(
+    shimmerColor: Color = Theme.custom.shimmer
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier
+                    .weight(0.3f)
+                    .fillMaxHeight()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Transparent,
+                        modifier = Modifier
+                            .clearAndSetSemantics {}
+                            .fillMaxWidth(0.5f)
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect(shimmerColor)
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
@@ -85,154 +314,95 @@ fun SectionTotalQtyAndPriceRange (
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text = quantity,
+                                text = "",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
-                                color = Theme.custom.primaryText,
+                                color = Color.Transparent,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState())
+                                    .clearAndSetSemantics {}
+                                    .fillMaxWidth(0.7f)
+                                    .clip(RoundedCornerShape(50))
+                                    .shimmerEffect(shimmerColor)
                             )
 
+                            Spacer(Modifier.height(4.dp))
+
                             Text(
-                                text = stringResource(R.string.label_quantity_items),
+                                text = "",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = Theme.custom.hint
+                                color = Color.Transparent,
+                                modifier = Modifier
+                                    .clearAndSetSemantics {}
+                                    .fillMaxWidth(0.4f)
+                                    .clip(RoundedCornerShape(50))
+                                    .shimmerEffect(shimmerColor)
                             )
                         }
                     }
                 }
             }
-        }
 
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            modifier = Modifier
-                .weight(0.7f)
-                .fillMaxHeight()
-        )
-        {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
+                    .weight(0.7f)
+                    .fillMaxHeight()
             ) {
-                Text(
-                    text = stringResource(
-                        if (isPriceRange) R.string.label_price_range
-                        else R.string.label_item_price
-                    ),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Theme.custom.secondaryText,
-                )
-
-                if (isPriceRange) {
-                    AdaptiveTextLayout(
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Transparent,
                         modifier = Modifier
-                            .weight(1f),
-                        singleLineContent = {
-                            Text(
-                                text = combinedText,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = Theme.custom.primaryText,
-                                textAlign = TextAlign.Center,
-                            )
-                        },
-                        stackedContent = {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Text(
-                                    text = minPrice,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Theme.custom.primaryText,
-                                    textAlign = TextAlign.Center,
-                                )
-
-                                Text(
-                                    text = stringResource(R.string.label_to),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Theme.custom.hint
-                                )
-
-                                Text(
-                                    text = maxPrice,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Theme.custom.primaryText,
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        }
+                            .clearAndSetSemantics {}
+                            .fillMaxWidth(0.4f)
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect(shimmerColor)
                     )
-                } else if (!minPrice.isNullOrBlank()) {
-                    Box(
-                        contentAlignment = Alignment.Center,
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = Theme.custom.primaryText,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = minPrice,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Theme.custom.primaryText,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                } else {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.warning_no_price),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Theme.custom.primaryText,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                            .clearAndSetSemantics {}
+                            .fillMaxWidth(0.8f)
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect(shimmerColor)
+                    )
                 }
             }
         }
-    }
-}
 
-@Composable
-fun SectionTotalQtyAndPriceRangePlaceholder(
-    shimmerColor: Color = Theme.custom.shimmer
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             ),
             modifier = Modifier
-                .weight(0.3f)
-                .fillMaxHeight()
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
         ) {
             Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    )
             ) {
                 Text(
                     text = "",
@@ -240,94 +410,36 @@ fun SectionTotalQtyAndPriceRangePlaceholder(
                     color = Color.Transparent,
                     modifier = Modifier
                         .clearAndSetSemantics {}
-                        .fillMaxWidth(0.5f)
+                        .fillMaxWidth(0.3f)
                         .clip(RoundedCornerShape(50))
                         .shimmerEffect(shimmerColor)
                 )
-
-                Spacer(Modifier.height(4.dp))
 
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
+                        .fillMaxSize()
                         .weight(1f)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = "",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Transparent,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .clearAndSetSemantics {}
-                                .fillMaxWidth(0.7f)
-                                .clip(RoundedCornerShape(50))
-                                .shimmerEffect(shimmerColor)
-                        )
-
-                        Spacer(Modifier.height(4.dp))
-
-                        Text(
-                            text = "",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.Transparent,
-                            modifier = Modifier
-                                .clearAndSetSemantics {}
-                                .fillMaxWidth(0.4f)
-                                .clip(RoundedCornerShape(50))
-                                .shimmerEffect(shimmerColor)
-                        )
-                    }
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Transparent,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .clearAndSetSemantics {}
+                            .fillMaxWidth(0.7f)
+                            .padding(
+                                horizontal = 4.dp,
+                                vertical = 8.dp
+                            )
+                            .clip(RoundedCornerShape(50))
+                            .shimmerEffect(shimmerColor)
+                    )
                 }
             }
-        }
 
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            modifier = Modifier
-                .weight(0.7f)
-                .fillMaxHeight()
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = "",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.Transparent,
-                    modifier = Modifier
-                        .clearAndSetSemantics {}
-                        .fillMaxWidth(0.4f)
-                        .clip(RoundedCornerShape(50))
-                        .shimmerEffect(shimmerColor)
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Text(
-                    text = "",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = Theme.custom.primaryText,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .clearAndSetSemantics {}
-                        .fillMaxWidth(0.8f)
-                        .clip(RoundedCornerShape(50))
-                        .shimmerEffect(shimmerColor)
-                )
-            }
         }
     }
 }
@@ -344,6 +456,7 @@ fun SectionTotalQtyAndPriceRangePreview() {
             quantity = "50.000",
             minPrice = "",
             maxPrice = "",
+            totalValue = null
         )
     }
 }

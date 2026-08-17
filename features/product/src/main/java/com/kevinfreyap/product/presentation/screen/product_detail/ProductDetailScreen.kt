@@ -299,6 +299,7 @@ private fun ProductDetailSuccess(
         quantity = if (screenProductDetailState.productTotalQtyText != "0") screenProductDetailState.productTotalQtyText else null,
         minPrice = screenProductDetailState.productMinPrice,
         maxPrice = screenProductDetailState.productMaxPrice,
+        totalValue = screenProductDetailState.productTotalValue
     )
 
     SectionMinQtyAndExpDate(
@@ -409,6 +410,8 @@ fun ProductDetailScreenPreview() {
                     productMinQty = 5,
                     productTotalQty = 2,
                     productNearestExpDate = null,
+                    productMinPrice = "Rp 1.200.000",
+                    productMaxPrice = "Rp 1.500.000",
                     productDescription = LoremIpsum(words = 50).values.first(),
                     productBarcode = "1234567890",
                     batchesList = listOf(

@@ -74,6 +74,8 @@
     <string name="label_low_stock">Low of Stock</string>
     <string name="label_no_stock">Out of Stock</string>
 
+    <string name="label_product_total_value">Product Total Value</string>
+
     <!--  BUTTON LABEL  -->
     <string name="btn_label_confirm">Confirm</string>
     <string name="btn_label_cancel">Cancel</string>
