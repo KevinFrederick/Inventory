@@ -1,7 +1,7 @@
 [versions]
 # Build & Plugins
 agp = "9.2.1"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 ksp = "2.3.9"
 kotlinxSerialization = "1.11.0"
 
@@ -23,23 +23,29 @@ coroutines = "1.11.0"
 
 # Compose & UI
 activityCompose = "1.13.0"
-composeBom = "2026.06.01"
+composeBom = "2026.08.00"
 
 # Database
 room = "2.8.4"
-paging = "3.5.0"
+paging = "3.5.1"
 
 # Desugar
 desugar_jdk_libs = "2.1.5"
 
 # Navigation
-navigationCompose = "2.9.8"
+navigationCompose = "2.10.0"
 
 # Coil
-coil = "3.5.0"
+coil = "3.6.2"
 
-# Zxing
+# Zxing (barcode)
 zxing = "3.5.4"
+
+# Camera X
+camerax = "1.6.2"
+
+# Barcode Scan
+barcodeScan = "17.3.0"
 
 [libraries]
 # Core Android
@@ -96,6 +102,15 @@ coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref="c
 
 # Zxing
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+
+# CameraX
+camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+
+# Barcode Scan
+mlkit-barcode-scanner = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "barcodeScan" }
 
 [plugins]
 # Project Plugins
