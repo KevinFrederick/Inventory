@@ -11,9 +11,9 @@ class ValidateProductBarcodeUseCase @Inject constructor() {
         val sanitizedBarcode = rawBarcode.trim()
 
         return when {
-            sanitizedBarcode.length > 50 -> Result.Error(ProductBarcodeError.TOO_LONG)
+            sanitizedBarcode.length > 64 -> Result.Error(ProductBarcodeError.TOO_LONG)
             sanitizedBarcode.contains(Regex("\\s")) -> Result.Error(ProductBarcodeError.CONTAINS_WHITESPACE)
-            !sanitizedBarcode.all { it.isLetterOrDigit() } -> Result.Error(ProductBarcodeError.INVALID_CHARACTER)
+            !sanitizedBarcode.all { it.isDigit() } -> Result.Error(ProductBarcodeError.INVALID_CHARACTER)
             else -> Result.Success(sanitizedBarcode)
         }
     }

@@ -14,7 +14,7 @@ class ValidateBatchLocationUseCase @Inject constructor() {
 
         return when {
             sanitizedLocation.isBlank() -> Result.Error(BatchLocationError.EMPTY)
-            sanitizedLocation.length > 50 -> Result.Error(BatchLocationError.TOO_LONG)
+            sanitizedLocation.length > 255 -> Result.Error(BatchLocationError.TOO_LONG)
             sanitizedLocation.contains('\n') -> Result.Error(BatchLocationError.CONTAINS_NEWLINE)
             else -> Result.Success(sanitizedLocation)
         }

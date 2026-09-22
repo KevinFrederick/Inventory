@@ -16,7 +16,7 @@ class ValidateProductSkuUseCase @Inject constructor(
             .uppercase()
 
         when {
-            sanitizedSku.length > 50 -> return Result.Error(ProductSkuError.TOO_LONG)
+            sanitizedSku.length > 128 -> return Result.Error(ProductSkuError.TOO_LONG)
             sanitizedSku.contains(Regex("\\s")) -> return Result.Error(ProductSkuError.CONTAINS_WHITESPACE)
             sanitizedSku.matches(Regex("^[A-Z0-9_\\-]+$")) -> return Result.Error(ProductSkuError.INVALID_CHARACTERS)
         }

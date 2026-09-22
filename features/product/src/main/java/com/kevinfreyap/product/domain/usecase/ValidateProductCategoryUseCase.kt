@@ -14,7 +14,7 @@ class ValidateProductCategoryUseCase @Inject constructor() {
 
         return when {
             sanitizedCategory.isBlank() -> Result.Error(ProductCategoryError.EMPTY)
-            sanitizedCategory.length > 50 -> Result.Error(ProductCategoryError.TOO_LONG)
+            sanitizedCategory.length > 255 -> Result.Error(ProductCategoryError.TOO_LONG)
             sanitizedCategory.contains('\n') -> Result.Error(ProductCategoryError.CONTAINS_NEWLINE)
             else -> Result.Success(sanitizedCategory)
         }
