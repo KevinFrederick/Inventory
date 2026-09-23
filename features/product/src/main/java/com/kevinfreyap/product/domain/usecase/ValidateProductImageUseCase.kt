@@ -21,11 +21,11 @@ class ValidateProductImageUseCase @Inject constructor(
 
         when {
             !isValidScheme -> return Result.Error(ProductImageError.INVALID_FORMAT)
-            sanitizedUri.length > 1000 -> return Result.Error(ProductImageError.PATH_TOO_LONG)
+            sanitizedUri.length > 256 -> return Result.Error(ProductImageError.PATH_TOO_LONG)
         }
 
         val fileSizeMB = imageManager.getFileSizeInMb(sanitizedUri)
-        if (fileSizeMB > 2.0) {
+        if (fileSizeMB > 5.0) {
             return Result.Error(ProductImageError.FILE_TOO_LARGE)
         }
 

@@ -3,14 +3,19 @@ package com.kevinfreyap.product.presentation.screen.add_product.section
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.ProductBarcodeError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
@@ -27,6 +32,7 @@ fun SectionProductIdentification(
     productFormIdentificationState: ProductFormIdentificationState,
     formErrors: ProductFormError?,
     onAction: (ProductFormAction.ProductIdentificationAction) -> Unit,
+    onBarcodeIconClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     FieldListHeader(
@@ -65,7 +71,14 @@ fun SectionProductIdentification(
                     value = productFormIdentificationState.productBarcode ?: "",
                     onValueChange = { barcode ->
                         val sanitizedBarcode = barcode.replace(" ", "")
-                        onAction(ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(sanitizedBarcode))
+                        onAction(
+                            ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(
+                                InventoryBarcode(
+                                    value = sanitizedBarcode,
+                                    format = "CODE_128"
+                                )
+                            )
+                        )
                     },
                     label = stringResource(R.string.label_field_product_barcode),
                     minLines = 1,
@@ -81,6 +94,18 @@ fun SectionProductIdentification(
                             ProductBarcodeError.CONTAINS_WHITESPACE -> stringResource(R.string.error_product_barcode_contains_spaces)
                         }
                     } else null,
+                    trailingIcon = {
+                        IconButton(
+                            onClick = onBarcodeIconClicked,
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.custom_barcode_scanner),
+                                contentDescription = "Barcode Scanner"
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -96,7 +121,8 @@ fun SectionProductIdentificationPreview() {
         SectionProductIdentification(
             productFormIdentificationState = ProductFormIdentificationState(),
             formErrors = ProductFormError(),
-            onAction = {}
+            onAction = {},
+            onBarcodeIconClicked = {}
         )
     }
 }

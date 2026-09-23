@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
@@ -72,8 +73,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AddProductScreen(
-    modifier: Modifier = Modifier,
+    scannedBarcode: InventoryBarcode,
+    onClearBarcode: () -> Unit,
     onNavigate: (AddProductNavigation) -> Unit,
+    modifier: Modifier = Modifier,
     viewmodel: AddProductViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -124,8 +127,19 @@ fun AddProductScreen(
         }
     }
 
-    BackHandler(enabled = state.hasUnsavedChanges) {
-        showDiscardDialog = true
+    BackHandler {
+        if (state.hasUnsavedChanges) {
+            showDiscardDialog = true
+        } else {
+            onNavigate(AddProductNavigation.NavigateUp)
+        }
+    }
+
+    LaunchedEffect(scannedBarcode) {
+        if (scannedBarcode.value.isNotBlank() && scannedBarcode.format.isNotBlank()) {
+            viewmodel.onAction(ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(scannedBarcode))
+            onClearBarcode()
+        }
     }
 
     AddProductContent(
@@ -259,6 +273,9 @@ fun AddProductContent(
                     productFormIdentificationState = state.productIdentification,
                     formErrors = state.formErrors,
                     onAction = onAction,
+                    onBarcodeIconClicked = {
+                        onNavigate(AddProductNavigation.BarcodeScanner)
+                    }
                 )
 
                 TextSwitchRow(

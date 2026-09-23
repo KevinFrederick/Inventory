@@ -60,6 +60,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
     implementation(project(":features:product"))
+    implementation(project(":features:scanner"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

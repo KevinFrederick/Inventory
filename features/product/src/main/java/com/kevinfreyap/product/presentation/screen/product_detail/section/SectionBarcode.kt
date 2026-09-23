@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.components.BarcodeDisplay
 import com.kevinfreyap.product.presentation.components.BarcodeDisplayPlaceholder
@@ -25,7 +26,7 @@ import com.kevinfreyap.ui.util.shimmerEffect
 
 @Composable
 fun SectionBarcode(
-    barcodeText: String?,
+    barcode: InventoryBarcode?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -39,7 +40,7 @@ fun SectionBarcode(
         )
 
         BarcodeDisplay(
-            barcodeText = barcodeText
+            barcode = barcode
         )
     }
 }
@@ -73,7 +74,7 @@ fun SectionBarcodePlaceholder(
 fun SectionBarcodePreview() {
     InventoryTheme {
         SectionBarcode(
-            barcodeText = "1234567890"
+            barcode = InventoryBarcode("1234567890", "")
         )
     }
 }

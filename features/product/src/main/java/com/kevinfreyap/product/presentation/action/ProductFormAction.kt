@@ -1,5 +1,7 @@
 package com.kevinfreyap.product.presentation.action
 
+import com.kevinfreyap.domain.model.InventoryBarcode
+
 sealed interface ProductFormAction {
     // Product Detail Actions
     sealed interface ProductDetailAction: ProductFormAction {
@@ -24,7 +26,7 @@ sealed interface ProductFormAction {
 
     // Product Identification Actions
     sealed interface ProductIdentificationAction: ProductFormAction {
-        data class OnBarcodeChanged(val barcode: String?): ProductIdentificationAction
+        data class OnBarcodeChanged(val barcode: InventoryBarcode?): ProductIdentificationAction
         data class OnSkuChanged(val sku: String?): ProductIdentificationAction
     }
 

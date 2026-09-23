@@ -11,7 +11,7 @@ class ValidateProductNameUseCase @Inject constructor() {
 
         return when {
             sanitizedName.isBlank() -> Result.Error(ProductNameError.EMPTY)
-            sanitizedName.length > 100 -> Result.Error(ProductNameError.TOO_LONG)
+            sanitizedName.length > 255 -> Result.Error(ProductNameError.TOO_LONG)
             sanitizedName.contains('\n') -> Result.Error(ProductNameError.CONTAINS_NEWLINE)
             else -> Result.Success(sanitizedName)
         }

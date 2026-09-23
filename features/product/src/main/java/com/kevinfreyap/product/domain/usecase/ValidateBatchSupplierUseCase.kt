@@ -13,7 +13,7 @@ class ValidateBatchSupplierUseCase @Inject constructor() {
             .trim()
 
         return when {
-            sanitizedSupplier.length > 100 -> Result.Error(BatchSupplierError.TOO_LONG)
+            sanitizedSupplier.length > 128 -> Result.Error(BatchSupplierError.TOO_LONG)
             else -> Result.Success(sanitizedSupplier)
         }
     }

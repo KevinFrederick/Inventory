@@ -191,11 +191,11 @@
     <string name="error_product_image_file_too_large">This image is too large\nMax file size is 2 MB</string>
 
     <string name="error_product_name_empty">Product name is required</string>
-    <string name="error_product_name_too_long">Product name cannot exceed 100 characters</string>
+    <string name="error_product_name_too_long">Product name cannot exceed 255 characters</string>
     <string name="error_product_name_contains_newline">Product name must be on a single line</string>
 
     <string name="error_product_category_empty">Please select or create a category</string>
-    <string name="error_product_category_too_long">Category cannot exceed 50 characters</string>
+    <string name="error_product_category_too_long">Category cannot exceed 255 characters</string>
     <string name="error_product_category_contains_newline">Category must be on a single line</string>
     
     <string name="error_product_min_qty_invalid_format">Invalid number</string>
@@ -203,12 +203,12 @@
 
     <string name="error_product_description_too_long">Description cannot exceed 500 characters</string>
 
-    <string name="error_product_sku_too_long">SKU cannot exceed 50 characters</string>
+    <string name="error_product_sku_too_long">SKU cannot exceed 128 characters</string>
     <string name="error_product_sku_contains_spaces">Spaces are not allowed</string>
     <string name="error_product_sku_invalid_characters">Special characters are not allowed</string>
     <string name="error_product_sku_already_exists">This SKU already exists</string>
     
-    <string name="error_product_barcode_too_long">Barcode cannot exceed 50 characters</string>
+    <string name="error_product_barcode_too_long">Barcode cannot exceed 64 characters</string>
     <string name="error_product_barcode_invalid_characters">Barcode contains invalid characters</string>
     <string name="error_product_barcode_contains_spaces">Spaces are not allowed</string>
     
@@ -218,7 +218,7 @@
     <string name="error_batch_quantity_cannot_be_zero">Quantity must be greater than 0</string>
 
     <string name="error_batch_location_empty">Location is required</string>
-    <string name="error_batch_location_too_long">Location name cannot exceed 50 characters</string>
+    <string name="error_batch_location_too_long">Location name cannot exceed 255 characters</string>
     <string name="error_batch_location_contains_newline">Location must be on a single line</string>
 
     <string name="error_batch_price_invalid_format">Please enter a valid price format</string>
@@ -226,7 +226,7 @@
 
     <string name="error_batch_expiration_cannot_be_past">Expiration date cannot be in the past</string>
 
-    <string name="error_batch_supplier_too_long">Supplier name cannot exceed 100 characters</string>
+    <string name="error_batch_supplier_too_long">Supplier name cannot exceed 128 characters</string>
 
     <string name="error_delete_product">Unable to delete product</string>
     <string name="error_delete_batch">Unable to delete batch</string>

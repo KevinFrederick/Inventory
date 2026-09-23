@@ -1,11 +1,9 @@
 package com.kevinfreyap.product.presentation.state
 
-import com.kevinfreyap.product.domain.model.StockBatch
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.presentation.mapper.toLabel
-import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.model.StockBatchUi
 import com.kevinfreyap.product.presentation.util.StockLevelCalculator.calculateStockLevel
-import com.kevinfreyap.product.presentation.util.toFormattedCurrency
 import com.kevinfreyap.product.presentation.util.toFormattedNumber
 
 data class ScreenProductDetailState(
@@ -20,7 +18,7 @@ data class ScreenProductDetailState(
     val productTotalValue: String? = null,
     val productNearestExpDate: String? = null,
     val productDescription: String? = null,
-    val productBarcode: String? = null,
+    val productBarcode: InventoryBarcode? = null,
     val batchesList: List<StockBatchUi> = emptyList(),
 ) {
     val stockStatus: Int

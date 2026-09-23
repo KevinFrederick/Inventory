@@ -232,6 +232,7 @@ class EditProductViewModel @Inject constructor(
                     productMinQuantity = currentState.productDetail.productMinQuantity,
                     isMinQuantityConfirmed = currentState.productDetail.isMinQuantityConfirmed,
                     productBarcode = currentState.productIdentification.productBarcode,
+                    productBarcodeFormat = currentState.productIdentification.productBarcodeFormat,
                     productSku = currentState.productIdentification.productSku,
                 )
 

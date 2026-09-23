@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.usecase.DeleteProductUseCase
@@ -44,6 +45,13 @@ class ProductDetailViewModel @Inject constructor(
             if (product == null) {
                 UiState.Error("Not Found")
             } else {
+                val barcode = product.barcode?.let {
+                    InventoryBarcode(
+                        value = product.barcode,
+                        format = product.barcodeFormat ?: ""
+                    )
+                }
+
                 UiState.Success(
                     ScreenProductDetailState(
                         imageUri = product.imageUri,
@@ -57,7 +65,7 @@ class ProductDetailViewModel @Inject constructor(
                         productTotalValue = product.productTotalValue?.toFormattedCurrency(),
                         productNearestExpDate = formatDatePickerDate(product.nearestExpiringBatch),
                         productDescription = product.description,
-                        productBarcode = product.barcode,
+                        productBarcode = barcode,
                         batchesList = product.batches.toUiModel(),
                     )
                 )
