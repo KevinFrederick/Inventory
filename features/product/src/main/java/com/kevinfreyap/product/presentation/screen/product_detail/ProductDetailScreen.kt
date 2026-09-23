@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.presentation.model.StockBatchUi
 import com.kevinfreyap.product.presentation.screen.product_detail.section.SectionBarcode
 import com.kevinfreyap.product.presentation.screen.product_detail.section.SectionBarcodePlaceholder
@@ -317,7 +318,7 @@ private fun ProductDetailSuccess(
     )
 
     SectionBarcode(
-        barcodeText = screenProductDetailState.productBarcode
+        barcode = screenProductDetailState.productBarcode
     )
 
     SectionBatches(
@@ -413,7 +414,7 @@ fun ProductDetailScreenPreview() {
                     productMinPrice = "Rp 1.200.000",
                     productMaxPrice = "Rp 1.500.000",
                     productDescription = LoremIpsum(words = 50).values.first(),
-                    productBarcode = "1234567890",
+                    productBarcode = InventoryBarcode("1234567890", ""),
                     batchesList = listOf(
                         StockBatchUi(
                             id = "batch-3f8d9b21-4c6e-4a12-9e83-7b5c1a9f0e2d",

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.domain.model.error.ProductImageError
@@ -58,6 +59,8 @@ import java.io.File
 
 @Composable
 fun EditProductScreen(
+    scannedBarcode: InventoryBarcode,
+    onClearBarcode: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigate: (EditProductNavigation) -> Unit,
     viewModel: EditProductViewModel = hiltViewModel()
@@ -102,6 +105,13 @@ fun EditProductScreen(
 
     BackHandler(enabled = state.hasUnsavedChanges) {
         showDiscardDialog = true
+    }
+
+    LaunchedEffect(scannedBarcode) {
+        if (scannedBarcode.value.isNotBlank() && scannedBarcode.format.isNotBlank()) {
+            viewModel.onAction(ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(scannedBarcode))
+            onClearBarcode()
+        }
     }
 
     EditProductContent(
@@ -233,6 +243,9 @@ fun EditProductContent(
                     productFormIdentificationState = state.productIdentification,
                     formErrors = state.formErrors,
                     onAction = onAction,
+                    onBarcodeIconClicked = {
+                        onNavigate(EditProductNavigation.BarcodeScanner)
+                    }
                 )
             }
 

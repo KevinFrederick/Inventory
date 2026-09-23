@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.presentation.components
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,19 +27,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.presentation.barcode.generateBarcodeBitmap
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.ui.util.shimmerEffect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun BarcodeDisplay(
-    barcodeText: String?,
+    barcode: InventoryBarcode?,
     modifier: Modifier = Modifier
 ) {
-    val barcodeBitmap = remember(barcodeText) {
-        generateBarcodeBitmap(barcodeText)
+    val barcodeBitmap by produceState<Bitmap?>(null, barcode) {
+        value = withContext(Dispatchers.Default) {
+            generateBarcodeBitmap(barcode)
+        }
     }
 
     Surface(
@@ -48,13 +55,14 @@ fun BarcodeDisplay(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
             if (barcodeBitmap != null) {
+                val barcodeText = barcode!!.value
                 Image(
-                    bitmap = barcodeBitmap.asImageBitmap(),
+                    bitmap = barcodeBitmap!!.asImageBitmap(),
                     contentDescription = "Barcode for $barcodeText",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -64,13 +72,13 @@ fun BarcodeDisplay(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = barcodeText!!,
+                    text = barcodeText,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 2.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.Black.copy(0.7f)
                 )
-            } else if (barcodeText.isNullOrBlank()) {
+            } else if (barcode?.value.isNullOrBlank()) {
                 Text(
                     text = stringResource(R.string.warning_no_barcode),
                     style = MaterialTheme.typography.bodyMedium,
@@ -136,7 +144,7 @@ fun BarcodeDisplayPlaceholder(
 fun BarcodeDisplayPreview() {
     InventoryTheme {
         BarcodeDisplay(
-            barcodeText = "1234567890"
+            barcode = InventoryBarcode("1234567890", "")
         )
     }
 }

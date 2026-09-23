@@ -84,7 +84,10 @@ object SharedFormAction {
         return when(action) {
             is ProductFormAction.ProductIdentificationAction.OnBarcodeChanged -> {
                 currentState.copy(
-                    productIdentification = currentState.productIdentification.copy(productBarcode = action.barcode),
+                    productIdentification = currentState.productIdentification.copy(
+                        productBarcode = action.barcode?.value,
+                        productBarcodeFormat = action.barcode?.format
+                    ),
                     formErrors = currentState.formErrors?.copy(barcodeError = null)
                 )
             }

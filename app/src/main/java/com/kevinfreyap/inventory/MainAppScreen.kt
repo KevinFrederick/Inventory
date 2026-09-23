@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -20,6 +21,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.kevinfreyap.domain.model.InventoryBarcode
+import com.kevinfreyap.domain.util.SCANNED_BARCODE
+import com.kevinfreyap.domain.util.SCANNED_FORMAT
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
 import com.kevinfreyap.product.presentation.navigation.BatchFormNavigation
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
@@ -33,6 +37,9 @@ import com.kevinfreyap.product.presentation.screen.dashboard.DashboardScreen
 import com.kevinfreyap.product.presentation.screen.edit_product.EditProductScreen
 import com.kevinfreyap.product.presentation.screen.product_detail.ProductDetailScreen
 import com.kevinfreyap.product.presentation.screen.product_list.ProductListScreen
+import com.kevinfreyap.scanner.navigation.ScannerNavigation
+import com.kevinfreyap.scanner.navigation.ScannerScreens
+import com.kevinfreyap.scanner.ui.ScannerScreen
 
 @Composable
 fun MainAppScreen(
@@ -102,12 +109,35 @@ fun MainAppScreen(
                 )
             }
 
-            composable<ProductScreen.AddProduct> {
+            composable<ProductScreen.AddProduct> { entry ->
+                val scannedBarcode by entry.savedStateHandle
+                    .getStateFlow(SCANNED_BARCODE, "")
+                    .collectAsStateWithLifecycle()
+
+                val scannedFormat by entry.savedStateHandle
+                    .getStateFlow(SCANNED_FORMAT, "")
+                    .collectAsStateWithLifecycle()
+
+                val inventoryBarcode = InventoryBarcode(
+                    value = scannedBarcode,
+                    format = scannedFormat
+                )
+
                 AddProductScreen(
+                    scannedBarcode = inventoryBarcode,
+                    onClearBarcode = {
+                        entry.savedStateHandle[SCANNED_BARCODE] = ""
+                        entry.savedStateHandle[SCANNED_FORMAT] = ""
+                    },
                     onNavigate = { destination ->
                         when (destination) {
                             AddProductNavigation.NavigateUp -> {
                                 navController.navigateUp()
+                            }
+                            AddProductNavigation.BarcodeScanner -> {
+                                navController.navigate(
+                                    ScannerScreens.ScannerScreen
+                                )
                             }
                         }
                     }
@@ -155,12 +185,35 @@ fun MainAppScreen(
                 )
             }
 
-            composable<ProductScreen.EditProduct> {
+            composable<ProductScreen.EditProduct> { entry ->
+                val scannedBarcode by entry.savedStateHandle
+                    .getStateFlow(SCANNED_BARCODE, "")
+                    .collectAsStateWithLifecycle()
+
+                val scannedFormat by entry.savedStateHandle
+                    .getStateFlow(SCANNED_FORMAT, "")
+                    .collectAsStateWithLifecycle()
+
+                val inventoryBarcode = InventoryBarcode(
+                    value = scannedBarcode,
+                    format = scannedFormat
+                )
+
                 EditProductScreen(
+                    scannedBarcode = inventoryBarcode,
+                    onClearBarcode = {
+                        entry.savedStateHandle[SCANNED_BARCODE] = ""
+                        entry.savedStateHandle[SCANNED_FORMAT] = ""
+                    },
                     onNavigate = {destination ->
                         when (destination) {
                             EditProductNavigation.NavigateUp -> {
                                 navController.navigateUp()
+                            }
+                            EditProductNavigation.BarcodeScanner -> {
+                                navController.navigate(
+                                    ScannerScreens.ScannerScreen
+                                )
                             }
                         }
                     }
@@ -176,6 +229,28 @@ fun MainAppScreen(
                             }
                         }
                     }
+                )
+            }
+            
+            composable<ScannerScreens.ScannerScreen> {
+                ScannerScreen(
+                    onScanSuccess = { barcode, format ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.apply {
+                                set(SCANNED_BARCODE, barcode)
+                                set(SCANNED_FORMAT, format)
+                            }
+
+                        navController.popBackStack()
+                    },
+                    onNavigate = { destination ->
+                        when(destination) {
+                            ScannerNavigation.NavigateUp -> {
+                                navController.popBackStack()
+                            }
+                        }
+                    },
                 )
             }
         }
