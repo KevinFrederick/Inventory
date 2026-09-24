@@ -92,6 +92,7 @@ fun SectionProductIdentification(
                             ProductBarcodeError.TOO_LONG -> stringResource(R.string.error_product_barcode_too_long)
                             ProductBarcodeError.INVALID_CHARACTER -> stringResource(R.string.error_product_barcode_invalid_characters)
                             ProductBarcodeError.CONTAINS_WHITESPACE -> stringResource(R.string.error_product_barcode_contains_spaces)
+                            ProductBarcodeError.ALREADY_EXISTS -> stringResource(R.string.error_product_barcode_already_exists)
                         }
                     } else null,
                     trailingIcon = {

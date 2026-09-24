@@ -17,7 +17,8 @@ import androidx.room.PrimaryKey
     ],
     indices = [
         Index(value = ["categoryId"]),
-        Index(value = ["sku"], unique = true)
+        Index(value = ["sku"], unique = true),
+        Index(value = ["barcode"], unique = true)
     ]
 )
 data class ProductEntity (

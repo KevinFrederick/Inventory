@@ -213,6 +213,7 @@
     <string name="error_product_barcode_too_long">Barcode cannot exceed 64 characters</string>
     <string name="error_product_barcode_invalid_characters">Barcode contains invalid characters</string>
     <string name="error_product_barcode_contains_spaces">Spaces are not allowed</string>
+    <string name="error_product_barcode_already_exists">This Barcode already exists</string>
     
     <string name="error_batch_quantity_empty">Quantity is required</string>
     <string name="error_batch_quantity_invalid_format">Please enter a valid number</string>

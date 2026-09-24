@@ -43,6 +43,10 @@ class ProductRepository @Inject constructor(
         return productDao.isSkuDuplicate(sku)
     }
 
+    override suspend fun isBarcodeDuplicate(barcode: String): Boolean {
+        return productDao.isBarcodeDuplicate(barcode)
+    }
+
     override fun getProductStream(
         filterProvider: () -> ProductQueryFilter
     ): FilteredPagingStream<Product> {
