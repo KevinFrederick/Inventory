@@ -24,6 +24,9 @@ interface ProductDao {
     @Query("SELECT EXISTS(SELECT 1 FROM product WHERE sku = :sku)")
     suspend fun isSkuDuplicate(sku: String): Boolean
 
+    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE barcode = :barcode)")
+    suspend fun isBarcodeDuplicate(barcode: String): Boolean
+
     @Transaction
     @RawQuery(observedEntities = [
         ProductEntity::class,

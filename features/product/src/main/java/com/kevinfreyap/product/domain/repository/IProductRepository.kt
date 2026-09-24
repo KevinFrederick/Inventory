@@ -11,6 +11,8 @@ interface IProductRepository {
 
     suspend fun isSkuDuplicate(sku: String): Boolean
 
+    suspend fun isBarcodeDuplicate(barcode: String): Boolean
+
     fun getProductStream(filterProvider: () -> ProductQueryFilter): FilteredPagingStream<Product>
 
     fun getDynamicProductCount(filter: ProductQueryFilter): Flow<Int>

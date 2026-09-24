@@ -5,5 +5,6 @@ import com.kevinfreyap.domain.RootError
 enum class ProductBarcodeError: RootError {
     TOO_LONG,
     INVALID_CHARACTER,
-    CONTAINS_WHITESPACE
+    CONTAINS_WHITESPACE,
+    ALREADY_EXISTS
 }
