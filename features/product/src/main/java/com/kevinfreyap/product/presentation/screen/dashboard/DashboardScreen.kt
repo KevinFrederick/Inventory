@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.presentation.screen.dashboard
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -19,17 +22,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.query.FilterStockOption
 import com.kevinfreyap.product.domain.model.query.sort.SortOption
@@ -49,17 +58,49 @@ import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppIconName
 import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.components.AppStateBanner
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun DashboardScreen(
+    scannedBarcode: InventoryBarcode,
+    onClearBarcode: () -> Unit,
     onNavigate: (DashboardNavigation) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(scannedBarcode) {
+        if (scannedBarcode.value.isNotBlank() && scannedBarcode.format.isNotBlank()) {
+            viewModel.onBarcodeScanned(scannedBarcode)
+            onClearBarcode()
+        }
+    }
+
+    LaunchedEffect(viewModel.uiEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiEvent.collect { event ->
+                when(event) {
+                    is UiEvent.Navigate -> {
+                        onNavigate(event.destination)
+                    }
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(
+                            context,
+                            event.messageRes,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
 
     DashboardContent(
         state = state,
@@ -100,6 +141,22 @@ fun DashboardContent(
                         tint = Theme.custom.primaryText
                     )
                 }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onNavigate(DashboardNavigation.BarcodeScanner)
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.custom_barcode_scanner),
+                    contentDescription = "Barcode Scanner",
+                    modifier = Modifier
+                        .size(32.dp)
+                )
             }
         }
     ) { innerPadding ->
@@ -173,7 +230,7 @@ private fun DashboardEmpty(
             AppPrimaryButton(
                 text = stringResource(R.string.btn_label_add_first_item),
                 onClick = {
-                    onNavigate(DashboardNavigation.AddProduct)
+                    onNavigate(DashboardNavigation.AddProduct())
                 },
                 icon = {
                     Icon(

@@ -100,6 +100,10 @@ class ProductRepository @Inject constructor(
         }
     }
 
+    override suspend fun getProductByBarcode(barcode: String): Product? {
+        return productDao.getProductByBarcode(barcode)?.toDomain()
+    }
+
     override suspend fun updateProduct(product: Product) {
         productDao.updateProduct(product.toEntity())
     }

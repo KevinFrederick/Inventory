@@ -172,6 +172,7 @@
     <!--  SUCCESS  -->
     <string name="success_product_saved">Product saved successfully!</string>
     <string name="success_product_deleted">Product deleted!</string>
+    <string name="success_product_found">Product found!</string>
     <string name="success_batch_saved">Batch saved successfully!</string>
     <string name="success_batch_deleted">Batch deleted!</string>
 
@@ -184,6 +185,7 @@
     <string name="warning_no_expiration">No Expiration</string>
     <string name="warning_no_barcode">No Barcode</string>
     <string name="warning_invalid_barcode">Invalid Barcode</string>
+    <string name="warning_product_not_found">No product found! create new product!</string>
 
     <!--  ERROR  -->
     <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>

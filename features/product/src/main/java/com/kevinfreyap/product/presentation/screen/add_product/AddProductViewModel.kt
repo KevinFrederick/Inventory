@@ -1,8 +1,11 @@
 package com.kevinfreyap.product.presentation.screen.add_product
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
@@ -18,6 +21,7 @@ import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedBatchI
 import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductDetailAction
 import com.kevinfreyap.product.presentation.action.SharedFormAction.sharedProductIdentificationAction
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
+import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenAddProductState
 import com.kevinfreyap.product.presentation.state.SharedBatchFormState
 import com.kevinfreyap.product.presentation.state.SharedProductFormState
@@ -34,12 +38,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddProductViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getAllCategories: GetAllCategoryUseCase,
     private val getAllLocations: GetAllLocationUseCase,
     private val validateCategory: ValidateProductCategoryUseCase,
     private val validateLocation: ValidateBatchLocationUseCase,
     private val insertNewProduct: InsertNewProductUseCase
 ): ViewModel() {
+    private val route = savedStateHandle.toRoute<ProductScreen.AddProduct>()
+    private val initialBarcode = if (!route.barcodeValue.isNullOrBlank() && route.barcodeFormat != null) {
+        InventoryBarcode(
+            value = route.barcodeValue,
+            format = route.barcodeFormat
+        )
+
+    } else null
+
     private val _uiEvent = Channel<UiEvent<AddProductNavigation>>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -49,9 +63,13 @@ class AddProductViewModel @Inject constructor(
     init {
         loadCategories()
         loadLocations()
+
+        if (initialBarcode != null) {
+            handleProductIdentification(ProductFormAction.ProductIdentificationAction.OnBarcodeChanged(initialBarcode))
+        }
     }
 
-    fun onAction(action:  ProductFormAction) {
+    fun onAction(action: ProductFormAction) {
         when (action) {
             is ProductFormAction.ProductDetailAction -> handleProductDetailActions(action)
             is ProductFormAction.ProductIdentificationAction -> handleProductIdentification(action)

@@ -7,7 +7,7 @@ sealed interface ProductScreen {
     data object Dashboard: ProductScreen
 
     @Serializable
-    data object AddProduct: ProductScreen
+    data class AddProduct (val barcodeValue: String? = null, val barcodeFormat: String? = null ): ProductScreen
 
     @Serializable
     data class ProductList (val filter: String? = null): ProductScreen

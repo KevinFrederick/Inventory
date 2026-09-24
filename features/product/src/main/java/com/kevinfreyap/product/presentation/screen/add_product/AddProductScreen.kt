@@ -35,7 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
@@ -80,6 +83,7 @@ fun AddProductScreen(
     viewmodel: AddProductViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val state by viewmodel.formState.collectAsStateWithLifecycle()
 
     var showImagePickerBottomSheet by rememberSaveable { mutableStateOf(false) }
@@ -102,18 +106,20 @@ fun AddProductScreen(
         }
     }
 
-    LaunchedEffect(true) {
-        viewmodel.uiEvent.collect { event ->
-            when(event) {
-                is UiEvent.Navigate -> {
-                    onNavigate(event.destination)
-                }
-                is UiEvent.ShowToast -> {
-                    Toast.makeText(
-                        context,
-                        event.messageRes,
-                        Toast.LENGTH_SHORT
-                    ).show()
+    LaunchedEffect(viewmodel.uiEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewmodel.uiEvent.collect { event ->
+                when(event) {
+                    is UiEvent.Navigate -> {
+                        onNavigate(event.destination)
+                    }
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(
+                            context,
+                            event.messageRes,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
