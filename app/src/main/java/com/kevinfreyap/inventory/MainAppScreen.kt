@@ -123,7 +123,7 @@ fun MainAppScreen(
                     onNavigate = { destination ->
                         when(destination) {
                             is ProductListNavigation.AddProduct -> {
-                                navController.navigate(ProductScreen.AddProduct)
+                                navController.navigate(ProductScreen.AddProduct())
                             }
                             is ProductListNavigation.ProductDetail -> {
                                 navController.navigate(
