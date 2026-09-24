@@ -76,11 +76,18 @@ fun ScannerScreen (
         LifecycleCameraController(context).apply {
             setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
 
+            var hasScanned = false
+
             setImageAnalysisAnalyzer(
                 ContextCompat.getMainExecutor(context),
                 BarcodeAnalyzer { (scannedValue, format) ->
-                    unbind()
-                    onScanSuccess(scannedValue, format)
+                    if (!hasScanned) {
+                        hasScanned = true
+
+                        clearImageAnalysisAnalyzer()
+
+                        onScanSuccess(scannedValue, format)
+                    }
                 }
             )
         }

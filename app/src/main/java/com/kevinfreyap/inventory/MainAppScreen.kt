@@ -68,12 +68,38 @@ fun MainAppScreen(
             modifier = modifier
                 .padding(innerPadding)
         ) {
-            composable<ProductScreen.Dashboard> {
+            composable<ProductScreen.Dashboard> { entry ->
+                val scannedBarcode by entry.savedStateHandle
+                    .getStateFlow(SCANNED_BARCODE, "")
+                    .collectAsStateWithLifecycle()
+
+                val scannedFormat by entry.savedStateHandle
+                    .getStateFlow(SCANNED_FORMAT, "")
+                    .collectAsStateWithLifecycle()
+
+                val inventoryBarcode = InventoryBarcode(
+                    value = scannedBarcode,
+                    format = scannedFormat
+                )
+
                 DashboardScreen(
+                    scannedBarcode = inventoryBarcode,
+                    onClearBarcode = {
+                        entry.savedStateHandle[SCANNED_BARCODE] = ""
+                        entry.savedStateHandle[SCANNED_FORMAT] = ""
+                    },
                     onNavigate = {destination ->
                         when(destination) {
                             is DashboardNavigation.AddProduct -> {
-                                navController.navigate(ProductScreen.AddProduct)
+                                navController.navigate(
+                                    ProductScreen.AddProduct(
+                                        barcodeValue = destination.barcodeValue,
+                                        barcodeFormat = destination.barcodeFormat
+                                    )
+                                )
+                            }
+                            is DashboardNavigation.BarcodeScanner -> {
+                                navController.navigate(ScannerScreens.ScannerScreen)
                             }
                             is DashboardNavigation.ProductDetail -> {
                                 navController.navigate(ProductScreen.ProductDetail(productId = destination.productId))
@@ -97,7 +123,7 @@ fun MainAppScreen(
                     onNavigate = { destination ->
                         when(destination) {
                             is ProductListNavigation.AddProduct -> {
-                                navController.navigate(ProductScreen.AddProduct)
+                                navController.navigate(ProductScreen.AddProduct())
                             }
                             is ProductListNavigation.ProductDetail -> {
                                 navController.navigate(

@@ -63,6 +63,10 @@ interface ProductDao {
     @Query("SELECT * FROM product WHERE productId = :id")
     fun getProduct(id: String): Flow<ProductWithDetails?>
 
+    @Transaction
+    @Query("SELECT * FROM product WHERE barcode = :barcode LIMIT 1")
+    suspend fun getProductByBarcode(barcode: String): ProductWithDetails?
+
     @Query("SELECT COUNT(*) FROM product")
     fun getProductCount(): Flow<Int>
 

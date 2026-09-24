@@ -1,6 +1,5 @@
 package com.kevinfreyap.product.domain.repository
 
-import androidx.paging.PagingSource
 import com.kevinfreyap.product.domain.model.FilteredPagingStream
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
@@ -23,6 +22,8 @@ interface IProductRepository {
     fun getLowStockProduct(): Flow<List<Product>>
 
     fun getProductById(productId: ProductId): Flow<Product?>
+
+    suspend fun getProductByBarcode(barcode: String): Product?
 
     suspend fun updateProduct(product: Product)
 
