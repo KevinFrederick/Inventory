@@ -28,7 +28,14 @@ android {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
 
-        buildConfigField("String", "BASE_URL", localProperties.getProperty("BASE_URL") ?: "")
+        val localPropertyUrl = localProperties.getProperty("BASE_URL")
+        val baseUrl = if (localPropertyUrl.isNullOrEmpty()) {
+            "\"http://localhost:8080/\""
+        } else {
+            localPropertyUrl
+        }
+
+        buildConfigField("String", "BASE_URL", baseUrl)
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
