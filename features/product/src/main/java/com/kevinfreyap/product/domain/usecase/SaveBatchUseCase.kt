@@ -3,6 +3,7 @@ package com.kevinfreyap.product.domain.usecase
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
+import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.BatchId
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
@@ -14,6 +15,7 @@ import javax.inject.Inject
 
 class SaveBatchUseCase @Inject constructor(
     private val repository: IStockBatchRepository,
+    private val syncManager: ISyncManager,
     private val validateBatchQuantity: ValidateBatchQuantityUseCase,
     private val validateBatchLocation: ValidateBatchLocationUseCase,
     private val validateBatchPrice: ValidateBatchPriceUseCase,
@@ -70,6 +72,7 @@ class SaveBatchUseCase @Inject constructor(
             price = validPrice,
             expirationDate = expirationResult.getOrNull(),
             supplier = supplierResult.getOrNull(),
+            createdAt = System.currentTimeMillis(),
             lastUpdated = System.currentTimeMillis()
         )
 
@@ -94,6 +97,8 @@ class SaveBatchUseCase @Inject constructor(
                 )
             }
         }
+
+        syncManager.triggerSync()
 
         return Result.Success(Unit)
     }

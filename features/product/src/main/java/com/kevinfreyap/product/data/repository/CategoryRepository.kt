@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.data.repository
 
 import com.kevinfreyap.database.dao.CategoryDao
+import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.Category
@@ -23,6 +24,6 @@ class CategoryRepository @Inject constructor(
     }
 
     override suspend fun insertCategory(category: Category) {
-        categoryDao.insertCategory(category.toEntity())
+        categoryDao.insertCategory(category.toEntity(SyncState.CREATED))
     }
 }

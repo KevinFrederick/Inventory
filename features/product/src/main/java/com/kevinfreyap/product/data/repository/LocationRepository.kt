@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.data.repository
 
 import com.kevinfreyap.database.dao.LocationDao
+import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.Location
@@ -23,6 +24,6 @@ class LocationRepository @Inject constructor(
     }
 
     override suspend fun insertLocation(location: Location) {
-        locationDao.insertLocation(location.toEntity())
+        locationDao.insertLocation(location.toEntity(SyncState.CREATED))
     }
 }

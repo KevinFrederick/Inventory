@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.ProductDao
+import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.BatchId
@@ -27,7 +28,7 @@ class StockBatchRepository @Inject constructor(
         timestamp: Long
     ) {
         database.withTransaction {
-            batchDao.insertBatch(stockBatch.toEntity())
+            batchDao.insertBatch(stockBatch.toEntity(SyncState.CREATED))
             productDao.updateProductTimestamp(
                 productId = stockBatch.productId.value,
                 timestamp = timestamp
@@ -57,8 +58,16 @@ class StockBatchRepository @Inject constructor(
         stockBatch: StockBatch,
         timestamp: Long
     ): Int {
+        val oldEntity = batchDao.getBatchSnapshot(stockBatch.batchId.value) ?: return 0
+
+        val newState = if (oldEntity.batch.syncState == SyncState.CREATED) {
+            SyncState.CREATED
+        } else {
+            SyncState.UPDATED
+        }
+
         return database.withTransaction {
-            val rowUpdated = batchDao.updateBatch(stockBatch.toEntity())
+            val rowUpdated = batchDao.updateBatch(stockBatch.toEntity(newState))
 
             if (rowUpdated > 0) {
                 productDao.updateProductTimestamp(
@@ -76,12 +85,39 @@ class StockBatchRepository @Inject constructor(
         productId: ProductId,
         timestamp: Long
     ) {
+        val oldEntity = batchDao.getBatchSnapshot(batchId.value) ?: return
+
+        if (oldEntity.batch.syncState == SyncState.CREATED) {
+            database.withTransaction {
+                batchDao.deleteBatch(batchId.value)
+                productDao.updateProductTimestamp(
+                    productId = productId.value,
+                    timestamp = timestamp
+                )
+            }
+        } else {
+            database.withTransaction {
+                batchDao.markAsDeleted(batchId.value, SyncState.DELETED)
+                productDao.updateProductTimestamp(
+                    productId = productId.value,
+                    timestamp = timestamp
+                )
+            }
+        }
+
+    }
+
+    override suspend fun deleteBatchesForProduct(productId: ProductId) {
         database.withTransaction {
-            batchDao.deleteBatch(batchId.value)
-            productDao.updateProductTimestamp(
-                productId = productId.value,
-                timestamp = timestamp
-            )
+            val batches = batchDao.getBatchesByProductId(productId.value)
+
+            batches.forEach { batch ->
+                if (batch.batch.syncState == SyncState.CREATED) {
+                    batchDao.deleteBatch(batch.batch.batchId)
+                } else {
+                    batchDao.markAsDeleted(batch.batch.batchId, SyncState.DELETED)
+                }
+            }
         }
     }
 }

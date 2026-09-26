@@ -56,7 +56,9 @@ class StockBatchDaoTest {
     fun fetchProduct_returnsProductWithAllRelatedBatchesAndLocations() = runTest {
         database.populateWithData()
 
-        val productWithDetails = productDao.getProduct("prod-03").first()
+        val productWithDetails = requireNotNull(productDao.getProduct("prod-03").first()) {
+            "Product prod-03 should exist in the database but returned null"
+        }
 
         // Assert Room stitched it all together correctly
         assertEquals("Milk", productWithDetails.product.name)

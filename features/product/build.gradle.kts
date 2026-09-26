@@ -40,6 +40,7 @@ kotlin {
 dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:domain"))
+    implementation(project(":core:network"))
     implementation(project(":core:ui"))
 
     implementation(libs.hilt.android)
@@ -55,6 +56,12 @@ dependencies {
     implementation(libs.androidx.paging.compose)
 
     implementation(libs.zxing.core)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.resources)
+
+    implementation(libs.hilt.work)
+    implementation(libs.work.runtime)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

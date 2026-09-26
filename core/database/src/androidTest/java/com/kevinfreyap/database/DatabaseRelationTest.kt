@@ -34,7 +34,7 @@ class DatabaseRelationTest {
         database = Room.inMemoryDatabaseBuilder(
             context,
             AppDatabase::class.java
-        ).build()
+        ).allowMainThreadQueries().build()
 
         categoryDao = database.categoryDao()
         transactionDao = database.transactionDao()

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.kevinfreyap.database.model.SyncState
 
 @Entity (
     tableName = "product",
@@ -33,5 +34,6 @@ data class ProductEntity (
     val imageUri: String?,
     val minimumQuantity: Int,
     val createdAt: Long,
-    val lastUpdated: Long
+    val lastUpdated: Long,
+    val syncState: SyncState = SyncState.SYNCED
 )

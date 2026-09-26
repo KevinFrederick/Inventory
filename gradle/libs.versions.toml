@@ -10,7 +10,7 @@ hilt = "2.60.1"
 hiltNavigation = "1.4.0"
 
 # Core Android
-coreKtx = "1.19.0"
+coreKtx = "1.19.1"
 lifecycleRuntimeKtx = "2.11.0"
 
 # Testing
@@ -23,20 +23,20 @@ coroutines = "1.11.0"
 
 # Compose & UI
 activityCompose = "1.13.0"
-composeBom = "2026.08.00"
+composeBom = "2026.09.00"
 
 # Database
-room = "2.8.4"
+room = "2.8.5"
 paging = "3.5.1"
 
 # Desugar
 desugar_jdk_libs = "2.1.5"
 
 # Navigation
-navigationCompose = "2.10.0"
+navigationCompose = "2.10.2"
 
 # Coil
-coil = "3.6.2"
+coil = "3.6.3"
 
 # Zxing (barcode)
 zxing = "3.5.4"
@@ -46,6 +46,16 @@ camerax = "1.6.2"
 
 # Barcode Scan
 barcodeScan = "17.3.0"
+
+# Network (Ktor)
+ktorVersion = "3.6.0"
+
+# Datastore
+datastore = "1.2.1"
+
+# WorkManager
+work = "2.12.0"
+hiltWorker = "1.4.0"
 
 [libraries]
 # Core Android
@@ -111,6 +121,22 @@ camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "
 
 # Barcode Scan
 mlkit-barcode-scanner = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "barcodeScan" }
+
+# Network
+ktor-client = { module = "io.ktor:ktor-client-android", version.ref = "ktorVersion" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktorVersion" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktorVersion" }
+ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
+
+# Datastore
+androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+# WorkManager
+work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWorker" }
 
 [plugins]
 # Project Plugins

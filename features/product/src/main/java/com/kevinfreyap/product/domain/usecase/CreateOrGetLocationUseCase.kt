@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.domain.usecase
 
+import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.Location
 import com.kevinfreyap.product.domain.model.LocationId
 import com.kevinfreyap.product.domain.repository.ILocationRepository
@@ -8,6 +9,7 @@ import javax.inject.Inject
 
 class CreateOrGetLocationUseCase @Inject constructor(
     private val repository: ILocationRepository,
+    private val syncManager: ISyncManager
 ) {
     suspend operator fun invoke(validLocationName: String): Location {
         val existingLocation = repository.getLocationByName(validLocationName)
@@ -24,6 +26,7 @@ class CreateOrGetLocationUseCase @Inject constructor(
                 lastUpdated = System.currentTimeMillis()
             )
             repository.insertLocation(newLocation)
+            syncManager.triggerSync()
             newLocation
         }
     }

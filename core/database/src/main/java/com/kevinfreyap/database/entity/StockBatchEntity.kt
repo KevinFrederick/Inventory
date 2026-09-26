@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.kevinfreyap.database.model.SyncState
 
 @Entity(
     tableName = "stock_batch",
@@ -35,5 +36,7 @@ data class StockBatchEntity(
     val expirationDate: Long?,
     val price: Double,
     val supplier: String?,
-    val lastUpdated: Long
+    val createdAt: Long,
+    val lastUpdated: Long,
+    val syncState: SyncState = SyncState.SYNCED
 )

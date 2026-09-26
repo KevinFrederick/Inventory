@@ -16,7 +16,7 @@ class ProductQueryBuilderTest {
         val query = builder.build(filter) as SimpleSQLiteQuery
 
         assertEquals(
-            "SELECT p.* FROM product AS p ORDER BY p.createdAt DESC",
+            "SELECT p.* FROM product AS p WHERE p.syncState != 'DELETED' ORDER BY p.createdAt DESC",
             query.sql
         )
     }
@@ -35,8 +35,8 @@ class ProductQueryBuilderTest {
         assertEquals(
             "SELECT p.*" +
             " FROM product AS p" +
-            " LEFT JOIN stock_batch AS b ON p.productId = b.productId" +
-            " WHERE p.name LIKE ? AND b.locationId = ?" +
+            " LEFT JOIN stock_batch AS b ON p.productId = b.productId AND b.syncState != 'DELETED'" +
+            " WHERE p.syncState != 'DELETED' AND p.name LIKE ? AND b.locationId = ?" +
             " GROUP BY p.productId" +
             " ORDER BY p.name ASC",
             query.sql
@@ -57,7 +57,7 @@ class ProductQueryBuilderTest {
         // Assert
         assertEquals(
             "SELECT p.* FROM product AS p" +
-            " WHERE p.createdAt BETWEEN ? AND ?" +
+            " WHERE p.syncState != 'DELETED' AND p.createdAt BETWEEN ? AND ?" +
             " ORDER BY p.createdAt" +
             " DESC",
             query.sql
@@ -79,7 +79,8 @@ class ProductQueryBuilderTest {
         assertEquals(
             "SELECT p.*" +
                     " FROM product AS p" +
-                    " LEFT JOIN stock_batch AS b ON p.productId = b.productId" +
+                    " LEFT JOIN stock_batch AS b ON p.productId = b.productId AND b.syncState != 'DELETED'" +
+                    " WHERE p.syncState != 'DELETED'" +
                     " GROUP BY p.productId" +
                     " ORDER BY MIN(b.price) ASC," +
                     " p.createdAt DESC",

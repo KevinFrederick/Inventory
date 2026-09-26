@@ -8,6 +8,7 @@ import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.ProductDao
+import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.database.query.ProductQueryBuilder
 import com.kevinfreyap.product.data.mapper.toDbFilter
 import com.kevinfreyap.product.data.mapper.toDomain
@@ -28,8 +29,8 @@ class ProductRepository @Inject constructor(
     private val batchDao: BatchDao
 ): IProductRepository {
     override suspend fun insertProduct(product: Product) {
-        val productEntity = product.toEntity()
-        val batchEntities = product.batches.map { it.toEntity() }
+        val productEntity = product.toEntity(syncState = SyncState.CREATED)
+        val batchEntities = product.batches.map { it.toEntity(syncState = SyncState.CREATED) }
 
         database.withTransaction {
             productDao.insertProduct(productEntity)
@@ -109,11 +110,24 @@ class ProductRepository @Inject constructor(
     }
 
     override suspend fun updateProduct(product: Product) {
-        productDao.updateProduct(product.toEntity())
+        val oldEntity = productDao.getProductSnapshot(product.productId.value) ?: return
+
+        val newState = if (oldEntity.product.syncState == SyncState.CREATED) {
+            SyncState.CREATED
+        } else {
+            SyncState.UPDATED
+        }
+
+        productDao.updateProduct(product.toEntity(newState))
     }
 
     override suspend fun deleteProduct(productId: ProductId) {
-        productDao.deleteProduct(productId.value)
-    }
+        val oldEntity = productDao.getProductSnapshot(productId.value) ?: return
 
+        if (oldEntity.product.syncState == SyncState.CREATED) {
+            productDao.deleteProduct(productId.value)
+        } else {
+            productDao.markAsDeleted(productId.value, SyncState.DELETED)
+        }
+    }
 }

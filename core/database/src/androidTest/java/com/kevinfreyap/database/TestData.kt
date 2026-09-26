@@ -1,5 +1,7 @@
 package com.kevinfreyap.database
 
+import android.util.Log
+import androidx.room.withTransaction
 import com.kevinfreyap.database.TestData.batch1Prod1
 import com.kevinfreyap.database.TestData.batch1Prod2
 import com.kevinfreyap.database.TestData.batch1Prod3
@@ -48,7 +50,8 @@ object TestData {
         categoryId = "electronic",
         name = "Laptop",
         description = null,
-        barcode = "123456789",
+        barcode = "111111111",
+        barcodeFormat = "CODE_128",
         sku = "bgr-01",
         imageUri = null,
         minimumQuantity = 5,
@@ -61,7 +64,8 @@ object TestData {
         categoryId = "furniture",
         name = "Desk",
         description = null,
-        barcode = "123456789",
+        barcode = "222222222",
+        barcodeFormat = "CODE_128",
         sku = "bgr-02",
         imageUri = null,
         minimumQuantity = 2,
@@ -74,7 +78,8 @@ object TestData {
         categoryId = "food",
         name = "Milk",
         description = null,
-        barcode = "123456789",
+        barcode = "333333333",
+        barcodeFormat = "CODE_128",
         sku = null,
         imageUri = null,
         minimumQuantity = 2,
@@ -90,6 +95,7 @@ object TestData {
         expirationDate = null,
         price = 1500.0,
         supplier = null,
+        createdAt = 1000L,
         lastUpdated = 1000L
     )
 
@@ -101,6 +107,7 @@ object TestData {
         expirationDate = null,
         price = 1500.0,
         supplier = null,
+        createdAt = 1000L,
         lastUpdated = 1000L
     )
 
@@ -112,6 +119,7 @@ object TestData {
         expirationDate = null,
         price = 1500.0,
         supplier = null,
+        createdAt = 1000L,
         lastUpdated = 1000L
     )
 
@@ -123,6 +131,7 @@ object TestData {
         expirationDate = null,
         price = 1500.0,
         supplier = null,
+        createdAt = 1000L,
         lastUpdated = 1000L
     )
 
@@ -134,6 +143,7 @@ object TestData {
         expirationDate = null,
         price = 15.0,
         supplier = null,
+        createdAt = 1000L,
         lastUpdated = 1000L
     )
 
@@ -157,20 +167,22 @@ object TestData {
 }
 
 suspend fun AppDatabase.populateWithData() {
-    this.locationDao().insertLocation(location1)
-    this.locationDao().insertLocation(location2)
+    this.withTransaction {
+        locationDao().insertLocation(location1)
+        locationDao().insertLocation(location2)
 
-    this.categoryDao().insertCategory(category1)
-    this.categoryDao().insertCategory(category2)
-    this.categoryDao().insertCategory(category3)
+        categoryDao().insertCategory(category1)
+        categoryDao().insertCategory(category2)
+        categoryDao().insertCategory(category3)
 
-    this.productDao().insertProduct(prod1)
-    this.productDao().insertProduct(prod2)
-    this.productDao().insertProduct(prod3)
+        productDao().insertProduct(prod1)
+        productDao().insertProduct(prod2)
+        productDao().insertProduct(prod3)
 
-    this.batchDao().insertBatch(batch1Prod1)
-    this.batchDao().insertBatch(batch2Prod1)
-    this.batchDao().insertBatch(batch1Prod2)
-    this.batchDao().insertBatch(batch1Prod3)
-    this.batchDao().insertBatch(batch2Prod3)
+        batchDao().insertBatch(batch1Prod1)
+        batchDao().insertBatch(batch2Prod1)
+        batchDao().insertBatch(batch1Prod2)
+        batchDao().insertBatch(batch1Prod3)
+        batchDao().insertBatch(batch2Prod3)
+    }
 }
