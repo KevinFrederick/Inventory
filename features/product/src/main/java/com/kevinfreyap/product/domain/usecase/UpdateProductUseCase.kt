@@ -7,7 +7,8 @@ import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.error.DatabaseError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.repository.IImageManager
+import com.kevinfreyap.product.domain.manager.IImageManager
+import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import kotlin.text.startsWith
 class UpdateProductUseCase @Inject constructor(
     private val repository: IProductRepository,
     private val imageManager: IImageManager,
+    private val syncManager: ISyncManager,
     private val validateProductName: ValidateProductNameUseCase,
     private val validateProductCategory: ValidateProductCategoryUseCase,
     private val validateProductDescription: ValidateProductDescriptionUseCase,
@@ -105,6 +107,8 @@ class UpdateProductUseCase @Inject constructor(
                 lastUpdated = System.currentTimeMillis(),
             )
         )
+
+        syncManager.triggerSync()
 
         return Result.Success(Unit)
     }

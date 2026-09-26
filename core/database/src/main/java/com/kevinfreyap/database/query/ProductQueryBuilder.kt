@@ -29,56 +29,41 @@ class ProductQueryBuilder {
 
         if ( hasLocationFilter || isSortingByBatch || hasStockFilter) {
             query.append(
-                " LEFT JOIN stock_batch AS b ON p.productId = b.productId"
+                " LEFT JOIN stock_batch AS b ON p.productId = b.productId AND b.syncState != 'DELETED'"
             )
         }
 
-        var hasWhereClause = false
-
-        fun appendCondition() {
-            if (!hasWhereClause) {
-                query.append(" WHERE")
-                hasWhereClause = true
-            } else {
-                query.append(" AND")
-            }
-        }
+        query.append(" WHERE p.syncState != 'DELETED'")
 
         if (!filter.searchQuery.isNullOrBlank()) {
-            appendCondition()
-            query.append(" p.name LIKE ?")
+            query.append(" AND p.name LIKE ?")
             bindArgs.add("%${filter.searchQuery}%")
         }
 
         if (!filter.categoryList.isNullOrEmpty()) {
             // Create as many "?" as items in the list
-            appendCondition()
             val placeholder = filter.categoryList.joinToString(separator = ",") { "?" }
-            query.append(" p.categoryId IN ($placeholder)")
+            query.append(" AND p.categoryId IN ($placeholder)")
             bindArgs.addAll(filter.categoryList)
         }
 
         if (!filter.locationId.isNullOrBlank()) {
-            appendCondition()
-            query.append(" b.locationId = ?")
+            query.append(" AND b.locationId = ?")
             bindArgs.add(filter.locationId)
         }
 
         if (filter.startDate != null && filter.endDate == null) {
-            appendCondition()
-            query.append(" p.createdAt >= ?")
+            query.append(" AND p.createdAt >= ?")
             bindArgs.add(filter.startDate)
         }
 
         else if (filter.startDate == null && filter.endDate != null) {
-            appendCondition()
-            query.append(" p.createdAt <= ?")
+            query.append(" AND p.createdAt <= ?")
             bindArgs.add(filter.endDate)
         }
 
         else if (filter.startDate != null) {
-            appendCondition()
-            query.append(" p.createdAt BETWEEN ? AND ?")
+            query.append(" AND p.createdAt BETWEEN ? AND ?")
             bindArgs.add(filter.startDate)
             bindArgs.add(filter.endDate!!)
         }

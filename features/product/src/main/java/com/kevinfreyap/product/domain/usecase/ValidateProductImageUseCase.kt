@@ -2,7 +2,7 @@ package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.product.domain.model.error.ProductImageError
-import com.kevinfreyap.product.domain.repository.IImageManager
+import com.kevinfreyap.product.domain.manager.IImageManager
 import javax.inject.Inject
 
 class ValidateProductImageUseCase @Inject constructor(

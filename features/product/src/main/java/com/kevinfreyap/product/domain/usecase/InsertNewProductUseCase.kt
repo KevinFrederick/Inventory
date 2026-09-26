@@ -8,7 +8,8 @@ import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.repository.IImageManager
+import com.kevinfreyap.product.domain.manager.IImageManager
+import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class InsertNewProductUseCase @Inject constructor(
     private val repository: IProductRepository,
     private val imageManager: IImageManager,
+    private val syncManager: ISyncManager,
     private val validateProductName: ValidateProductNameUseCase,
     private val validateProductCategory: ValidateProductCategoryUseCase,
     private val validateProductDescription: ValidateProductDescriptionUseCase,
@@ -147,6 +149,7 @@ class InsertNewProductUseCase @Inject constructor(
                     price = validPrice,
                     expirationDate = expirationResult.getOrNull(),
                     supplier = supplierResult.getOrNull(),
+                    createdAt = System.currentTimeMillis(),
                     lastUpdated = System.currentTimeMillis()
                 )
             )
@@ -179,6 +182,7 @@ class InsertNewProductUseCase @Inject constructor(
             )
         )
 
+        syncManager.triggerSync()
         return Result.Success(Unit)
     }
 }

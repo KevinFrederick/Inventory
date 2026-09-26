@@ -11,5 +11,6 @@ data class StockBatch(
     val price: Double,
     val expirationDate: Long?,
     val supplier: String?,
+    val createdAt: Long,
     val lastUpdated: Long
 )

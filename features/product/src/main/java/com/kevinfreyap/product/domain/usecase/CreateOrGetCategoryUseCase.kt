@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.domain.usecase
 
+import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.Category
 import com.kevinfreyap.product.domain.model.CategoryId
 import com.kevinfreyap.product.domain.repository.ICategoryRepository
@@ -8,6 +9,7 @@ import javax.inject.Inject
 
 class CreateOrGetCategoryUseCase @Inject constructor(
     private val repository: ICategoryRepository,
+    private val syncManager: ISyncManager
 ) {
     suspend operator fun invoke(validCategoryName: String): Category {
         val existingCategory = repository.getCategoryByName(validCategoryName)
@@ -23,6 +25,7 @@ class CreateOrGetCategoryUseCase @Inject constructor(
                 lastUpdated = System.currentTimeMillis()
             )
             repository.insertCategory(newCategory)
+            syncManager.triggerSync()
             newCategory
         }
     }

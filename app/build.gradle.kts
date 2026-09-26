@@ -87,6 +87,10 @@ dependencies {
     // Desugar
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    // Work Manager
+    implementation(libs.hilt.work)
+    implementation(libs.work.runtime)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -1,16 +1,16 @@
-package com.kevinfreyap.product.data.repository
+package com.kevinfreyap.product.data.manager
 
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.kevinfreyap.product.domain.repository.IImageManager
-import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.File
-import javax.inject.Inject
 import androidx.core.net.toUri
+import com.kevinfreyap.product.domain.manager.IImageManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.FileOutputStream
+import javax.inject.Inject
 
 class ImageManager @Inject constructor (
     @param:ApplicationContext private val context: Context
@@ -38,7 +38,8 @@ class ImageManager @Inject constructor (
         return withContext(Dispatchers.IO) {
             try {
                 val imageUri = uriString.toUri()
-                val inputStream = context.contentResolver.openInputStream(imageUri) ?: return@withContext null
+                val inputStream =
+                    context.contentResolver.openInputStream(imageUri) ?: return@withContext null
 
                 val filename = "product_img_${System.currentTimeMillis()}.jpg"
                 val permanentFile = File(context.filesDir, filename)
