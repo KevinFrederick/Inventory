@@ -17,4 +17,6 @@ interface IStockBatchRepository {
     suspend fun updateBatch(stockBatch: StockBatch, timestamp: Long): Int
 
     suspend fun deleteBatch(batchId: BatchId, productId: ProductId, timestamp: Long)
+
+    suspend fun deleteBatchesForProduct(productId: ProductId)
 }

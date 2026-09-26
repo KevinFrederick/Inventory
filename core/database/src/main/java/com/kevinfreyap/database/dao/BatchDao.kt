@@ -26,6 +26,10 @@ interface BatchDao {
     @Query("SELECT * FROM stock_batch WHERE batchId = :id")
     suspend fun getBatchSnapshot(id: String): BatchWithProductAndLocation?
 
+    @Transaction
+    @Query("SELECT * FROM stock_batch WHERE productId = :id")
+    suspend fun getBatchesByProductId(id: String): List<BatchWithProductAndLocation>
+
     @Query("SELECT * FROM stock_batch WHERE expirationDate IS NOT NULL AND syncState != 'DELETED' ORDER BY expirationDate ASC LIMIT :limit")
     fun getExpiringBatches(limit: Int = 10): Flow<List<StockBatchEntity>>
 

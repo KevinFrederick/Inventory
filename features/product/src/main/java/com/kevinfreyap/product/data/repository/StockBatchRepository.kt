@@ -106,4 +106,18 @@ class StockBatchRepository @Inject constructor(
         }
 
     }
+
+    override suspend fun deleteBatchesForProduct(productId: ProductId) {
+        database.withTransaction {
+            val batches = batchDao.getBatchesByProductId(productId.value)
+
+            batches.forEach { batch ->
+                if (batch.batch.syncState == SyncState.CREATED) {
+                    batchDao.deleteBatch(batch.batch.batchId)
+                } else {
+                    batchDao.markAsDeleted(batch.batch.batchId, SyncState.DELETED)
+                }
+            }
+        }
+    }
 }
