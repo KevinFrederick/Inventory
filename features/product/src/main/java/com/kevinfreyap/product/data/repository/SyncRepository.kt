@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.data.repository
 
+import android.util.Log
 import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.datastore.SyncPreferences
@@ -27,7 +28,8 @@ class SyncRepository @Inject constructor(
             if (pullResult is Result.Error) return pullResult
 
             Result.Success(Unit)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("SyncRepository", "Sync failed with exception: ${e.message}")
             Result.Error(NetworkError.Local.UNKNOWN)
         }
     }

@@ -90,6 +90,7 @@ dependencies {
     // Work Manager
     implementation(libs.hilt.work)
     implementation(libs.work.runtime)
+    ksp(libs.androidx.hilt.compiler)
 
     // Testing
     testImplementation(libs.junit)

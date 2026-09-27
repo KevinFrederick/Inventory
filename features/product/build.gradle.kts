@@ -62,6 +62,7 @@ dependencies {
 
     implementation(libs.hilt.work)
     implementation(libs.work.runtime)
+    ksp(libs.androidx.hilt.compiler)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

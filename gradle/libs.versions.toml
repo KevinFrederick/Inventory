@@ -125,6 +125,7 @@ mlkit-barcode-scanner = { group = "com.google.mlkit", name = "barcode-scanning",
 # Network
 ktor-client = { module = "io.ktor:ktor-client-android", version.ref = "ktorVersion" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorVersion" }
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktorVersion" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktorVersion" }
 ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
@@ -137,6 +138,7 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore-preferenc
 # WorkManager
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWorker" }
+androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWorker" }
 
 [plugins]
 # Project Plugins

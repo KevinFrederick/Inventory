@@ -11,7 +11,7 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
-import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.plugins.websocket.wss
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -72,7 +72,7 @@ class SyncRemoteDataSource @Inject constructor(
     }
 
     fun observeSyncPings(): Flow<Unit> = flow {
-        client.webSocket("/sync/ws") {
+        client.wss("/sync/ws") {
             for (frame in incoming) {
                 if (frame is Frame.Text && frame.readText() == "SYNC_REQUIRED") {
                     emit(Unit)

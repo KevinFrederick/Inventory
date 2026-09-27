@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.data.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -23,7 +24,8 @@ class SyncWorker @AssistedInject constructor(
             } else {
                 Result.retry()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("SyncWorkerDebug", "Worker failed with exception: ${e.message}", e)
             Result.retry()
         }
     }

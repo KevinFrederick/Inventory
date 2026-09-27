@@ -18,7 +18,7 @@ class MyApplication: Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        scheduleBackgroundSync
+        scheduleBackgroundSync()
     }
 
     override val workManagerConfiguration: Configuration
