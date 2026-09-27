@@ -58,6 +58,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.ktor.client)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.resources)
     implementation(libs.ktor.client.websockets)
     implementation(libs.ktor.content.negotiation)

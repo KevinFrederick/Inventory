@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.data.repository
 
+import android.util.Log
 import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.datastore.SyncPreferences
@@ -11,6 +12,7 @@ import com.kevinfreyap.product.data.network.dto.sync.SyncPayloadDto
 import com.kevinfreyap.product.data.network.source.SyncRemoteDataSource
 import com.kevinfreyap.product.domain.model.error.NetworkError
 import com.kevinfreyap.product.domain.repository.ISyncRepository
+import java.io.File
 import javax.inject.Inject
 
 class SyncRepository @Inject constructor(
@@ -20,6 +22,9 @@ class SyncRepository @Inject constructor(
 ): ISyncRepository {
     override suspend fun sync(): Result<Unit, NetworkError> {
         return try {
+            val imageResult = syncPendingImages()
+            if (imageResult is Result.Error) return imageResult
+
             val pushResult = pushLocalChanges()
             if (pushResult is Result.Error) return pushResult
 
@@ -27,7 +32,8 @@ class SyncRepository @Inject constructor(
             if (pullResult is Result.Error) return pullResult
 
             Result.Success(Unit)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("SyncRepository", "Sync failed with exception: ${e.message}")
             Result.Error(NetworkError.Local.UNKNOWN)
         }
     }
@@ -119,7 +125,19 @@ class SyncRepository @Inject constructor(
 
                     db.categoryDao().upsertAll(data.categories.map { it.toEntity() })
                     db.locationDao().upsertAll(data.locations.map { it.toEntity() })
-                    db.productDao().upsertAll(data.products.map { it.toEntity() })
+
+                    val incomingIds = data.products.map { it.productId }
+
+                    val localPathMap = db.productDao().getLocalImagePaths(incomingIds)
+                        .associateBy({it.productId}, {it.localImagePath})
+
+                    val productEntities = data.products.map { dto ->
+                        dto.toEntity().copy(
+                            localImagePath = localPathMap[dto.productId]
+                        )
+                    }
+
+                    db.productDao().upsertAll(productEntities)
                     db.batchDao().upsertAll(data.batches.map { it.toEntity() })
                 }
 
@@ -128,5 +146,32 @@ class SyncRepository @Inject constructor(
             }
             is Result.Error -> response
         }
+    }
+
+    private suspend fun syncPendingImages(): Result<Unit, NetworkError> {
+        val productsWithImages = db.productDao().getProductWithUnsyncedImage()
+
+        if (productsWithImages.isEmpty()) return Result.Success(Unit)
+
+        for (product in productsWithImages) {
+            val localPath = product.localImagePath ?: continue
+            val file = File(localPath)
+
+            if (!file.exists()) {
+                Log.e("SyncRepository", "Local file not found for product: ${product.productId}")
+            }
+
+            when(
+                val uploadResult = remoteDataSource.uploadImage(product.productId, file)
+            ) {
+                is Result.Success -> {
+                    val remoteUrl = uploadResult.data
+                    db.productDao().updateRemoteImageUrl(product.productId, remoteUrl)
+                }
+                is Result.Error -> return uploadResult
+            }
+        }
+
+        return Result.Success(Unit)
     }
 }

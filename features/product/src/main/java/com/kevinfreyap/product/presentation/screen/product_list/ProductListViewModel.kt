@@ -28,6 +28,7 @@ import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.FilterState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -110,6 +112,7 @@ class ProductListViewModel @Inject constructor(
         .map { pagingData ->
             pagingData.map { it.toUiModel() }
         }
+        .flowOn(Dispatchers.IO)
         .cachedIn(viewModelScope)
 
     @OptIn(ExperimentalCoroutinesApi::class)

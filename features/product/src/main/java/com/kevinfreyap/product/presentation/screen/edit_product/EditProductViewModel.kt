@@ -20,9 +20,11 @@ import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenEditProductState
 import com.kevinfreyap.product.presentation.state.SharedProductFormState
+import com.kevinfreyap.product.presentation.util.resolveDisplayedImage
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.collections.filter
 import kotlin.collections.map
@@ -84,9 +87,13 @@ class EditProductViewModel @Inject constructor(
                 return@launch
             }
 
+            val resolvedImage = withContext(Dispatchers.IO) {
+                product.resolveDisplayedImage()
+            }
+
             _formState.update { currentState ->
                 val initialDetailState = currentState.productDetail.copy(
-                    productImageUriString = product.imageUri,
+                    productImageUriString = resolvedImage,
                     productName = product.name,
                     productCategoryName = product.category.name,
                     productDescription = product.description,

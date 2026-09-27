@@ -8,6 +8,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.kevinfreyap.product.data.worker.SyncWorker
 import com.kevinfreyap.product.domain.manager.ISyncManager
@@ -18,9 +19,15 @@ import javax.inject.Inject
 class SyncManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ): ISyncManager {
-    private val workManager = WorkManager.getInstance(context)
+    private val workManager by lazy { WorkManager.getInstance(context) }
 
     override fun triggerSync() {
+        val workInfoFuture = workManager.getWorkInfosForUniqueWork("immediate_sync")
+        val workInfos = workInfoFuture.get()
+
+        val isRunning = workInfos.any { it.state == WorkInfo.State.RUNNING }
+
+        if (isRunning) return
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -33,7 +40,7 @@ class SyncManager @Inject constructor(
 
         workManager.enqueueUniqueWork(
             "immediate_sync",
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            ExistingWorkPolicy.REPLACE,
             syncWork
         )
     }

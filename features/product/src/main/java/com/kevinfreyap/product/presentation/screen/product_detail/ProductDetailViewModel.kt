@@ -16,12 +16,15 @@ import com.kevinfreyap.product.presentation.navigation.ProductDetailNavigation
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
 import com.kevinfreyap.product.presentation.state.ScreenProductDetailState
 import com.kevinfreyap.product.presentation.util.DateFormatter.formatDatePickerDate
+import com.kevinfreyap.product.presentation.util.resolveDisplayedImage
 import com.kevinfreyap.product.presentation.util.toFormattedCurrency
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -54,7 +57,7 @@ class ProductDetailViewModel @Inject constructor(
 
                 UiState.Success(
                     ScreenProductDetailState(
-                        imageUri = product.imageUri,
+                        imageUri = product.resolveDisplayedImage(),
                         productName = product.name,
                         productCategory = product.category.name,
                         productSku = product.sku,
@@ -71,6 +74,7 @@ class ProductDetailViewModel @Inject constructor(
                 )
             }
         }
+        .flowOn(Dispatchers.IO)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
