@@ -57,6 +57,9 @@ datastore = "1.2.1"
 work = "2.12.0"
 hiltWorker = "1.4.0"
 
+# Exifinterface (Image)
+exifinterface = "1.4.2"
+
 [libraries]
 # Core Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -139,6 +142,9 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore-preferenc
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWorker" }
 androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWorker" }
+
+# Exifinterface
+exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 [plugins]
 # Project Plugins

@@ -15,6 +15,7 @@ import com.kevinfreyap.database.entity.LocationEntity
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.StockBatchEntity
 import com.kevinfreyap.database.entity.relation.ProductWithDetails
+import com.kevinfreyap.database.model.ProductImagePath
 import com.kevinfreyap.database.model.SyncState
 import kotlinx.coroutines.flow.Flow
 
@@ -80,8 +81,22 @@ interface ProductDao {
     @Query("SELECT COUNT(*) FROM product WHERE syncState != 'DELETED'")
     fun getProductCount(): Flow<Int>
 
+    @Query("""
+        SELECT * FROM product
+        WHERE localImagePath IS NOT NULL
+        AND remoteImageUrl IS NULL
+        AND syncState != 'DELETED'
+    """)
+    suspend fun getProductWithUnsyncedImage(): List<ProductEntity>
+
+    @Query("SELECT productId, localImagePath FROM product WHERE productId IN (:ids)")
+    suspend fun getLocalImagePaths(ids: List<String>): List<ProductImagePath>
+
     @Update
     suspend fun updateProduct(product: ProductEntity)
+
+    @Query("UPDATE product SET remoteImageUrl = :remoteUrl WHERE productId = :productId")
+    suspend fun updateRemoteImageUrl(productId: String, remoteUrl: String)
 
     @Query("UPDATE product SET lastUpdated = :timestamp WHERE productId = :productId")
     suspend fun updateProductTimestamp(productId: String, timestamp: Long)

@@ -26,7 +26,6 @@ import com.kevinfreyap.ui.R
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.ui.util.shimmerEffect
-import java.io.File
 
 @Composable
 fun AppImageCard(
@@ -51,7 +50,7 @@ fun AppImageCard(
             if (!imageUri.isNullOrBlank()){
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(File(imageUri))
+                        .data(imageUri)
                         .crossfade(true)
                         .error(R.drawable.image_24)
                         .build(),

@@ -17,6 +17,7 @@ import com.kevinfreyap.product.presentation.util.toFormattedNumber
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -56,6 +58,7 @@ class DashboardViewModel @Inject constructor(
                 null
             }
         }
+        .flowOn(Dispatchers.IO)
 
     private val recentProductFlow: Flow<AlertListUi> = getRecentProductList()
         .map { recentList ->
@@ -68,6 +71,7 @@ class DashboardViewModel @Inject constructor(
                 textButtonArg = 0,
             )
         }
+        .flowOn(Dispatchers.IO)
 
     private val retryTrigger = MutableStateFlow(0)
 

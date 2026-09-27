@@ -79,16 +79,19 @@ class UpdateProductUseCase @Inject constructor(
                 )
             )
 
+        var finalLocalPath = existingProduct.localImagePath
+        var finalRemoteUrl = existingProduct.remoteImageUrl
+
         val currentUri = imageResult.getOrNull()
 
-        val permanentPath = if (currentUri != null && currentUri.startsWith("content://")) {
-            imageManager.saveImageToInternalStorage(currentUri)
-        } else {
-            currentUri
-        }
-
-        if (existingProduct.imageUri != null && existingProduct.imageUri != permanentPath) {
-            imageManager.deleteImage(existingProduct.imageUri)
+        if (currentUri != null && currentUri.startsWith("content://")) {
+            existingProduct.localImagePath?.let { imageManager.deleteImage(it) }
+            finalLocalPath = imageManager.saveImageToInternalStorage(currentUri)
+            finalRemoteUrl = null
+        } else if (currentUri == null){
+            existingProduct.localImagePath?.let { imageManager.deleteImage(it) }
+            finalLocalPath = null
+            finalRemoteUrl = null
         }
 
         repository.updateProduct(
@@ -100,7 +103,8 @@ class UpdateProductUseCase @Inject constructor(
                 barcode = barcodeResult.getOrNull(),
                 barcodeFormat = productBarcodeFormat,
                 sku = skuResult.getOrNull(),
-                imageUri = permanentPath,
+                localImagePath = finalLocalPath,
+                remoteImageUrl = finalRemoteUrl,
                 minimumQuantity = minQuantityResult.getOrNull() ?: 0,
                 batches = existingProduct.batches,
                 createdAt = existingProduct.createdAt,
