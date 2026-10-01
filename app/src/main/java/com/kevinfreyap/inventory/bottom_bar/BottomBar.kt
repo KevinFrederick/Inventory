@@ -1,0 +1,73 @@
+package com.kevinfreyap.inventory.bottom_bar
+
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.kevinfreyap.inventory.R
+import com.kevinfreyap.product.presentation.navigation.ProductScreen
+
+@Composable
+fun BottomBar(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        modifier = modifier
+    ) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+
+        val navigationItems = listOf(
+            BottomTabItem(
+                route = ProductScreen.Dashboard,
+                title = stringResource(R.string.bottom_tab_dashboard),
+                icon = R.drawable.dashboard_24
+            ),
+            BottomTabItem(
+                route = ProductScreen.ProductList(filter = null),
+                title = stringResource(R.string.bottom_tab_product_list),
+                icon = R.drawable.format_list_bulleted_24
+            )
+        )
+
+        navigationItems.forEach { item ->
+            NavigationBarItem(
+                selected = currentDestination?.hasRoute(item.route::class) == true,
+                icon = {
+                    Icon(
+                        painter = painterResource(item.icon),
+                        contentDescription = item.title
+                    )
+                },
+                label = {
+                    Text(item.title)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                ),
+                onClick = {
+                    navController.navigate(item.route){
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+    }
+}

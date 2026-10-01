@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":features:product"))
     implementation(project(":features:scanner"))
+    implementation(project(":features:auth"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

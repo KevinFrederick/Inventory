@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                 ) {
                     RootAppNavigation(
-                        isLoggedIn = true
+                        isLoggedIn = false
                     )
                 }
             }
