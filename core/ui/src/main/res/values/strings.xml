@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Inventory</string>
 
+    <!--  LABELS  -->
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="label_name">Name</string>
+
     <!--  BUTTON  -->
     <string name="btn_label_cancel">Cancel</string>
     <string name="btn_label_confirm">Confirm</string>

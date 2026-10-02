@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":features:product"))
     implementation(project(":features:scanner"))
+    implementation(project(":features:auth"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)
@@ -91,6 +92,9 @@ dependencies {
     implementation(libs.hilt.work)
     implementation(libs.work.runtime)
     ksp(libs.androidx.hilt.compiler)
+
+    // Splash Screen
+    implementation(libs.splash.screen)
 
     // Testing
     testImplementation(libs.junit)

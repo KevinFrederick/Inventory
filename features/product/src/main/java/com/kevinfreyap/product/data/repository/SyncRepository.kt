@@ -10,7 +10,7 @@ import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.data.mapper.toRequest
 import com.kevinfreyap.product.data.network.dto.sync.SyncPayloadDto
 import com.kevinfreyap.product.data.network.source.SyncRemoteDataSource
-import com.kevinfreyap.product.domain.model.error.NetworkError
+import com.kevinfreyap.network.error.NetworkError
 import com.kevinfreyap.product.domain.repository.ISyncRepository
 import java.io.File
 import javax.inject.Inject

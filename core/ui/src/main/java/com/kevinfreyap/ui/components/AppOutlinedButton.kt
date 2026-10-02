@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -24,14 +25,17 @@ fun AppOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    cornerRadiusPercentage: Int = 50,
+    textAlign: TextAlign = TextAlign.Center,
     borderColor: Color = Theme.custom.primaryText,
     contentColor: Color = Theme.custom.primaryText,
     icon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(cornerRadiusPercentage),
         border = BorderStroke(
             width = 1.dp,
             color = borderColor
@@ -50,8 +54,14 @@ fun AppOutlinedButton(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            textAlign = textAlign,
+            modifier = Modifier.weight(1f)
         )
+
+        if (trailingIcon != null) {
+            trailingIcon()
+        }
     }
 }
 

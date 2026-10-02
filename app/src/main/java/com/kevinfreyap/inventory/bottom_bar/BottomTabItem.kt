@@ -1,4 +1,4 @@
-package com.kevinfreyap.inventory
+package com.kevinfreyap.inventory.bottom_bar
 
 import androidx.annotation.DrawableRes
 

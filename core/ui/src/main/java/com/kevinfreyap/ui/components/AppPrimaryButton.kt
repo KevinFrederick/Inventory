@@ -2,6 +2,7 @@ package com.kevinfreyap.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.ui.theme.InventoryTheme
@@ -23,7 +25,10 @@ fun AppPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    cornerRadiusPercentage: Int = 50,
+    textAlign: TextAlign = TextAlign.Center,
     icon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
@@ -32,7 +37,7 @@ fun AppPrimaryButton(
     Button(
         onClick = debouncedClick,
         enabled = enabled,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(cornerRadiusPercentage),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
@@ -48,7 +53,13 @@ fun AppPrimaryButton(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
+            textAlign = textAlign,
+            modifier = Modifier.weight(1f)
         )
+
+        if (trailingIcon != null) {
+            trailingIcon()
+        }
     }
 }
 
@@ -61,6 +72,8 @@ fun AppPrimaryButtonPreview() {
         AppPrimaryButton(
             text = "See Result",
             onClick = { },
+            modifier = Modifier
+                .fillMaxWidth()
         )
     }
 }

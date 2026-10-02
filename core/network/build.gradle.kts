@@ -54,6 +54,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":core:domain"))
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -64,6 +66,9 @@ dependencies {
     implementation(libs.ktor.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.auth)
+
+    implementation(libs.kotlinx.serialization)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

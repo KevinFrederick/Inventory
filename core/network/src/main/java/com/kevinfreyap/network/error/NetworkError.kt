@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.domain.model.error
+package com.kevinfreyap.network.error
 
 import com.kevinfreyap.domain.RootError
 

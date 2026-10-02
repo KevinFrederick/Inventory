@@ -32,6 +32,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":core:domain"))
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -41,6 +43,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.datastore)
+    implementation(libs.crypto.tink)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
