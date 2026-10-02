@@ -93,6 +93,9 @@ dependencies {
     implementation(libs.work.runtime)
     ksp(libs.androidx.hilt.compiler)
 
+    // Splash Screen
+    implementation(libs.splash.screen)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

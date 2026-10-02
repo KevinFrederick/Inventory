@@ -95,6 +95,9 @@ fun AppTextField(
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
+            unfocusedPlaceholderColor = unfocusedColor.copy(0.6f),
+            focusedPlaceholderColor = unfocusedColor.copy(0.6f),
+
             unfocusedBorderColor = unfocusedColor,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
 

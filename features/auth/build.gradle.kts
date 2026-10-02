@@ -51,6 +51,11 @@ dependencies {
 
     implementation(libs.kotlinx.serialization)
 
+    implementation(libs.androidx.datastore)
+
+    implementation(libs.ktor.client)
+    implementation(libs.ktor.client.resources)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

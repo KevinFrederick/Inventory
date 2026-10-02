@@ -1,5 +1,6 @@
 package com.kevinfreyap.network.di
 
+import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.network.client.provideKtorClient
 import dagger.Module
 import dagger.Provides
@@ -13,7 +14,9 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideHttpClient(): HttpClient {
-        return provideKtorClient()
+    fun provideHttpClient(
+        tokenManager: IAuthTokenManager
+    ): HttpClient {
+        return provideKtorClient(tokenManager)
     }
 }

@@ -7,7 +7,7 @@ import com.kevinfreyap.product.data.network.dto.sync.SyncPullResponseDto
 import com.kevinfreyap.product.data.network.dto.sync.SyncPushResponseDto
 import com.kevinfreyap.product.data.network.resources.ProductResource
 import com.kevinfreyap.product.data.network.resources.SyncResource
-import com.kevinfreyap.product.domain.model.error.NetworkError
+import com.kevinfreyap.network.error.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException

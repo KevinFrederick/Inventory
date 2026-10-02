@@ -8,9 +8,9 @@ import com.kevinfreyap.auth.presentation.navigation.AuthScreens
 import com.kevinfreyap.auth.presentation.navigation.LoginNavigation
 import com.kevinfreyap.auth.presentation.navigation.OnboardNavigation
 import com.kevinfreyap.auth.presentation.navigation.RegisterNavigation
-import com.kevinfreyap.auth.presentation.screen.login.LoginScreen
+import com.kevinfreyap.auth.presentation.screen.auth.LoginScreen
 import com.kevinfreyap.auth.presentation.screen.onboard.OnboardScreen
-import com.kevinfreyap.auth.presentation.screen.register.RegisterScreen
+import com.kevinfreyap.auth.presentation.screen.auth.RegisterScreen
 import com.kevinfreyap.inventory.AppGraph
 
 fun NavGraphBuilder.authGraph(
@@ -44,6 +44,13 @@ fun NavGraphBuilder.authGraph(
                                 }
                             }
                         }
+                        RegisterNavigation.Dashboard -> {
+                            navController.navigate(AppGraph.Main) {
+                                popUpTo(AppGraph.Auth) {
+                                    inclusive = true
+                                }
+                            }
+                        }
                     }
                 }
             )
@@ -59,6 +66,13 @@ fun NavGraphBuilder.authGraph(
                         LoginNavigation.Register -> {
                             navController.navigate(AuthScreens.Register) {
                                 popUpTo<AuthScreens.Login> {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                        LoginNavigation.Dashboard -> {
+                            navController.navigate(AppGraph.Main) {
+                                popUpTo(AppGraph.Auth) {
                                     inclusive = true
                                 }
                             }

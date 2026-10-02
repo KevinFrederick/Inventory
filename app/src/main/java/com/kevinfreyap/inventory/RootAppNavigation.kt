@@ -45,5 +45,4 @@ fun RootAppNavigation(
             mainGraph(navController = rootNavController)
         }
     }
-
 }
