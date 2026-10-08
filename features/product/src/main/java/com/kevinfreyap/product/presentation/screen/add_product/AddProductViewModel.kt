@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.InventoryBarcode
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
@@ -31,6 +33,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,7 +46,8 @@ class AddProductViewModel @Inject constructor(
     private val getAllLocations: GetAllLocationUseCase,
     private val validateCategory: ValidateProductCategoryUseCase,
     private val validateLocation: ValidateBatchLocationUseCase,
-    private val insertNewProduct: InsertNewProductUseCase
+    private val insertNewProduct: InsertNewProductUseCase,
+    private val activeGroupSession: IActiveGroupSession
 ): ViewModel() {
     private val route = savedStateHandle.toRoute<ProductScreen.AddProduct>()
     private val initialBarcode = if (!route.barcodeValue.isNullOrBlank() && route.barcodeFormat != null) {
@@ -256,10 +260,14 @@ class AddProductViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            val groupId = activeGroupSession.currentGroupId.first()
+                ?: return@launch
+
             try {
                 val currentState = _formState.value
 
                 val result = insertNewProduct(
+                    groupId = GroupId(groupId),
                     productName = currentState.productDetail.productName,
                     productCategoryName = currentState.productDetail.productCategoryName,
                     productDescription = currentState.productDetail.productDescription,

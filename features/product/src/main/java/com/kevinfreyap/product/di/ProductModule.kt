@@ -1,5 +1,6 @@
 package com.kevinfreyap.product.di
 
+import com.kevinfreyap.domain.repository.IProductStatsRepository
 import com.kevinfreyap.product.data.repository.CategoryRepository
 import com.kevinfreyap.product.data.manager.ImageManager
 import com.kevinfreyap.product.data.manager.SyncManager
@@ -33,6 +34,11 @@ abstract class ProductModule {
     abstract fun bindProductRepository(
         impl: ProductRepository
     ): IProductRepository
+
+    @Binds
+    abstract fun bindProductStatsRepository(
+        impl: ProductRepository
+    ): IProductStatsRepository
 
     @Binds
     abstract fun bindTransactionRepository(

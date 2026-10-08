@@ -16,7 +16,9 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kevinfreyap.inventory.R
+import com.kevinfreyap.user.R as userR
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
+import com.kevinfreyap.user.presentation.navigation.UserScreens
 
 @Composable
 fun BottomBar(
@@ -39,6 +41,11 @@ fun BottomBar(
                 route = ProductScreen.ProductList(filter = null),
                 title = stringResource(R.string.bottom_tab_product_list),
                 icon = R.drawable.format_list_bulleted_24
+            ),
+            BottomTabItem(
+                route = UserScreens.ProfileScreen,
+                title = stringResource(R.string.bottom_tab_profile),
+                icon = userR.drawable.person_24
             )
         )
 

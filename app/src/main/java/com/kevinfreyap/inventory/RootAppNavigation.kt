@@ -13,6 +13,7 @@ import com.kevinfreyap.inventory.bottom_bar.BottomBar
 import com.kevinfreyap.inventory.screens.authGraph
 import com.kevinfreyap.inventory.screens.mainGraph
 import com.kevinfreyap.product.presentation.navigation.ProductScreen
+import com.kevinfreyap.user.presentation.navigation.UserScreens
 
 @Composable
 fun RootAppNavigation(
@@ -25,7 +26,8 @@ fun RootAppNavigation(
 
     val showBottomBar = currentDestination?.let { destination ->
         destination.hasRoute<ProductScreen.Dashboard>() ||
-                destination.hasRoute<ProductScreen.ProductList>()
+        destination.hasRoute<ProductScreen.ProductList>() ||
+        destination.hasRoute<UserScreens.ProfileScreen>()
     } ?: false
 
     Scaffold(

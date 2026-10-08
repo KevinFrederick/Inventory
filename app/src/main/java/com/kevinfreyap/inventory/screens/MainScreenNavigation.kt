@@ -27,6 +27,8 @@ import com.kevinfreyap.product.presentation.screen.product_list.ProductListScree
 import com.kevinfreyap.scanner.navigation.ScannerNavigation
 import com.kevinfreyap.scanner.navigation.ScannerScreens
 import com.kevinfreyap.scanner.ui.ScannerScreen
+import com.kevinfreyap.user.presentation.navigation.UserScreens
+import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
 
 fun NavGraphBuilder.mainGraph(
     navController: NavHostController
@@ -242,6 +244,14 @@ fun NavGraphBuilder.mainGraph(
                             navController.popBackStack()
                         }
                     }
+                },
+            )
+        }
+
+        composable<UserScreens.ProfileScreen> {
+            ProfileScreen(
+                onNavigate = {destination ->
+
                 },
             )
         }

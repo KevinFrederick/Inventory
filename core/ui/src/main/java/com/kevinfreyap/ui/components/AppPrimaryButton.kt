@@ -54,7 +54,7 @@ fun AppPrimaryButton(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             textAlign = textAlign,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f, fill = false)
         )
 
         if (trailingIcon != null) {

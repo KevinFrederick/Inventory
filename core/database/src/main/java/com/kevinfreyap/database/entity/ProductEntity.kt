@@ -15,9 +15,16 @@ import com.kevinfreyap.database.model.SyncState
             childColumns = ["categoryId"],
             onDelete = ForeignKey.RESTRICT
         ),
+        ForeignKey(
+            entity = GroupEntity::class,
+            parentColumns = ["groupId"],
+            childColumns = ["groupId"],
+            onDelete = ForeignKey.CASCADE
+        )
     ],
     indices = [
         Index(value = ["categoryId"]),
+        Index(value = ["groupId"]),
         Index(value = ["sku"], unique = true),
         Index(value = ["barcode"], unique = true)
     ]
@@ -26,6 +33,7 @@ data class ProductEntity (
     @PrimaryKey (autoGenerate = false)
     val productId: String,
     val categoryId: String,
+    val groupId: String,
     val name: String,
     val description: String?,
     val barcode: String?,

@@ -17,8 +17,6 @@ interface IProductRepository {
 
     fun getDynamicProductCount(filter: ProductQueryFilter): Flow<Int>
 
-    fun getProductCount(): Flow<Int>
-
     fun getRecentProduct(limit: Int = 3): Flow<List<Product>>
 
     fun getLowStockProduct(): Flow<List<Product>>

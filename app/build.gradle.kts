@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":features:product"))
     implementation(project(":features:scanner"))
     implementation(project(":features:auth"))
+    implementation(project(":features:user"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

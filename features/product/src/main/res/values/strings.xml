@@ -4,7 +4,6 @@
     <string name="title_filter_sort">Filter &amp; Sort</string>
     <string name="title_add_product">Add Product</string>
     <string name="title_edit_product">Edit Product</string>
-    <string name="title_image_picker">Select Image Source</string>
     <string name="title_product_detail">Product Detail</string>
     <string name="title_add_batch">Add Batch</string>
     <string name="title_batch_detail">Batch Detail</string>
@@ -54,9 +53,6 @@
     <string name="label_field_batch_price">Unit Cost (Optional)</string>
     <string name="label_field_batch_supplier">Supplier</string>
     <string name="label_field_batch_expiration">Expiration Date</string>
-    
-    <string name="label_image_picker_camera">Take a photo</string>
-    <string name="label_image_picker_gallery">Choose from gallery</string>
     
     <string name="label_showing_search_filter_result">Showing %1$d results</string>
     <string name="label_total_search_filter">Total: %1$d products</string>

@@ -10,8 +10,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.takeFrom
 import com.kevinfreyap.network.BuildConfig
-import com.kevinfreyap.network.dto.RefreshTokenRequest
-import com.kevinfreyap.network.dto.TokenResponse
+import com.kevinfreyap.network.dto.request.RefreshTokenRequest
+import com.kevinfreyap.network.dto.response.TokenResponse
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
@@ -25,6 +25,7 @@ import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -81,12 +82,13 @@ fun provideKtorClient(
                             )
 
                             BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
-                        } else {
+                        } else if (response.status == HttpStatusCode.Unauthorized || response.status == HttpStatusCode.BadRequest) {
                             tokenManager.clearToken()
+                            null
+                        } else {
                             null
                         }
                     } catch (_: Exception) {
-                        tokenManager.clearToken()
                         null
                     }
 

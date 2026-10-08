@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
 import com.kevinfreyap.product.domain.model.Product
@@ -28,6 +29,7 @@ class UpdateProductUseCase @Inject constructor(
     private val createOrGetCategory: CreateOrGetCategoryUseCase,
 ) {
     suspend operator fun invoke(
+        groupId: GroupId,
         productId: ProductId,
         productName: String,
         productCategoryName: String,
@@ -97,6 +99,7 @@ class UpdateProductUseCase @Inject constructor(
         repository.updateProduct(
             Product(
                 productId = productId,
+                groupId = groupId,
                 category = categoryDomain,
                 name = nameResult.getOrNull()!!,
                 description = descriptionResult.getOrNull(),

@@ -89,6 +89,12 @@ class AuthTokenManager @Inject constructor(
 
     override fun fetchRefreshToken(): String? = _refreshTokenState.value
 
+    override suspend fun awaitRefreshToken(): String? {
+        val prefs = dataStore.data.first()
+        val encryptedRefresh = prefs[refreshTokenKey]
+        return encryptedRefresh?.let { decrypt(it) }
+    }
+
     private fun encrypt(plaintext: String): String {
         val ciphertext = aead.encrypt(plaintext.toByteArray(Charsets.UTF_8), null)
         return Base64.encodeToString(ciphertext, Base64.DEFAULT)

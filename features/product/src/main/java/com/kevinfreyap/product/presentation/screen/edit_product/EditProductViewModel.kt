@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.GroupId
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.error.DatabaseError
@@ -28,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -43,7 +46,8 @@ class EditProductViewModel @Inject constructor(
     private val getProductById: GetProductByIdUseCase,
     private val getAllCategories: GetAllCategoryUseCase,
     private val updateProduct: UpdateProductUseCase,
-    private val validateCategory: ValidateProductCategoryUseCase
+    private val validateCategory: ValidateProductCategoryUseCase,
+    private val activeGroupSession: IActiveGroupSession
 ): ViewModel(){
     private val route = savedStateHandle.toRoute<ProductScreen.EditProduct>()
 
@@ -227,10 +231,14 @@ class EditProductViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            val groupId = activeGroupSession.currentGroupId.first()
+                ?: return@launch
+
             try {
                 val currentState = _formState.value
 
                 val result = updateProduct(
+                    groupId = GroupId(groupId),
                     productId = productId,
                     productName = currentState.productDetail.productName,
                     productCategoryName = currentState.productDetail.productCategoryName,

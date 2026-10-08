@@ -10,6 +10,8 @@ import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.database.query.ProductQueryBuilder
+import com.kevinfreyap.domain.model.GroupId
+import com.kevinfreyap.domain.repository.IProductStatsRepository
 import com.kevinfreyap.product.data.mapper.toDbFilter
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toDomainList
@@ -27,7 +29,7 @@ class ProductRepository @Inject constructor(
     private val database: AppDatabase,
     private val productDao: ProductDao,
     private val batchDao: BatchDao
-): IProductRepository {
+): IProductRepository, IProductStatsRepository {
     override suspend fun insertProduct(product: Product) {
         val productEntity = product.toEntity(syncState = SyncState.CREATED)
         val batchEntities = product.batches.map { it.toEntity(syncState = SyncState.CREATED) }
@@ -83,8 +85,8 @@ class ProductRepository @Inject constructor(
         return productDao.getDynamicProductCount(query)
     }
 
-    override fun getProductCount(): Flow<Int> {
-        return productDao.getProductCount()
+    override fun observeProductCount(groupIds: List<GroupId>): Flow<Map<String, Int>> {
+        return productDao.getProductCount(groupIds.map { it.value })
     }
 
     override fun getRecentProduct(limit: Int): Flow<List<Product>> {

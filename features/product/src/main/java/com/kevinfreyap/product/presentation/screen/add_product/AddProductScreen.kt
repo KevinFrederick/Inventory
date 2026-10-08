@@ -49,14 +49,14 @@ import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.product.presentation.components.TextSwitchRow
-import com.kevinfreyap.product.presentation.components.rememberImagePicker
+import com.kevinfreyap.ui.image_picker.rememberImagePicker
 import com.kevinfreyap.product.presentation.navigation.AddProductNavigation
 import com.kevinfreyap.product.presentation.screen.add_product.section.DialogSummaryList
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchDetail
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionBatchInformation
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductIdentification
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
-import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
+import com.kevinfreyap.ui.image_picker.ImagePickerBottomSheet
 import com.kevinfreyap.product.presentation.state.ScreenAddProductState
 import com.kevinfreyap.product.presentation.state.BatchFormDetailState
 import com.kevinfreyap.product.presentation.state.ProductFormDetailState

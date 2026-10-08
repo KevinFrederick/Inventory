@@ -1,0 +1,9 @@
+package com.kevinfreyap.user.data.network.dto.request
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AddMemberRequest(
+    val email: String,
+    val role: String
+)

@@ -3,6 +3,7 @@ package com.kevinfreyap.database.dao
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
@@ -78,8 +79,8 @@ interface ProductDao {
     @Query("SELECT * FROM product WHERE barcode = :barcode AND syncState != 'DELETED' LIMIT 1")
     suspend fun getProductByBarcode(barcode: String): ProductWithDetails?
 
-    @Query("SELECT COUNT(*) FROM product WHERE syncState != 'DELETED'")
-    fun getProductCount(): Flow<Int>
+    @Query("SELECT groupId, COUNT(*) as productCount FROM product WHERE groupId IN (:groupIds) AND syncState != 'DELETED' GROUP BY groupId")
+    fun getProductCount(groupIds: List<String>): Flow<Map<@MapColumn(columnName= "groupId") String, @MapColumn(columnName = "productCount") Int >>
 
     @Query("""
         SELECT * FROM product

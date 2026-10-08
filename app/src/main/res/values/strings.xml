@@ -3,4 +3,5 @@
 
     <string name="bottom_tab_dashboard">Dashboard</string>
     <string name="bottom_tab_product_list">Products</string>
+    <string name="bottom_tab_profile">Profile</string>
 </resources>

@@ -1,10 +1,13 @@
 package com.kevinfreyap.auth.data.repository
 
-import api.dto.request.LoginRequest
-import api.dto.request.LogoutRequest
-import api.dto.request.RegisterRequest
+import com.kevinfreyap.auth.data.mapper.toEntity
+import com.kevinfreyap.auth.data.network.dto.request.LoginRequest
+import com.kevinfreyap.auth.data.network.dto.request.LogoutRequest
+import com.kevinfreyap.auth.data.network.dto.request.RegisterRequest
 import com.kevinfreyap.auth.data.network.service.AuthApiService
 import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.database.dao.GroupDao
+import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.network.error.NetworkError
@@ -15,6 +18,8 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val api: AuthApiService,
+    private val userDao: UserDao,
+    private val groupDao: GroupDao,
     private val tokenManager: IAuthTokenManager
 ): IAuthRepository {
     override suspend fun register(
@@ -38,7 +43,7 @@ class AuthRepository @Inject constructor(
                 refreshToken = response.refreshToken
             )
 
-            // Save User
+            userDao.insertOrUpdate(response.user.toEntity())
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -70,7 +75,7 @@ class AuthRepository @Inject constructor(
                 refreshToken = response.refreshToken
             )
 
-            // Save User
+            userDao.insertOrUpdate(response.user.toEntity())
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -95,7 +100,8 @@ class AuthRepository @Inject constructor(
                 )
             )
 
-            // Clear User
+            userDao.clearUser()
+            groupDao.clearGroups()
 
             tokenManager.clearToken()
 
@@ -113,6 +119,6 @@ class AuthRepository @Inject constructor(
     }
 
     override suspend fun isUserLoggedIn(): Boolean {
-        return tokenManager.fetchRefreshToken() != null
+        return tokenManager.awaitRefreshToken() != null
     }
 }

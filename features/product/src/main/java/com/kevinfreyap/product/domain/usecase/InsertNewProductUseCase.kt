@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
 import com.kevinfreyap.product.domain.model.BatchId
@@ -34,6 +35,7 @@ class InsertNewProductUseCase @Inject constructor(
     private val createOrGetLocation: CreateOrGetLocationUseCase
 ) {
     suspend operator fun invoke(
+        groupId: GroupId,
         productName: String,
         productCategoryName: String,
         productDescription: String?,
@@ -169,6 +171,7 @@ class InsertNewProductUseCase @Inject constructor(
             Product(
                 productId = newProductId,
                 category = categoryDomain,
+                groupId = groupId,
                 name = nameResult.getOrNull()!!,
                 description = descriptionResult.getOrNull(),
                 barcode = barcodeResult.getOrNull(),

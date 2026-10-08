@@ -8,4 +8,5 @@ interface IAuthTokenManager {
     fun clearToken()
     fun fetchAccessToken(): String?
     fun fetchRefreshToken(): String?
+    suspend fun awaitRefreshToken(): String?
 }

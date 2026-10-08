@@ -41,12 +41,12 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.domain.model.error.ProductImageError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
-import com.kevinfreyap.product.presentation.components.rememberImagePicker
+import com.kevinfreyap.ui.image_picker.rememberImagePicker
 import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
 import com.kevinfreyap.product.presentation.screen.add_product.section.DialogSummaryList
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductIdentification
 import com.kevinfreyap.product.presentation.screen.add_product.section.SectionProductInformation
-import com.kevinfreyap.product.presentation.screen.bottom_sheet.ImagePickerBottomSheet
+import com.kevinfreyap.ui.image_picker.ImagePickerBottomSheet
 import com.kevinfreyap.product.presentation.state.ScreenEditProductState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppImageUpload
@@ -221,7 +221,7 @@ fun EditProductContent(
             ) {
                 AppImageUpload(
                     uriString = state.productDetail.productImageUriString,
-                    icon = painterResource(R.drawable.add_a_photo_24),
+                    icon = painterResource(coreR.drawable.add_a_photo_24),
                     label = stringResource(R.string.btn_label_upload_image),
                     onClick = {
                         onAction(ProductFormAction.ImagePickerAction.OnUploadClick)

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TITLE  -->
+    <string name="title_edit_profile">Edit Profile</string>
+    <string name="title_account_profile">Account Profile</string>
+
+    <!--  LABELS  -->
+    <string name="label_inventory_groups">Inventory Groups</string>
+
+    <string name="label_phone_number">Phone Number</string>
+    <string name="label_job_title">Job Title</string>
+    <string name="label_upload_profile_pic">Upload Profile \n(optional)</string>
+
+    <string name="btn_label_edit_profile">Edit Profile</string>
+    <string name="btn_label_add_group">Add Inventory Group</string>
+
+    <string name="text_btn_manage">Manage</string>
+
+    <string name="format_label_group_list">%1$d products · %2$d member</string>
+
+    <!--  Default Value  -->
+    <string name="default_phone_number">Phone number not set</string>
+    <string name="default_job_title">Job title not set</string>
+</resources>

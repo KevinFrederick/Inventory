@@ -1,4 +1,4 @@
-package api.dto.request
+package com.kevinfreyap.auth.data.network.dto.request
 
 import kotlinx.serialization.Serializable
 
