@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.presentation.components
+package com.kevinfreyap.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -29,13 +29,15 @@ import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 
 @Composable
-fun CurrencyTextField(
-    price: String,
+fun AppSymbolTextField(
+    value: String,
     placeholder: String,
-    currencySymbol: String,
-    onPriceChange: (String) -> Unit,
+    symbol: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     unfocusedColor: Color = Theme.custom.hint,
+    keyboardType: KeyboardType = KeyboardType.Number,
+    imeAction: ImeAction = ImeAction.Done,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
     errorMessage: String? = null,
@@ -55,8 +57,8 @@ fun CurrencyTextField(
     }
 
     OutlinedTextField(
-        value = price,
-        onValueChange = onPriceChange,
+        value = value,
+        onValueChange = onValueChange,
         placeholder = {
             Text(
                 text = placeholder,
@@ -82,8 +84,8 @@ fun CurrencyTextField(
             errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
+            keyboardType = keyboardType,
+            imeAction = imeAction
         ),
         readOnly = isReadOnly,
         enabled = enabled,
@@ -97,7 +99,7 @@ fun CurrencyTextField(
                     .height(56.dp)
             ) {
                 Text(
-                    text = currencySymbol,
+                    text = symbol,
                     style = MaterialTheme.typography.bodyLarge,
                     color = dividerColor,
                     modifier = Modifier
@@ -131,11 +133,11 @@ fun CurrencyTextField(
 @Composable
 fun CurrencyTextFieldPreview() {
     InventoryTheme {
-        CurrencyTextField(
-            price = "",
+        AppSymbolTextField(
+            value = "",
             placeholder = "Unit Cost (Optional)",
-            currencySymbol = "Rp",
-            onPriceChange = {},
+            symbol = "Rp",
+            onValueChange = {},
         )
     }
 }

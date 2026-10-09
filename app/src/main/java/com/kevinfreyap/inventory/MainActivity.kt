@@ -34,7 +34,15 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.startListeningForSync()
+                mainViewModel.isLoggedIn.collect { isLoggedIn ->
+                    if (isLoggedIn) {
+                        try {
+                            mainViewModel.startListeningForSync()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
             }
         }
 

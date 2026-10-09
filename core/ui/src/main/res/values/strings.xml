@@ -20,4 +20,9 @@
     <!--  DROPDOWN  -->
     <string name="dropdown_item_no_result_found">No results found</string>
     <string name="dropdown_item_add_new">Add new %1$s</string>
+
+    <!--  ERROR  -->
+    <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
+    <string name="error_product_image_path_too_long">The image file path or name is too long</string>
+    <string name="error_product_image_file_too_large">This image is too large\nMax file size is 5 MB</string>
 </resources>

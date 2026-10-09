@@ -1,4 +1,4 @@
-package com.kevinfreyap.product.domain.manager
+package com.kevinfreyap.domain.manager
 
 interface IImageManager {
     suspend fun getFileSizeInMb(uriString: String): Double

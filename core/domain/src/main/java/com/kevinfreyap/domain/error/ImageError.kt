@@ -1,8 +1,8 @@
-package com.kevinfreyap.product.domain.model.error
+package com.kevinfreyap.domain.error
 
 import com.kevinfreyap.domain.RootError
 
-enum class ProductImageError: RootError {
+enum class ImageError: RootError {
     INVALID_FORMAT,
     PATH_TOO_LONG,
     FILE_TOO_LARGE

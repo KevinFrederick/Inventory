@@ -39,7 +39,7 @@ class ProfileViewModel @Inject constructor(
         val userDetail = UserDetailState(
             name = user.name,
             email = user.email,
-            profileUrl = user.avatarUrl,
+            profileUrl = user.profilePictureUrl,
             phoneNumber = user.phoneNumber,
             jobTitle = user.jobTitle
         )

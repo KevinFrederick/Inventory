@@ -56,7 +56,7 @@ fun AppOutlinedButton(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             textAlign = textAlign,
-            modifier = Modifier.weight(1f, fill = false)
+            modifier = if (textAlign == TextAlign.Center) Modifier else Modifier.weight(1f)
         )
 
         if (trailingIcon != null) {

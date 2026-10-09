@@ -1,14 +1,14 @@
-package com.kevinfreyap.product.data.manager
+package com.kevinfreyap.database.manager
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.net.toUri
-import com.kevinfreyap.product.domain.manager.IImageManager
+import androidx.exifinterface.media.ExifInterface
+import com.kevinfreyap.domain.manager.IImageManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

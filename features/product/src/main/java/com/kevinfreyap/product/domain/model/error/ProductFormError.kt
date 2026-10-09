@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.domain.model.error
 
 import com.kevinfreyap.domain.RootError
+import com.kevinfreyap.domain.error.ImageError
 
 data class ProductFormError(
     val nameError: ProductNameError? = null,
@@ -8,7 +9,7 @@ data class ProductFormError(
     val descriptionError: ProductDescriptionError? = null,
     val barcodeError: ProductBarcodeError? = null,
     val skuError: ProductSkuError? = null,
-    val imageError: ProductImageError? = null,
+    val imageError: ImageError? = null,
     val minQuantityError: ProductMinimumQuantityError? = null,
     val quantityError: BatchQuantityError? = null,
     val locationError: BatchLocationError? = null,

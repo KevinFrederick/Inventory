@@ -5,4 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Resource("/me")
-class UserResource
+class UserResource {
+    @Serializable
+    @Resource("image")
+    class Image(val parent: UserResource)
+}

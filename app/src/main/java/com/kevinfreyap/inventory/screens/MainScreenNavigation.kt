@@ -27,7 +27,10 @@ import com.kevinfreyap.product.presentation.screen.product_list.ProductListScree
 import com.kevinfreyap.scanner.navigation.ScannerNavigation
 import com.kevinfreyap.scanner.navigation.ScannerScreens
 import com.kevinfreyap.scanner.ui.ScannerScreen
+import com.kevinfreyap.user.presentation.navigation.EditProfileNavigation
+import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
+import com.kevinfreyap.user.presentation.screen.edit_profile.EditProfileScreen
 import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
 
 fun NavGraphBuilder.mainGraph(
@@ -251,8 +254,29 @@ fun NavGraphBuilder.mainGraph(
         composable<UserScreens.ProfileScreen> {
             ProfileScreen(
                 onNavigate = {destination ->
-
+                    when(destination) {
+                        ProfileNavigation.AddGroup -> {}
+                        ProfileNavigation.EditProfile -> {
+                            navController.navigate(
+                                UserScreens.EditProfileScreen
+                            )
+                        }
+                        is ProfileNavigation.GroupDetail -> {}
+                        ProfileNavigation.ManageGroups -> {}
+                    }
                 },
+            )
+        }
+
+        composable<UserScreens.EditProfileScreen> {
+            EditProfileScreen(
+                onNavigate = {destination ->
+                    when(destination) {
+                        EditProfileNavigation.NavigateUp -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
             )
         }
     }

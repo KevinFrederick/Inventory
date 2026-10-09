@@ -2,7 +2,7 @@ package com.kevinfreyap.user.domain.model
 
 data class UserUpdateParams (
     val name: String,
-    val avatarUrl: String?,
+    val profilePictureUrl: String?,
     val phoneNumber: String?,
     val jobTitle: String?,
     val locale: String?,

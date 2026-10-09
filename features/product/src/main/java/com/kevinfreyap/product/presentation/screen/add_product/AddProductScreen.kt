@@ -44,7 +44,7 @@ import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.model.error.ProductImageError
+import com.kevinfreyap.domain.error.ImageError
 import com.kevinfreyap.product.domain.model.error.ProductMinimumQuantityError
 import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.presentation.action.ProductFormAction
@@ -251,7 +251,7 @@ fun AddProductContent(
             ) {
                 AppImageUpload(
                     uriString = state.productDetail.productImageUriString,
-                    icon = painterResource(R.drawable.add_a_photo_24),
+                    icon = painterResource(coreR.drawable.add_a_photo_24),
                     label = stringResource(R.string.btn_label_upload_image),
                     onClick = {
                         onAction(ProductFormAction.ImagePickerAction.OnUploadClick)
@@ -262,9 +262,9 @@ fun AddProductContent(
                     isError = state.formErrors?.imageError != null,
                     errorMessage = if (state.formErrors?.imageError != null) {
                         when (state.formErrors.imageError) {
-                            ProductImageError.INVALID_FORMAT -> stringResource(R.string.error_product_image_invalid_format)
-                            ProductImageError.PATH_TOO_LONG -> stringResource(R.string.error_product_image_path_too_long)
-                            ProductImageError.FILE_TOO_LARGE -> stringResource(R.string.error_product_image_file_too_large)
+                            ImageError.INVALID_FORMAT -> stringResource(coreR.string.error_product_image_invalid_format)
+                            ImageError.PATH_TOO_LONG -> stringResource(coreR.string.error_product_image_path_too_long)
+                            ImageError.FILE_TOO_LARGE -> stringResource(coreR.string.error_product_image_file_too_large)
                         }
                     } else null
                 )

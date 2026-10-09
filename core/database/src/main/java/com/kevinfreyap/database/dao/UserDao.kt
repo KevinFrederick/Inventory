@@ -10,15 +10,21 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
     // User management
-    @Query("SELECT userId FROM users LIMIT 1")
+    @Query("SELECT userId FROM user LIMIT 1")
     suspend fun getLoggedInUserId(): String?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(user: UserEntity)
 
-    @Query("SELECT * FROM users LIMIT 1")
+    @Query("SELECT * FROM user LIMIT 1")
     fun observeUser(): Flow<UserEntity?>
 
-    @Query("DELETE FROM users")
+    @Query("UPDATE user SET profilePictureUrl = :imageUrl")
+    suspend fun updateProfilePicture(imageUrl: String)
+
+    @Query("DELETE FROM user")
     suspend fun clearUser()
+
+    @Query("UPDATE user SET profilePictureUrl = NULL")
+    suspend fun deleteProfilePicture()
 }

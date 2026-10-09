@@ -7,7 +7,7 @@ data class User(
     val userId: UserId,
     val email: String,
     val name: String,
-    val avatarUrl: String?,
+    val profilePictureUrl: String?,
     val phoneNumber: String?,
     val jobTitle: String?,
     val locale: String?,

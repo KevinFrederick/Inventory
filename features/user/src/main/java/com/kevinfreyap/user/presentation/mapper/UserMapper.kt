@@ -7,7 +7,7 @@ fun User.toUserDetail(): UserDetailState =
     UserDetailState(
         name = name,
         email = email,
-        profileUrl = avatarUrl,
+        profileUrl = profilePictureUrl,
         phoneNumber = phoneNumber,
         jobTitle = jobTitle
     )

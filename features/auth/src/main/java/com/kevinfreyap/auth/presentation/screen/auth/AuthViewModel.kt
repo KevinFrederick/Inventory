@@ -202,6 +202,7 @@ class AuthViewModel @Inject constructor(
                                 NetworkError.Local.NO_INTERNET -> _uiEvent.send(UiEvent.ShowToast(R.string.error_network_no_connection))
                                 NetworkError.Local.UNKNOWN -> _uiEvent.send(UiEvent.ShowToast(R.string.error_network_unknown))
                                 is NetworkError.Server ->  _uiEvent.send(UiEvent.ShowToast(errors.networkError.message))
+                                else -> {}
                             }
                         }
                     }

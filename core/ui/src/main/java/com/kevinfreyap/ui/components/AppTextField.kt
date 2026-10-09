@@ -37,6 +37,7 @@ fun AppTextField(
     minLines: Int = 1,
     maxLines: Int = 1,
     unfocusedColor: Color = Theme.custom.hint,
+    disabledTextColor: Color = Theme.custom.primaryText,
     readOnly: Boolean = false,
     enabled: Boolean = true,
     label: String? = null,
@@ -107,7 +108,7 @@ fun AppTextField(
             disabledLabelColor = unfocusedColor,
             disabledBorderColor = unfocusedColor,
             disabledTrailingIconColor = unfocusedColor,
-            disabledTextColor = Theme.custom.primaryText,
+            disabledTextColor = disabledTextColor,
 
             unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,

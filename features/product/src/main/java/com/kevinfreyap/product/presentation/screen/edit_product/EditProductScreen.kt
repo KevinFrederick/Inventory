@@ -39,7 +39,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.ui.R as coreR
-import com.kevinfreyap.product.domain.model.error.ProductImageError
+import com.kevinfreyap.domain.error.ImageError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
 import com.kevinfreyap.ui.image_picker.rememberImagePicker
 import com.kevinfreyap.product.presentation.navigation.EditProductNavigation
@@ -232,9 +232,9 @@ fun EditProductContent(
                     isError = state.formErrors?.imageError != null,
                     errorMessage = if (state.formErrors?.imageError != null) {
                         when (state.formErrors.imageError) {
-                            ProductImageError.INVALID_FORMAT -> stringResource(R.string.error_product_image_invalid_format)
-                            ProductImageError.PATH_TOO_LONG -> stringResource(R.string.error_product_image_path_too_long)
-                            ProductImageError.FILE_TOO_LARGE -> stringResource(R.string.error_product_image_file_too_large)
+                            ImageError.INVALID_FORMAT -> stringResource(coreR.string.error_product_image_invalid_format)
+                            ImageError.PATH_TOO_LONG -> stringResource(coreR.string.error_product_image_path_too_long)
+                            ImageError.FILE_TOO_LARGE -> stringResource(coreR.string.error_product_image_file_too_large)
                         }
                     } else null
                 )

@@ -9,7 +9,8 @@ import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.manager.IImageManager
+import com.kevinfreyap.domain.manager.IImageManager
+import com.kevinfreyap.domain.validation.ValidateImageUseCase
 import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import java.util.UUID
@@ -24,7 +25,7 @@ class InsertNewProductUseCase @Inject constructor(
     private val validateProductDescription: ValidateProductDescriptionUseCase,
     private val validateProductBarcode: ValidateProductBarcodeUseCase,
     private val validateProductSku: ValidateProductSkuUseCase,
-    private val validateProductImage: ValidateProductImageUseCase,
+    private val validateProductImage: ValidateImageUseCase,
     private val validateProductMinimumQuantity: ValidateProductMinimumQuantityUseCase,
     private val validateBatchQuantity: ValidateBatchQuantityUseCase,
     private val validateBatchLocation: ValidateBatchLocationUseCase,

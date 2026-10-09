@@ -184,10 +184,6 @@
     <string name="warning_product_not_found">No product found! create new product!</string>
 
     <!--  ERROR  -->
-    <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
-    <string name="error_product_image_path_too_long">The image file path or name is too long</string>
-    <string name="error_product_image_file_too_large">This image is too large\nMax file size is 2 MB</string>
-
     <string name="error_product_name_empty">Product name is required</string>
     <string name="error_product_name_too_long">Product name cannot exceed 255 characters</string>
     <string name="error_product_name_contains_newline">Product name must be on a single line</string>
