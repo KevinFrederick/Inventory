@@ -2,7 +2,7 @@ package com.kevinfreyap.user.domain.usecase.group
 
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.GroupId
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.user.domain.repository.IGroupRepository
 import javax.inject.Inject
 

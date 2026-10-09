@@ -26,11 +26,15 @@
     <string name="btn_label_cancel">Cancel</string>
     <string name="btn_label_discard">Discard</string>
     <string name="btn_label_keep_edit">Keep Editing</string>
+    <string name="btn_label_logout">Log out</string>
 
     <string name="dialog_label_title_remove_image">Remove Image?</string>
     <string name="dialog_label_title_discard_changes">Discard Changes?</string>
+    <string name="dialog_label_title_logout">Log Out?</string>
+
     <string name="dialog_label_subtitle_remove_image">Are you sure to remove this profile picture?</string>
     <string name="dialog_label_subtitle_discard_changes">You have unsaved changes. If you go back now, all your progress will be lost.</string>
+    <string name="dialog_label_subtitle_logout">Are you sure you want to log out?</string>
 
     <string name="text_btn_manage">Manage</string>
 
@@ -57,4 +61,5 @@
 
     <!--  SUCCESS  -->
     <string name="success_profile_update">Profile updated successfully!</string>
+    <string name="success_logout">Successfully signed out</string>
 </resources>

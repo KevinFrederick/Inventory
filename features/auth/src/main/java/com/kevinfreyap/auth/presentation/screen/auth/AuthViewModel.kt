@@ -11,7 +11,7 @@ import com.kevinfreyap.auth.presentation.navigation.LoginNavigation
 import com.kevinfreyap.auth.presentation.navigation.RegisterNavigation
 import com.kevinfreyap.auth.presentation.state.ScreenAuthState
 import com.kevinfreyap.domain.Result
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel

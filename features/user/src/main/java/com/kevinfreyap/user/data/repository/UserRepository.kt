@@ -4,7 +4,7 @@ import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.User
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.network.dto.request.UpdateProfileRequest

@@ -1,6 +1,7 @@
 package com.kevinfreyap.user.presentation.navigation
 
 sealed interface ProfileNavigation {
+    data object Onboard: ProfileNavigation
     data object EditProfile: ProfileNavigation
     data object ManageGroups: ProfileNavigation
     data object AddGroup: ProfileNavigation

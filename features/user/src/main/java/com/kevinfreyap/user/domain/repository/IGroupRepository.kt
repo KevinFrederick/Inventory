@@ -4,7 +4,7 @@ import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.Group
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.user.domain.model.GroupAddUserParams
 import com.kevinfreyap.user.domain.model.GroupMember
 import com.kevinfreyap.user.domain.model.GroupParams

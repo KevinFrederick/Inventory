@@ -1,8 +1,8 @@
 package com.kevinfreyap.user.domain.validation.error
 
-import com.kevinfreyap.domain.RootError
+import com.kevinfreyap.domain.error.RootError
 import com.kevinfreyap.domain.error.ImageError
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 
 data class UserFormError(
     val nameError: UserNameError? = null,

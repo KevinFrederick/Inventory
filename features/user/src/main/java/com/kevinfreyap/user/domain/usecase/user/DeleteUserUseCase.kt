@@ -1,7 +1,7 @@
 package com.kevinfreyap.user.domain.usecase.user
 
 import com.kevinfreyap.domain.Result
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.user.domain.repository.IUserRepository
 import javax.inject.Inject
 

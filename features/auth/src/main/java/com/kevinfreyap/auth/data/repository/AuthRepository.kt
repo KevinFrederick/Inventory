@@ -5,12 +5,12 @@ import com.kevinfreyap.auth.data.network.dto.request.LoginRequest
 import com.kevinfreyap.auth.data.network.dto.request.LogoutRequest
 import com.kevinfreyap.auth.data.network.dto.request.RegisterRequest
 import com.kevinfreyap.auth.data.network.service.AuthApiService
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
 import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import kotlinx.io.IOException
@@ -94,11 +94,9 @@ class AuthRepository @Inject constructor(
         return try {
             val refreshToken = tokenManager.fetchRefreshToken() ?: return Result.Success(Unit)
 
-            api.logout(
-                LogoutRequest(
-                    refreshToken = refreshToken
-                )
-            )
+            try {
+                api.logout(LogoutRequest(refreshToken = refreshToken))
+            } catch (_: Exception) { }
 
             userDao.clearUser()
             groupDao.clearGroups()

@@ -2,7 +2,7 @@ package com.kevinfreyap.auth.domain.usecase
 
 import com.kevinfreyap.auth.domain.error.AuthPasswordError
 import com.kevinfreyap.auth.domain.error.LoginError
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull

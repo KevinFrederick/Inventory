@@ -1,8 +1,6 @@
 package com.kevinfreyap.user.domain.validation.error
 
-import com.kevinfreyap.domain.Result
-import com.kevinfreyap.domain.RootError
-import com.kevinfreyap.domain.util.cleanInlineSpaces
+import com.kevinfreyap.domain.error.RootError
 
 enum class UserNameError: RootError {
     EMPTY,

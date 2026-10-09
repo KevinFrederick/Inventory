@@ -255,6 +255,14 @@ fun NavGraphBuilder.mainGraph(
             ProfileScreen(
                 onNavigate = {destination ->
                     when(destination) {
+                        ProfileNavigation.Onboard -> {
+                            navController.navigate(AppGraph.Auth) {
+                                popUpTo<AppGraph.Main> {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
                         ProfileNavigation.AddGroup -> {}
                         ProfileNavigation.EditProfile -> {
                             navController.navigate(

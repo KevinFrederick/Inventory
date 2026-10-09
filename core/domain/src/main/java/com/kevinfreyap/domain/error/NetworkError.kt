@@ -1,6 +1,4 @@
-package com.kevinfreyap.network.error
-
-import com.kevinfreyap.domain.RootError
+package com.kevinfreyap.domain.error
 
 sealed interface NetworkError: RootError {
     enum class Local: NetworkError{

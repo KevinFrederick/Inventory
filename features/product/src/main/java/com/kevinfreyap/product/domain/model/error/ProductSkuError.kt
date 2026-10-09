@@ -1,6 +1,6 @@
 package com.kevinfreyap.product.domain.model.error
 
-import com.kevinfreyap.domain.RootError
+import com.kevinfreyap.domain.error.RootError
 
 enum class ProductSkuError: RootError {
     TOO_LONG,

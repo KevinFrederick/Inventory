@@ -1,6 +1,6 @@
 package com.kevinfreyap.auth.domain.usecase
 
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
 import javax.inject.Inject
 
 class CheckUserLoggedInUseCase @Inject constructor(

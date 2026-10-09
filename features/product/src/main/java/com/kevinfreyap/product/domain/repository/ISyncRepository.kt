@@ -1,7 +1,7 @@
 package com.kevinfreyap.product.domain.repository
 
 import com.kevinfreyap.domain.Result
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 
 interface ISyncRepository {
     suspend fun sync(): Result<Unit, NetworkError>

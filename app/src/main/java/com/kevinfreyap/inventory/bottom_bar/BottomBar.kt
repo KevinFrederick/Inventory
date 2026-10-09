@@ -72,6 +72,7 @@ fun BottomBar(
                         }
 
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
             )

@@ -1,7 +1,7 @@
-package com.kevinfreyap.auth.domain.repository
+package com.kevinfreyap.domain.repository
 
 import com.kevinfreyap.domain.Result
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 
 interface IAuthRepository {
     suspend fun register(name: String, email: String, pass: String, confirmPass: String): Result<Unit, NetworkError>

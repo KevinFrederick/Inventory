@@ -6,7 +6,7 @@ import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.Group
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.mapper.toRequest

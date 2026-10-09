@@ -2,35 +2,49 @@ package com.kevinfreyap.user.presentation.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
+import com.kevinfreyap.user.R
+import com.kevinfreyap.user.domain.usecase.auth.LogoutUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupProfileSummaryUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupWithStatsUseCase
 import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toGroupItem
+import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.state.ProfileScreenState
 import com.kevinfreyap.user.presentation.state.UserDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     observeUser: ObserveUserUseCase,
     observeGroupProfileSummary: ObserveGroupProfileSummaryUseCase,
+    private val logoutUser: LogoutUseCase,
     private val observeGroupWithStats: ObserveGroupWithStatsUseCase
 ): ViewModel(){
 
+    private val _uiEvent = Channel<UiEvent<ProfileNavigation>>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<UiState<ProfileScreenState>> = combine(
-        flow = observeUser(),
-        flow2 = observeGroupProfileSummary(),
+        flow = observeUser().distinctUntilChanged(),
+        flow2 = observeGroupProfileSummary().distinctUntilChanged(),
     ) { user, groupSummary ->
         Pair(user, groupSummary)
     }.flatMapLatest { (user, groupSummary) ->
@@ -59,4 +73,35 @@ class ProfileViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UiState.Loading
         )
+
+    fun logout() {
+        viewModelScope.launch {
+            when(
+                val result = logoutUser()
+            ) {
+                is Result.Success -> {
+                    _uiEvent.send(UiEvent.ShowToast(R.string.success_logout))
+                    _uiEvent.send(UiEvent.Navigate(ProfileNavigation.Onboard))
+                }
+                is Result.Error -> {
+                    when (
+                        val error = result.error
+                    ) {
+                        NetworkError.Local.NO_INTERNET -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_no_internet))
+                        }
+                        NetworkError.Local.MISSING_FILE -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_missing_file))
+                        }
+                        NetworkError.Local.UNKNOWN -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_unknown))
+                        }
+                        is NetworkError.Server -> {
+                            _uiEvent.send(UiEvent.ShowToast(error.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

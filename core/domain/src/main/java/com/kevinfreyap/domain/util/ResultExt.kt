@@ -1,7 +1,7 @@
 package com.kevinfreyap.domain.util
 
 import com.kevinfreyap.domain.Result
-import com.kevinfreyap.domain.RootError
+import com.kevinfreyap.domain.error.RootError
 
 fun <D> Result<D, *>.getOrNull(): D? = when (this) {
     is Result.Success -> data

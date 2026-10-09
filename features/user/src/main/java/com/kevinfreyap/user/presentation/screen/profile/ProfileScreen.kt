@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.presentation.screen.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,22 +12,36 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.ui.components.AppIconName
+import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
+import com.kevinfreyap.ui.components.AppTextIconDialog
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -48,11 +63,34 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.uiEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiEvent.collect { event ->
+                when(event) {
+                    is UiEvent.Navigate -> {
+                        onNavigate(event.destination)
+                    }
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(
+                            context,
+                            event.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
 
     ProfileContent(
         uiState = uiState,
         onNavigate = onNavigate,
+        onLogout = { viewModel.logout() },
         modifier = modifier
     )
 }
@@ -61,8 +99,11 @@ fun ProfileScreen(
 fun ProfileContent(
     uiState: UiState<ProfileScreenState>,
     onNavigate: (ProfileNavigation) -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             Row(
@@ -72,6 +113,17 @@ fun ProfileContent(
                     .padding(horizontal = 16.dp)
             ) {
                 AppIconName()
+                IconButton(
+                    onClick = {
+                        showLogoutDialog = true
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.logout_24),
+                        contentDescription = stringResource(R.string.btn_label_logout),
+                        tint = Theme.custom.primaryText
+                    )
+                }
             }
         },
     ) {innerPadding ->
@@ -95,8 +147,41 @@ fun ProfileContent(
                 is UiState.Error -> {}
                 is UiState.Success -> ProfileSuccess(uiState.data, onNavigate)
             }
-
         }
+    }
+
+    if (showLogoutDialog) {
+        AppTextIconDialog(
+            icon = painterResource(R.drawable.logout_24),
+            title = stringResource(R.string.dialog_label_title_logout),
+            subtitle = stringResource(R.string.dialog_label_subtitle_logout),
+            iconColor = MaterialTheme.colorScheme.primary,
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+            positiveBtn = {
+                AppPrimaryButton(
+                    text = stringResource(R.string.btn_label_confirm),
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogout()
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            negativeBtn = {
+                AppOutlinedButton(
+                    text = stringResource(R.string.btn_label_cancel),
+                    onClick = {
+                        showLogoutDialog = false
+                    },
+                    borderColor = Theme.custom.hint,
+                    contentColor = Theme.custom.hint,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+        )
     }
 }
 
@@ -211,7 +296,8 @@ fun ProfileScreenPreview() {
                     ),
                 )
             ),
-            onNavigate = {}
+            onNavigate = {},
+            onLogout = {}
         )
     }
 }
@@ -224,7 +310,8 @@ fun ProfileScreenPlaceholderPreview() {
     InventoryTheme {
         ProfileContent(
             uiState = UiState.Loading,
-            onNavigate = {}
+            onNavigate = {},
+            onLogout = {}
         )
     }
 }
