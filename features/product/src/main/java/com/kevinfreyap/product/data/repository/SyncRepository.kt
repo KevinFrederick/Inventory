@@ -11,6 +11,7 @@ import com.kevinfreyap.product.data.mapper.toRequest
 import com.kevinfreyap.product.data.network.dto.sync.SyncPayloadDto
 import com.kevinfreyap.product.data.network.source.SyncRemoteDataSource
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.domain.repository.ISyncRepository
 import java.io.File
 import javax.inject.Inject
@@ -20,15 +21,15 @@ class SyncRepository @Inject constructor(
     private val db: AppDatabase,
     private val preference: SyncPreferences
 ): ISyncRepository {
-    override suspend fun sync(): Result<Unit, NetworkError> {
+    override suspend fun sync(groupId: GroupId): Result<Unit, NetworkError> {
         return try {
-            val imageResult = syncPendingImages()
+            val imageResult = syncPendingImages(groupId)
             if (imageResult is Result.Error) return imageResult
 
-            val pushResult = pushLocalChanges()
+            val pushResult = pushLocalChanges(groupId)
             if (pushResult is Result.Error) return pushResult
 
-            val pullResult = pullRemoteChanges()
+            val pullResult = pullRemoteChanges(groupId)
             if (pullResult is Result.Error) return pullResult
 
             Result.Success(Unit)
@@ -38,17 +39,17 @@ class SyncRepository @Inject constructor(
         }
     }
 
-    override suspend fun observeRealTimeUpdates() {
+    override suspend fun observeRealTimeUpdates(groupId: GroupId) {
         remoteDataSource.observeSyncPings().collect {
-            sync()
+            sync(groupId)
         }
     }
 
-    private suspend fun pushLocalChanges(): Result<Unit, NetworkError> {
-        val unsyncedCategory = db.categoryDao().getUnsyncedCategories()
-        val unsyncedLocation = db.locationDao().getUnsyncedLocations()
-        val unsyncedProducts = db.productDao().getUnsyncedProducts()
-        val unsyncedBatches = db.batchDao().getUnsyncedBatches()
+    private suspend fun pushLocalChanges(groupId: GroupId): Result<Unit, NetworkError> {
+        val unsyncedCategory = db.categoryDao().getUnsyncedCategories(groupId.value)
+        val unsyncedLocation = db.locationDao().getUnsyncedLocations(groupId.value)
+        val unsyncedProducts = db.productDao().getUnsyncedProducts(groupId.value)
+        val unsyncedBatches = db.batchDao().getUnsyncedBatches(groupId.value)
 
         if (unsyncedCategory.isEmpty() &&
             unsyncedLocation.isEmpty() &&
@@ -76,30 +77,37 @@ class SyncRepository @Inject constructor(
         )
 
         return when(
-            val response = remoteDataSource.pushSync(payload)
+            val response = remoteDataSource.pushSync(
+                groupId = groupId.value,
+                payload = payload
+            )
         ) {
             is Result.Success -> {
                 db.withTransaction {
-                    db.batchDao().clearTombstones(payload.deletedBatches)
-                    db.productDao().clearTombstones(payload.deletedProduct)
-                    db.categoryDao().clearTombstones(payload.deletedCategories)
-                    db.locationDao().clearTombstones(payload.deletedLocations)
+                    db.batchDao().clearTombstones(payload.deletedBatches, groupId.value)
+                    db.productDao().clearTombstones(payload.deletedProduct, groupId.value)
+                    db.categoryDao().clearTombstones(payload.deletedCategories, groupId.value)
+                    db.locationDao().clearTombstones(payload.deletedLocations, groupId.value)
 
                     db.categoryDao().markAsSynced(
                         payload.createdCategories.map { it.categoryId } +
-                        payload.updatedCategories.map { it.categoryId }
+                        payload.updatedCategories.map { it.categoryId },
+                        groupId = groupId.value
                     )
                     db.locationDao().markAsSynced(
                         payload.createdLocations.map { it.locationId } +
-                        payload.updatedLocations.map { it.locationId }
+                        payload.updatedLocations.map { it.locationId },
+                        groupId = groupId.value
                     )
                     db.productDao().markAsSynced(
                         payload.createdProduct.map { it.productId } +
-                        payload.updatedProduct.map { it.productId }
+                        payload.updatedProduct.map { it.productId },
+                        groupId = groupId.value
                     )
                     db.batchDao().markAsSynced(
                         payload.createdBatches.map { it.batchId } +
-                        payload.updatedBatches.map { it.batchId }
+                        payload.updatedBatches.map { it.batchId },
+                        groupId = groupId.value
                     )
                 }
                 Result.Success(Unit)
@@ -108,27 +116,30 @@ class SyncRepository @Inject constructor(
         }
     }
 
-    private suspend fun pullRemoteChanges(): Result<Unit, NetworkError> {
+    private suspend fun pullRemoteChanges(groupId: GroupId): Result<Unit, NetworkError> {
         val lastSync = preference.getLastSyncTimestamp()
 
         return when(
-            val response = remoteDataSource.pullSync(lastSync)
+            val response = remoteDataSource.pullSync(
+                groupId = groupId.value,
+                timestamp = lastSync
+            )
         ) {
             is Result.Success -> {
                 val data = response.data
 
                 db.withTransaction {
-                    db.batchDao().deleteByIds(data.deletedBatches)
-                    db.productDao().deleteByIds(data.deletedProducts)
-                    db.categoryDao().deleteByIds(data.deletedCategories)
-                    db.locationDao().deleteByIds(data.deletedLocations)
+                    db.batchDao().deleteByIds(data.deletedBatches, groupId.value)
+                    db.productDao().deleteByIds(data.deletedProducts, groupId.value)
+                    db.categoryDao().deleteByIds(data.deletedCategories, groupId.value)
+                    db.locationDao().deleteByIds(data.deletedLocations, groupId.value)
 
                     db.categoryDao().upsertAll(data.categories.map { it.toEntity() })
                     db.locationDao().upsertAll(data.locations.map { it.toEntity() })
 
                     val incomingIds = data.products.map { it.productId }
 
-                    val localPathMap = db.productDao().getLocalImagePaths(incomingIds)
+                    val localPathMap = db.productDao().getLocalImagePaths(incomingIds, groupId.value)
                         .associateBy({it.productId}, {it.localImagePath})
 
                     val productEntities = data.products.map { dto ->
@@ -148,8 +159,8 @@ class SyncRepository @Inject constructor(
         }
     }
 
-    private suspend fun syncPendingImages(): Result<Unit, NetworkError> {
-        val productsWithImages = db.productDao().getProductWithUnsyncedImage()
+    private suspend fun syncPendingImages(groupId: GroupId): Result<Unit, NetworkError> {
+        val productsWithImages = db.productDao().getProductWithUnsyncedImage(groupId.value)
 
         if (productsWithImages.isEmpty()) return Result.Success(Unit)
 
@@ -162,11 +173,19 @@ class SyncRepository @Inject constructor(
             }
 
             when(
-                val uploadResult = remoteDataSource.uploadImage(product.productId, file)
+                val uploadResult = remoteDataSource.uploadImage(
+                    productId = product.productId,
+                    groupId = groupId.value,
+                    file = file
+                )
             ) {
                 is Result.Success -> {
                     val remoteUrl = uploadResult.data
-                    db.productDao().updateRemoteImageUrl(product.productId, remoteUrl)
+                    db.productDao().updateRemoteImageUrl(
+                        productId = product.productId,
+                        remoteUrl = remoteUrl,
+                        groupId = groupId.value
+                    )
                 }
                 is Result.Error -> return uploadResult
             }

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.product.R
@@ -275,6 +276,14 @@ class EditProductViewModel @Inject constructor(
                                 )
                             }
                             return@launch
+                        }
+
+                        if (errors.sessionError != null) {
+                            when(errors.sessionError) {
+                                SessionError.MISSING_GROUP -> {
+                                    _uiEvent.send(UiEvent.ShowToast(R.string.error_session_missing))
+                                }
+                            }
                         }
 
                         val needsConfirmation =

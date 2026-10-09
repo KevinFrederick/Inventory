@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
@@ -10,9 +11,11 @@ import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.domain.manager.IImageManager
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.domain.validation.ValidateImageUseCase
 import com.kevinfreyap.product.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
+import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 
@@ -20,6 +23,7 @@ class InsertNewProductUseCase @Inject constructor(
     private val repository: IProductRepository,
     private val imageManager: IImageManager,
     private val syncManager: ISyncManager,
+    private val activeGroupSession: IActiveGroupSession,
     private val validateProductName: ValidateProductNameUseCase,
     private val validateProductCategory: ValidateProductCategoryUseCase,
     private val validateProductDescription: ValidateProductDescriptionUseCase,
@@ -36,7 +40,6 @@ class InsertNewProductUseCase @Inject constructor(
     private val createOrGetLocation: CreateOrGetLocationUseCase
 ) {
     suspend operator fun invoke(
-        groupId: GroupId,
         productName: String,
         productCategoryName: String,
         productDescription: String?,
@@ -56,11 +59,18 @@ class InsertNewProductUseCase @Inject constructor(
         batchSupplier: String?
 
     ): Result<Unit, ProductFormError> {
+        val session = activeGroupSession.currentGroupId.first()
+            ?: return Result.Error(
+                ProductFormError(sessionError = SessionError.MISSING_GROUP)
+            )
+
+        val groupId = GroupId(session)
+
         val nameResult = validateProductName(productName)
         val categoryResult = validateProductCategory(productCategoryName)
         val descriptionResult = validateProductDescription(productDescription)
-        val barcodeResult = validateProductBarcode(productBarcode)
-        val skuResult = validateProductSku(productSku)
+        val barcodeResult = validateProductBarcode(productBarcode, groupId)
+        val skuResult = validateProductSku(productSku, groupId)
         val imageResult = validateProductImage(productImageUriString)
         val minQuantityResult = validateProductMinimumQuantity(productMinQuantity, isMinQuantityConfirmed)
 
@@ -128,7 +138,7 @@ class InsertNewProductUseCase @Inject constructor(
         }
 
         val validCategoryName = categoryResult.getOrNull()!!
-        val categoryDomain = createOrGetCategory(validCategoryName)
+        val categoryDomain = createOrGetCategory(validCategoryName, groupId)
 
         val newProductId = ProductId("product-${UUID.randomUUID()}")
 
@@ -141,12 +151,13 @@ class InsertNewProductUseCase @Inject constructor(
             // 1st `!!` : locationResult exists because addInitialStock is true (bypass didn't happen).
             // 2nd `!!` : The Location data exists because the error-check above guaranteed it's a Success.
             val validLocation = locationResult!!.getOrNull()!!
-            val locationDomain = createOrGetLocation(validLocation)
+            val locationDomain = createOrGetLocation(validLocation, groupId)
 
             listOf(
                 StockBatch(
                     batchId = BatchId("batch-${UUID.randomUUID()}"),
                     productId = newProductId,
+                    groupId = groupId,
                     location = locationDomain,
                     quantity = validBatchQuantity,
                     price = validPrice,

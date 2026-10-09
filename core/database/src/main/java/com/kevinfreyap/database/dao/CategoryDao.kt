@@ -15,34 +15,34 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCategory(category: CategoryEntity)
 
-    @Query("SELECT * FROM category WHERE syncState != 'DELETED'")
-    fun getAllCategory(): Flow<List<CategoryEntity>>
+    @Query("SELECT * FROM category WHERE groupId = :groupId AND syncState != 'DELETED'")
+    fun getAllCategory(groupId: String): Flow<List<CategoryEntity>>
 
-    @Query("SELECT * FROM category WHERE name = :name AND syncState != 'DELETED' LIMIT 1")
-    suspend fun getCategoryByName(name: String): CategoryEntity?
+    @Query("SELECT * FROM category WHERE name = :name AND groupId = :groupId AND syncState != 'DELETED' LIMIT 1")
+    suspend fun getCategoryByName(name: String, groupId: String): CategoryEntity?
 
     @Update
     suspend fun updateCategory(category: CategoryEntity)
 
-    @Query("DELETE FROM category WHERE categoryId = :id")
-    suspend fun deleteCategory(id: String)
+    @Query("DELETE FROM category WHERE categoryId = :id AND groupId = :groupId")
+    suspend fun deleteCategory(id: String, groupId: String)
 
     // Sync
     @Upsert
     suspend fun upsertAll(categories: List<CategoryEntity>)
 
-    @Query("DELETE FROM category WHERE categoryId IN (:ids)")
-    suspend fun deleteByIds(ids: List<String>)
+    @Query("DELETE FROM category WHERE categoryId IN (:ids) AND groupId = :groupId")
+    suspend fun deleteByIds(ids: List<String>, groupId: String)
 
-    @Query("SELECT * FROM category WHERE syncState != 'SYNCED'")
-    suspend fun getUnsyncedCategories(): List<CategoryEntity>
+    @Query("SELECT * FROM category WHERE syncState != 'SYNCED' AND groupId = :groupId")
+    suspend fun getUnsyncedCategories(groupId: String): List<CategoryEntity>
 
-    @Query("DELETE FROM category WHERE categoryId IN (:ids) AND syncState = 'DELETED'")
-    suspend fun clearTombstones(ids: List<String>)
+    @Query("DELETE FROM category WHERE categoryId IN (:ids) AND syncState = 'DELETED' AND groupId = :groupId")
+    suspend fun clearTombstones(ids: List<String>, groupId: String)
 
-    @Query("UPDATE category SET syncState = 'SYNCED' WHERE categoryId IN (:ids)")
-    suspend fun markAsSynced(ids: List<String>)
+    @Query("UPDATE category SET syncState = 'SYNCED' WHERE categoryId IN (:ids) AND groupId = :groupId")
+    suspend fun markAsSynced(ids: List<String>, groupId: String)
 
-    @Query("UPDATE category SET syncState = :state WHERE categoryId = :id")
-    suspend fun markAsDeleted(id: String, state: SyncState)
+    @Query("UPDATE category SET syncState = :state WHERE categoryId = :id AND groupId = :groupId")
+    suspend fun markAsDeleted(id: String, state: SyncState, groupId: String)
 }

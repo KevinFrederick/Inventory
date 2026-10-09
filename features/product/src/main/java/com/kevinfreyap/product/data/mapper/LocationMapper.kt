@@ -2,6 +2,7 @@ package com.kevinfreyap.product.data.mapper
 
 import com.kevinfreyap.database.entity.LocationEntity
 import com.kevinfreyap.database.model.SyncState
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.data.network.dto.request.LocationRequest
 import com.kevinfreyap.product.data.network.dto.response.LocationResponse
 import com.kevinfreyap.product.domain.model.Location
@@ -10,6 +11,7 @@ import com.kevinfreyap.product.domain.model.LocationId
 fun LocationEntity.toDomain(): Location {
     return Location(
         locationId = LocationId(this.locationId),
+        groupId = GroupId(this.groupId),
         name = this.name,
         description = this.description,
         locationBarcode = this.locationBarcode,
@@ -27,6 +29,7 @@ fun List<LocationEntity>.toDomain(): List<Location> {
 fun Location.toEntity(syncState: SyncState): LocationEntity {
     return LocationEntity(
         locationId = this.locationId.value,
+        groupId = this.groupId.value,
         name = this.name,
         description = this.description,
         locationBarcode = this.locationBarcode,
@@ -40,6 +43,7 @@ fun Location.toEntity(syncState: SyncState): LocationEntity {
 fun LocationResponse.toEntity(): LocationEntity {
     return LocationEntity(
         locationId = this.locationId,
+        groupId = this.groupId,
         name = this.name,
         description = this.description,
         locationBarcode = this.locationBarcode,

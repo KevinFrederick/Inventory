@@ -225,4 +225,6 @@
 
     <string name="error_delete_product">Unable to delete product</string>
     <string name="error_delete_batch">Unable to delete batch</string>
+
+    <string name="error_session_missing">Please select or create an active group</string>
 </resources>

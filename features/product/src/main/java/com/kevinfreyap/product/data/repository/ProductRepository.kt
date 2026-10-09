@@ -42,20 +42,24 @@ class ProductRepository @Inject constructor(
         }
     }
 
-    override suspend fun isSkuDuplicate(sku: String): Boolean {
-        return productDao.isSkuDuplicate(sku)
+    override suspend fun isSkuDuplicate(sku: String, groupId: GroupId): Boolean {
+        return productDao.isSkuDuplicate(sku, groupId.value)
     }
 
-    override suspend fun isBarcodeDuplicate(barcode: String): Boolean {
-        return productDao.isBarcodeDuplicate(barcode)
+    override suspend fun isBarcodeDuplicate(barcode: String, groupId: GroupId): Boolean {
+        return productDao.isBarcodeDuplicate(barcode, groupId.value)
     }
 
     override fun getProductStream(
-        filterProvider: () -> ProductQueryFilter
+        filterProvider: () -> ProductQueryFilter,
+        groupId: GroupId
     ): FilteredPagingStream<Product> {
         val pagingSourceFactory = InvalidatingPagingSourceFactory {
             val dbFilter = filterProvider().toDbFilter()
-            val query = ProductQueryBuilder().build(dbFilter)
+            val query = ProductQueryBuilder().build(
+                groupId = groupId.value,
+                filter = dbFilter,
+            )
 
             productDao.getAllProduct(query)
         }
@@ -78,9 +82,13 @@ class ProductRepository @Inject constructor(
         )
     }
 
-    override fun getDynamicProductCount(filter: ProductQueryFilter): Flow<Int> {
+    override fun getDynamicProductCount(filter: ProductQueryFilter, groupId: GroupId): Flow<Int> {
         val dbFilter = filter.toDbFilter()
-        val query = ProductQueryBuilder().build(dbFilter, isCountQuery = true)
+        val query = ProductQueryBuilder().build(
+            groupId = groupId.value,
+            filter = dbFilter,
+            isCountQuery = true
+        )
 
         return productDao.getDynamicProductCount(query)
     }
@@ -89,30 +97,33 @@ class ProductRepository @Inject constructor(
         return productDao.getProductCount(groupIds.map { it.value })
     }
 
-    override fun getRecentProduct(limit: Int): Flow<List<Product>> {
-        return productDao.getRecentProduct(limit).map { productWithDetails ->
+    override fun getRecentProduct(limit: Int, groupId: GroupId): Flow<List<Product>> {
+        return productDao.getRecentProduct(limit, groupId.value).map { productWithDetails ->
             productWithDetails.toDomainList()
         }
     }
 
-    override fun getLowStockProduct(): Flow<List<Product>> {
-        return productDao.getLowStockProducts().map { productWithDetails ->
+    override fun getLowStockProduct(groupId: GroupId): Flow<List<Product>> {
+        return productDao.getLowStockProducts(groupId.value).map { productWithDetails ->
             productWithDetails.toDomainList()
         }
     }
 
-    override fun getProductById(productId: ProductId): Flow<Product?> {
-        return productDao.getProduct(productId.value).map { productWithDetails ->
+    override fun getProductById(productId: ProductId, groupId: GroupId): Flow<Product?> {
+        return productDao.getProduct(productId.value, groupId.value).map { productWithDetails ->
             productWithDetails?.toDomain()
         }
     }
 
-    override suspend fun getProductByBarcode(barcode: String): Product? {
-        return productDao.getProductByBarcode(barcode)?.toDomain()
+    override suspend fun getProductByBarcode(barcode: String, groupId: GroupId): Product? {
+        return productDao.getProductByBarcode(barcode, groupId.value)?.toDomain()
     }
 
-    override suspend fun updateProduct(product: Product) {
-        val oldEntity = productDao.getProductSnapshot(product.productId.value) ?: return
+    override suspend fun updateProduct(product: Product, groupId: GroupId) {
+        val oldEntity = productDao.getProductSnapshot(
+            id = product.productId.value,
+            groupId = groupId.value
+        ) ?: return
 
         val newState = if (oldEntity.product.syncState == SyncState.CREATED) {
             SyncState.CREATED
@@ -123,13 +134,24 @@ class ProductRepository @Inject constructor(
         productDao.updateProduct(product.toEntity(newState))
     }
 
-    override suspend fun deleteProduct(productId: ProductId) {
-        val oldEntity = productDao.getProductSnapshot(productId.value) ?: return
+    override suspend fun deleteProduct(productId: ProductId, groupId: GroupId) {
+        val oldEntity = productDao.getProductSnapshot(
+            id = productId.value,
+            groupId = groupId.value
+        ) ?: return
 
         if (oldEntity.product.syncState == SyncState.CREATED) {
-            productDao.deleteProduct(productId.value)
+            productDao.deleteProduct(
+                id = productId.value,
+                groupId = groupId.value
+            )
         } else {
-            productDao.markAsDeleted(productId.value, SyncState.DELETED)
+            productDao.markAsDeleted(
+                id = productId.value,
+                state = SyncState.DELETED,
+
+                groupId = groupId.value
+            )
         }
     }
 }

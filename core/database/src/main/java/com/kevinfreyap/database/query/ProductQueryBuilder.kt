@@ -5,6 +5,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 
 class ProductQueryBuilder {
     fun build(
+        groupId: String,
         filter: ProductDbFilter,
         isCountQuery: Boolean = false
     ): SupportSQLiteQuery {
@@ -33,7 +34,8 @@ class ProductQueryBuilder {
             )
         }
 
-        query.append(" WHERE p.syncState != 'DELETED'")
+        query.append(" WHERE p.syncState != 'DELETED' AND p.groupId = ?")
+        bindArgs.add(groupId)
 
         if (!filter.searchQuery.isNullOrBlank()) {
             query.append(" AND p.name LIKE ?")

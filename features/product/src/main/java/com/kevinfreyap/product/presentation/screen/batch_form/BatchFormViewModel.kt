@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.util.toShortId
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.BatchId
@@ -359,18 +360,33 @@ class BatchFormViewModel @Inject constructor(
             _formState.update { it.copy(uiState = UiState.Loading) }
 
             try {
-                deleteBatchById(
-                    batchId = batchId,
-                    productId = productId
-                )
+                when(
+                    val result = deleteBatchById(
+                        batchId = batchId,
+                        productId = productId
+                    )
+                ) {
+                    is Result.Success -> {
+                        _uiEvent.send(
+                            UiEvent.ShowToast(R.string.success_batch_deleted)
+                        )
 
-                _uiEvent.send(
-                    UiEvent.ShowToast(R.string.success_batch_deleted)
-                )
+                        _uiEvent.send(
+                            UiEvent.Navigate(BatchFormNavigation.NavigateUp)
+                        )
+                    }
+                    is Result.Error -> {
+                        val error = result.error
 
-                _uiEvent.send(
-                    UiEvent.Navigate(BatchFormNavigation.NavigateUp)
-                )
+                        when(error) {
+                            SessionError.MISSING_GROUP -> {
+                                _uiEvent.send(UiEvent.ShowToast(R.string.error_session_missing))
+                            }
+                        }
+                    }
+                }
+
+
 
             } catch (_: Exception) {
                 _formState.update { it.copy(uiState = UiState.Idle) }

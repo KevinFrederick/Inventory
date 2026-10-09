@@ -1,15 +1,16 @@
 package com.kevinfreyap.product.data.network.resources
 
+import com.kevinfreyap.network.resource.GroupResource
 import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Resource("/product")
-class ProductResource {
+class ProductResource (val parent: GroupResource.Id) {
 
     @Serializable
     @Resource("{id}")
-    class Id(val parent: ProductResource = ProductResource(), val id: String) {
+    class Id(val parent: ProductResource, val id: String) {
 
         @Serializable
         @Resource("image")

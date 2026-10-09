@@ -23,8 +23,8 @@ import com.kevinfreyap.database.model.SyncState
         )
     ],
     indices = [
-        Index(value = ["categoryId"]),
-        Index(value = ["groupId"]),
+        Index(value = ["groupId", "productId"], unique = true),
+        Index(value = ["groupId", "categoryId"]),
         Index(value = ["sku"], unique = true),
         Index(value = ["barcode"], unique = true)
     ]

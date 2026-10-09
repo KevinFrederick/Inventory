@@ -8,6 +8,7 @@ import com.kevinfreyap.product.data.network.dto.sync.SyncPushResponseDto
 import com.kevinfreyap.product.data.network.resources.ProductResource
 import com.kevinfreyap.product.data.network.resources.SyncResource
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.network.resource.GroupResource
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -38,9 +39,14 @@ import kotlin.time.Duration.Companion.seconds
 class SyncRemoteDataSource @Inject constructor(
     private val client: HttpClient
 ) {
-    suspend fun pushSync(payload: SyncPayloadDto): Result<SyncPushResponseDto, NetworkError> {
+    suspend fun pushSync(groupId: String, payload: SyncPayloadDto): Result<SyncPushResponseDto, NetworkError> {
         return try {
-            val response = client.post(SyncResource()) {
+            val response = client.post(SyncResource(
+                parent = GroupResource.Id(
+                    parent = GroupResource(),
+                    groupId = groupId
+                )
+            )) {
                 contentType(ContentType.Application.Json)
                 setBody(payload)
             }
@@ -66,11 +72,16 @@ class SyncRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun pullSync(timestamp: Long): Result<SyncPullResponseDto, NetworkError> {
+    suspend fun pullSync(groupId: String, timestamp: Long): Result<SyncPullResponseDto, NetworkError> {
         return try {
             val response = client.get(
                 SyncResource.Pull(
-                    parent = SyncResource(),
+                    parent = SyncResource(
+                        parent = GroupResource.Id(
+                            parent = GroupResource(),
+                            groupId = groupId
+                        )
+                    ),
                     updatedAfter = timestamp
                 )
             ).body<SyncPullResponseDto>()
@@ -88,10 +99,18 @@ class SyncRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun uploadImage(productId: String, file: File): Result<String, NetworkError> {
+    suspend fun uploadImage(productId: String, groupId: String, file: File): Result<String, NetworkError> {
         return try {
             val resource = ProductResource.Id.ProductImage(
-                parent = ProductResource.Id(id = productId)
+                parent = ProductResource.Id(
+                    parent = ProductResource(
+                        parent = GroupResource.Id(
+                            parent = GroupResource(),
+                            groupId = groupId
+                        )
+                    ),
+                    id = productId
+                )
             )
 
             val mimeType = when (file.extension.lowercase()) {
