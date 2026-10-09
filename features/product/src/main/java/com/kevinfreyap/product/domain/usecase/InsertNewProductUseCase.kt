@@ -13,7 +13,7 @@ import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.domain.manager.IImageManager
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.domain.validation.ValidateImageUseCase
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import kotlinx.coroutines.flow.first
 import java.util.UUID

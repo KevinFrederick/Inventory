@@ -4,7 +4,7 @@ import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.session.IActiveGroupSession
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import com.kevinfreyap.product.domain.repository.IStockBatchRepository

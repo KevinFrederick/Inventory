@@ -1,7 +1,7 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.model.GroupId
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.Location
 import com.kevinfreyap.product.domain.model.LocationId
 import com.kevinfreyap.product.domain.repository.ILocationRepository

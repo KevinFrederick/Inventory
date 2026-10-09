@@ -1,14 +1,10 @@
 package com.kevinfreyap.product.domain.usecase
 
-import com.kevinfreyap.domain.Result
-import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.model.GroupId
-import com.kevinfreyap.domain.session.IActiveGroupSession
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.Category
 import com.kevinfreyap.product.domain.model.CategoryId
 import com.kevinfreyap.product.domain.repository.ICategoryRepository
-import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 

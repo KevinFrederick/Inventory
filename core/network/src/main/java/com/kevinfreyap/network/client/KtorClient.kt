@@ -17,6 +17,8 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.resources.Resources
@@ -30,13 +32,18 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
 
 fun provideKtorClient(
     tokenManager: IAuthTokenManager
 ): HttpClient {
-    return HttpClient(OkHttp) {
+    lateinit var client: HttpClient
+
+    client = HttpClient(OkHttp) {
         expectSuccess = true
 
         install(ContentNegotiation) {
@@ -70,7 +77,7 @@ fun provideKtorClient(
                     val refreshToken = tokenManager.fetchRefreshToken() ?: return@refreshTokens null
 
                     try {
-                        val response: HttpResponse = client.post("${BuildConfig.BASE_URL}/auth/refresh") {
+                        val response: HttpResponse = client.post("/auth/refresh") {
                             markAsRefreshTokenRequest()
                             contentType(ContentType.Application.Json)
                             setBody(RefreshTokenRequest(refreshToken = refreshToken))
@@ -117,4 +124,14 @@ fun provideKtorClient(
             }
         }
     }
+
+    CoroutineScope(Dispatchers.Main.immediate).launch {
+        tokenManager.tokenState.collect { token ->
+            if (token == null){
+                client.authProvider<BearerAuthProvider>()?.clearToken()
+            }
+        }
+    }
+
+    return client
 }

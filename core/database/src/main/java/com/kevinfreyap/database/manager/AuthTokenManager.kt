@@ -13,24 +13,22 @@ import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import kotlin.jvm.java
 
 class AuthTokenManager @Inject constructor(
     @ApplicationContext context: Context,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
 ): IAuthTokenManager {
 
     private val accessTokenKey = stringPreferencesKey("access_token")
     private val refreshTokenKey = stringPreferencesKey("refresh_token")
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _tokenState = MutableStateFlow<String?>(null)
     override val tokenState: StateFlow<String?> = _tokenState.asStateFlow()
@@ -51,38 +49,36 @@ class AuthTokenManager @Inject constructor(
 
         aead = keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
 
-        scope.launch {
-            val prefs = dataStore.data.first()
-            val encryptedAccess = prefs[accessTokenKey]
-            val encryptedRefresh = prefs[refreshTokenKey]
+        runCatching {
+            runBlocking (Dispatchers.IO) {
+                val prefs = dataStore.data.first()
+                val encryptedAccess = prefs[accessTokenKey]
+                val encryptedRefresh = prefs[refreshTokenKey]
 
-            _tokenState.value = encryptedAccess?.let { decrypt(it) }
-            _refreshTokenState.value = encryptedRefresh?.let { decrypt(it) }
+                _tokenState.value = encryptedAccess?.let { decrypt(it) }
+                _refreshTokenState.value = encryptedRefresh?.let { decrypt(it) }
+            }
         }
     }
 
-    override fun saveToken(accessToken: String, refreshToken: String) {
-        scope.launch {
-            val encryptedAccess = encrypt(accessToken)
-            val encryptedRefresh = encrypt(refreshToken)
-            dataStore.edit { preferences ->
-                preferences[accessTokenKey] = encryptedAccess
-                preferences[refreshTokenKey] = encryptedRefresh
-            }
-            _tokenState.value = accessToken
-            _refreshTokenState.value = refreshToken
+    override suspend fun saveToken(accessToken: String, refreshToken: String) {
+        val encryptedAccess = encrypt(accessToken)
+        val encryptedRefresh = encrypt(refreshToken)
+        dataStore.edit { preferences ->
+            preferences[accessTokenKey] = encryptedAccess
+            preferences[refreshTokenKey] = encryptedRefresh
         }
+        _tokenState.value = accessToken
+        _refreshTokenState.value = refreshToken
     }
 
-    override fun clearToken() {
-        scope.launch {
-            dataStore.edit { preferences ->
-                preferences.remove(accessTokenKey)
-                preferences.remove(refreshTokenKey)
-            }
-            _tokenState.value = null
-            _refreshTokenState.value = null
+    override suspend fun clearToken() {
+        dataStore.edit { preferences ->
+            preferences.remove(accessTokenKey)
+            preferences.remove(refreshTokenKey)
         }
+        _tokenState.value = null
+        _refreshTokenState.value = null
     }
 
     override fun fetchAccessToken(): String? = _tokenState.value

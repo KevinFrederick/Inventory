@@ -8,7 +8,7 @@ import com.kevinfreyap.product.data.repository.ProductRepository
 import com.kevinfreyap.product.data.repository.StockBatchRepository
 import com.kevinfreyap.product.data.repository.SyncRepository
 import com.kevinfreyap.product.domain.repository.ICategoryRepository
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.ILocationRepository
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import com.kevinfreyap.product.domain.repository.IStockBatchRepository

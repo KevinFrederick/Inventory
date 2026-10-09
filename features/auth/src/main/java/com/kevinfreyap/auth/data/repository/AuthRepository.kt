@@ -11,6 +11,8 @@ import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.manager.ISyncManager
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import kotlinx.io.IOException
@@ -20,7 +22,9 @@ class AuthRepository @Inject constructor(
     private val api: AuthApiService,
     private val userDao: UserDao,
     private val groupDao: GroupDao,
-    private val tokenManager: IAuthTokenManager
+    private val tokenManager: IAuthTokenManager,
+    private val activeGroupSession: IActiveGroupSession,
+    private val syncManager: ISyncManager
 ): IAuthRepository {
     override suspend fun register(
         name: String,
@@ -44,6 +48,7 @@ class AuthRepository @Inject constructor(
             )
 
             userDao.insertOrUpdate(response.user.toEntity())
+            groupDao.insertOrUpdateGroups(response.groups.map { it.toEntity() })
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -94,14 +99,17 @@ class AuthRepository @Inject constructor(
         return try {
             val refreshToken = tokenManager.fetchRefreshToken() ?: return Result.Success(Unit)
 
+            tokenManager.clearToken()
+            activeGroupSession.clear()
+
+            syncManager.cancelAllWork()
+
             try {
                 api.logout(LogoutRequest(refreshToken = refreshToken))
             } catch (_: Exception) { }
 
             userDao.clearUser()
             groupDao.clearGroups()
-
-            tokenManager.clearToken()
 
             Result.Success(Unit)
         } catch (e: ResponseException) {

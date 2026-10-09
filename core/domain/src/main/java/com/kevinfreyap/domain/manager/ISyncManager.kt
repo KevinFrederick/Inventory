@@ -1,6 +1,7 @@
-package com.kevinfreyap.product.domain.manager
+package com.kevinfreyap.domain.manager
 
 interface ISyncManager {
     fun triggerSync()
     fun schedulePeriodicSync()
+    fun cancelAllWork()
 }

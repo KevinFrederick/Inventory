@@ -7,6 +7,7 @@ import com.kevinfreyap.domain.model.Group
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.mapper.toRequest
@@ -16,8 +17,10 @@ import com.kevinfreyap.user.domain.model.GroupMember
 import com.kevinfreyap.user.domain.model.GroupParams
 import com.kevinfreyap.user.domain.model.GroupUpdateRoleParams
 import com.kevinfreyap.user.domain.repository.IGroupRepository
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
@@ -26,7 +29,8 @@ import javax.inject.Inject
 class GroupRepository @Inject constructor(
     private val groupDao: GroupDao,
     private val userDao: UserDao,
-    private val api: GroupApiService
+    private val api: GroupApiService,
+    private val tokenManager: IAuthTokenManager
 ): IGroupRepository {
     override fun getGroupById(groupId: GroupId): Flow<Group?> {
         return groupDao.observeGroup(groupId.value).map { it?.toDomain() }
@@ -192,6 +196,11 @@ class GroupRepository @Inject constructor(
         try {
             val response = api.getGroups()
             groupDao.replaceAllGroups(response.map { it.toEntity() })
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.Unauthorized) {
+                tokenManager.clearToken()
+                groupDao.clearGroups()
+            }
         } catch (_: Exception) {}
     }
 
