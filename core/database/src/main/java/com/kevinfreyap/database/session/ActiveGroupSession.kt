@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -26,9 +25,9 @@ class ActiveGroupSession @Inject constructor(
             preferences[GROUP_ID_KEY]
         }
 
-    override suspend fun setActiveGroup(groupId: GroupId) {
+    override suspend fun setActiveGroup(groupId: String) {
         dataStore.edit { preferences ->
-            preferences[GROUP_ID_KEY] = groupId.value
+            preferences[GROUP_ID_KEY] = groupId
         }
     }
 

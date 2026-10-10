@@ -40,7 +40,7 @@ class SyncRepository @Inject constructor(
     }
 
     override suspend fun observeRealTimeUpdates(groupId: GroupId) {
-        remoteDataSource.observeSyncPings().collect {
+        remoteDataSource.observeSyncPings(groupId.value).collect {
             sync(groupId)
         }
     }

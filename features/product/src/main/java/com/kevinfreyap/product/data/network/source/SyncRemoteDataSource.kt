@@ -147,8 +147,8 @@ class SyncRemoteDataSource @Inject constructor(
         }
     }
 
-    fun observeSyncPings(): Flow<Unit> = flow {
-        client.wss("/sync/ws") {
+    fun observeSyncPings(groupId: String): Flow<Unit> = flow {
+        client.wss("/sync/ws/${groupId}") {
             for (frame in incoming) {
                 if (frame is Frame.Text && frame.readText() == "SYNC_REQUIRED") {
                     emit(Unit)

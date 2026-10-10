@@ -12,6 +12,7 @@ import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.manager.ISyncManager
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
@@ -46,6 +47,8 @@ class AuthRepository @Inject constructor(
                 accessToken = response.accessToken,
                 refreshToken = response.refreshToken
             )
+
+            activeGroupSession.setActiveGroup(response.groups[0].group.groupId)
 
             userDao.insertOrUpdate(response.user.toEntity())
             groupDao.insertOrUpdateGroups(response.groups.map { it.toEntity() })
