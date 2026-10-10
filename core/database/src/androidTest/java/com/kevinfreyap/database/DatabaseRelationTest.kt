@@ -66,7 +66,7 @@ class DatabaseRelationTest {
 
         // Catch whatever happens when deleting
         val result = runCatching {
-            categoryDao.deleteCategory(category1.categoryId)
+            categoryDao.deleteCategory(category1.categoryId, "group1")
         }
 
         // Assert | Because ForeignKey.Restrict, deleting the category must crash

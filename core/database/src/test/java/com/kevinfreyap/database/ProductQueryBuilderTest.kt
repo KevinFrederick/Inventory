@@ -13,10 +13,10 @@ class ProductQueryBuilderTest {
     fun `when filter is empty, generate base query with default sorting`() {
         val filter = ProductDbFilter()
 
-        val query = builder.build(filter) as SimpleSQLiteQuery
+        val query = builder.build("Test", filter) as SimpleSQLiteQuery
 
         assertEquals(
-            "SELECT p.* FROM product AS p WHERE p.syncState != 'DELETED' ORDER BY p.createdAt DESC",
+            "SELECT p.* FROM product AS p WHERE p.syncState != 'DELETED' AND p.groupId = ? ORDER BY p.createdAt DESC",
             query.sql
         )
     }
@@ -30,13 +30,13 @@ class ProductQueryBuilderTest {
             sortDirection = "ASC"
         )
 
-        val query = builder.build(filter) as SimpleSQLiteQuery
+        val query = builder.build("Test", filter) as SimpleSQLiteQuery
 
         assertEquals(
             "SELECT p.*" +
             " FROM product AS p" +
             " LEFT JOIN stock_batch AS b ON p.productId = b.productId AND b.syncState != 'DELETED'" +
-            " WHERE p.syncState != 'DELETED' AND p.name LIKE ? AND b.locationId = ?" +
+            " WHERE p.syncState != 'DELETED' AND p.groupId = ? AND p.name LIKE ? AND b.locationId = ?" +
             " GROUP BY p.productId" +
             " ORDER BY p.name ASC",
             query.sql
@@ -52,12 +52,12 @@ class ProductQueryBuilderTest {
         )
 
         // Act
-        val query = builder.build(filter) as SimpleSQLiteQuery
+        val query = builder.build("Test", filter) as SimpleSQLiteQuery
 
         // Assert
         assertEquals(
             "SELECT p.* FROM product AS p" +
-            " WHERE p.syncState != 'DELETED' AND p.createdAt BETWEEN ? AND ?" +
+            " WHERE p.syncState != 'DELETED' AND p.groupId = ? AND p.createdAt BETWEEN ? AND ?" +
             " ORDER BY p.createdAt" +
             " DESC",
             query.sql
@@ -73,14 +73,14 @@ class ProductQueryBuilderTest {
         )
 
         // Act
-        val query = builder.build(filter) as SimpleSQLiteQuery
+        val query = builder.build("Test", filter) as SimpleSQLiteQuery
 
         // Assert
         assertEquals(
             "SELECT p.*" +
                     " FROM product AS p" +
                     " LEFT JOIN stock_batch AS b ON p.productId = b.productId AND b.syncState != 'DELETED'" +
-                    " WHERE p.syncState != 'DELETED'" +
+                    " WHERE p.syncState != 'DELETED' AND p.groupId = ?" +
                     " GROUP BY p.productId" +
                     " ORDER BY MIN(b.price) ASC," +
                     " p.createdAt DESC",
