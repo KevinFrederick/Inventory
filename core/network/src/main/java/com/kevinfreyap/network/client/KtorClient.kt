@@ -10,32 +10,40 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.takeFrom
 import com.kevinfreyap.network.BuildConfig
-import com.kevinfreyap.network.dto.RefreshTokenRequest
-import com.kevinfreyap.network.dto.TokenResponse
+import com.kevinfreyap.network.dto.request.RefreshTokenRequest
+import com.kevinfreyap.network.dto.response.TokenResponse
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.resources.Resources
-import io.ktor.client.plugins.resources.post
+import io.ktor.client.request.post
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
 
 fun provideKtorClient(
     tokenManager: IAuthTokenManager
 ): HttpClient {
-    return HttpClient(OkHttp) {
+    lateinit var client: HttpClient
+
+    client = HttpClient(OkHttp) {
         expectSuccess = true
 
         install(ContentNegotiation) {
@@ -52,6 +60,8 @@ fun provideKtorClient(
 
         install(Auth) {
             bearer {
+                sendWithoutRequest { true }
+
                 loadTokens {
                     val accessToken = tokenManager.fetchAccessToken()
                     val refreshToken = tokenManager.fetchRefreshToken()
@@ -67,29 +77,31 @@ fun provideKtorClient(
                     val refreshToken = tokenManager.fetchRefreshToken() ?: return@refreshTokens null
 
                     try {
-                        val response: HttpResponse = client.post("${BuildConfig.BASE_URL}/auth/refresh") {
-                            setBody(RefreshTokenRequest(refreshToken = refreshToken))
+                        val response: HttpResponse = client.post("/auth/refresh") {
                             markAsRefreshTokenRequest()
+                            contentType(ContentType.Application.Json)
+                            setBody(RefreshTokenRequest(refreshToken = refreshToken))
                         }
 
-                        if (response.status.isSuccess()) {
-                            val tokenResponse = response.body<TokenResponse>()
+                        val tokenResponse = response.body<TokenResponse>()
 
-                            tokenManager.saveToken(
-                                accessToken = tokenResponse.accessToken,
-                                refreshToken = tokenResponse.refreshToken
-                            )
+                        tokenManager.saveToken(
+                            accessToken = tokenResponse.accessToken,
+                            refreshToken = tokenResponse.refreshToken
+                        )
 
-                            BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
-                        } else {
+                        BearerTokens(tokenResponse.accessToken, tokenResponse.refreshToken)
+                    } catch (e: ResponseException) {
+                        val status = e.response.status
+
+                        if (status == HttpStatusCode.Unauthorized || status == HttpStatusCode.BadRequest) {
                             tokenManager.clearToken()
-                            null
                         }
+
+                        return@refreshTokens null
                     } catch (_: Exception) {
-                        tokenManager.clearToken()
                         null
                     }
-
                 }
             }
         }
@@ -112,4 +124,14 @@ fun provideKtorClient(
             }
         }
     }
+
+    CoroutineScope(Dispatchers.Main.immediate).launch {
+        tokenManager.tokenState.collect { token ->
+            if (token == null){
+                client.authProvider<BearerAuthProvider>()?.clearToken()
+            }
+        }
+    }
+
+    return client
 }

@@ -5,6 +5,7 @@ import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.model.SyncState
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.data.mapper.toDomain
 import com.kevinfreyap.product.data.mapper.toEntity
 import com.kevinfreyap.product.domain.model.BatchId
@@ -25,25 +26,30 @@ class StockBatchRepository @Inject constructor(
 ): IStockBatchRepository {
     override suspend fun insertBatchToProduct(
         stockBatch: StockBatch,
-        timestamp: Long
+        timestamp: Long,
+        groupId: GroupId
     ) {
         database.withTransaction {
             batchDao.insertBatch(stockBatch.toEntity(SyncState.CREATED))
             productDao.updateProductTimestamp(
                 productId = stockBatch.productId.value,
-                timestamp = timestamp
+                timestamp = timestamp,
+                groupId = groupId.value
             )
         }
     }
 
-    override fun getBatchById(id: BatchId): Flow<StockBatchDetails?> {
-        return batchDao.getBatchById(id.value).map { batchWithLocation ->
+    override fun getBatchById(id: BatchId, groupId: GroupId): Flow<StockBatchDetails?> {
+        return batchDao.getBatchById(
+            id = id.value,
+            groupId = groupId.value
+        ).map { batchWithLocation ->
             batchWithLocation?.toDomain()
         }
     }
 
-    override fun getInventorySummary(): Flow<InventorySummary> {
-        return batchDao.getInventorySummary()
+    override fun getInventorySummary(groupId: GroupId): Flow<InventorySummary> {
+        return batchDao.getInventorySummary(groupId.value)
             .distinctUntilChanged()
             .map { inventorySummaryDb ->
                 InventorySummary(
@@ -56,9 +62,13 @@ class StockBatchRepository @Inject constructor(
 
     override suspend fun updateBatch(
         stockBatch: StockBatch,
-        timestamp: Long
+        timestamp: Long,
+        groupId: GroupId
     ): Int {
-        val oldEntity = batchDao.getBatchSnapshot(stockBatch.batchId.value) ?: return 0
+        val oldEntity = batchDao.getBatchSnapshot(
+            id = stockBatch.batchId.value,
+            groupId = groupId.value
+        ) ?: return 0
 
         val newState = if (oldEntity.batch.syncState == SyncState.CREATED) {
             SyncState.CREATED
@@ -72,7 +82,8 @@ class StockBatchRepository @Inject constructor(
             if (rowUpdated > 0) {
                 productDao.updateProductTimestamp(
                     productId = stockBatch.productId.value,
-                    timestamp = timestamp
+                    timestamp = timestamp,
+                    groupId = groupId.value
                 )
             }
 
@@ -83,39 +94,62 @@ class StockBatchRepository @Inject constructor(
     override suspend fun deleteBatch(
         batchId: BatchId,
         productId: ProductId,
-        timestamp: Long
+        timestamp: Long,
+        groupId: GroupId
     ) {
-        val oldEntity = batchDao.getBatchSnapshot(batchId.value) ?: return
+        val oldEntity = batchDao.getBatchSnapshot(
+            id = batchId.value,
+            groupId = groupId.value
+        ) ?: return
 
         if (oldEntity.batch.syncState == SyncState.CREATED) {
             database.withTransaction {
-                batchDao.deleteBatch(batchId.value)
+                batchDao.deleteBatch(
+                    id = batchId.value,
+                    groupId = groupId.value
+                )
                 productDao.updateProductTimestamp(
                     productId = productId.value,
-                    timestamp = timestamp
+                    timestamp = timestamp,
+                    groupId = groupId.value
                 )
             }
         } else {
             database.withTransaction {
-                batchDao.markAsDeleted(batchId.value, SyncState.DELETED)
+                batchDao.markAsDeleted(
+                    id = batchId.value,
+                    state = SyncState.DELETED,
+                    groupId = groupId.value
+                )
                 productDao.updateProductTimestamp(
                     productId = productId.value,
-                    timestamp = timestamp
+                    timestamp = timestamp,
+                    groupId = groupId.value
                 )
             }
         }
 
     }
 
-    override suspend fun deleteBatchesForProduct(productId: ProductId) {
+    override suspend fun deleteBatchesForProduct(productId: ProductId, groupId: GroupId) {
         database.withTransaction {
-            val batches = batchDao.getBatchesByProductId(productId.value)
+            val batches = batchDao.getBatchesByProductId(
+                id = productId.value,
+                groupId = groupId.value
+            )
 
             batches.forEach { batch ->
                 if (batch.batch.syncState == SyncState.CREATED) {
-                    batchDao.deleteBatch(batch.batch.batchId)
+                    batchDao.deleteBatch(
+                        id = batch.batch.batchId,
+                        groupId = groupId.value
+                    )
                 } else {
-                    batchDao.markAsDeleted(batch.batch.batchId, SyncState.DELETED)
+                    batchDao.markAsDeleted(
+                        id = batch.batch.batchId,
+                        state = SyncState.DELETED,
+                        groupId = groupId.value
+                    )
                 }
             }
         }

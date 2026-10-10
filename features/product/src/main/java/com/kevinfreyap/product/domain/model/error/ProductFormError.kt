@@ -1,6 +1,8 @@
 package com.kevinfreyap.product.domain.model.error
 
-import com.kevinfreyap.domain.RootError
+import com.kevinfreyap.domain.error.RootError
+import com.kevinfreyap.domain.error.ImageError
+import com.kevinfreyap.domain.error.SessionError
 
 data class ProductFormError(
     val nameError: ProductNameError? = null,
@@ -8,14 +10,15 @@ data class ProductFormError(
     val descriptionError: ProductDescriptionError? = null,
     val barcodeError: ProductBarcodeError? = null,
     val skuError: ProductSkuError? = null,
-    val imageError: ProductImageError? = null,
+    val imageError: ImageError? = null,
     val minQuantityError: ProductMinimumQuantityError? = null,
     val quantityError: BatchQuantityError? = null,
     val locationError: BatchLocationError? = null,
     val priceError: BatchPriceError? = null,
     val expirationError: BatchExpirationError? = null,
     val supplierError: BatchSupplierError? = null,
-    val databaseError: DatabaseError? = null
+    val databaseError: DatabaseError? = null,
+    val sessionError: SessionError? = null
 ): RootError {
     val hasAnyError: Boolean
         get() = nameError != null ||
@@ -30,5 +33,6 @@ data class ProductFormError(
                 priceError != null ||
                 expirationError != null ||
                 supplierError != null ||
-                databaseError != null
+                databaseError != null ||
+                sessionError != null
 }

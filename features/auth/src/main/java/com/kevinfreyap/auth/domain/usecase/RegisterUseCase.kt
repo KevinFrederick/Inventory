@@ -1,10 +1,11 @@
 package com.kevinfreyap.auth.domain.usecase
 
 import com.kevinfreyap.auth.domain.error.RegisterError
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
+import com.kevinfreyap.domain.validation.ValidateEmailUseCase
 import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(

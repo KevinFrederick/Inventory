@@ -8,9 +8,11 @@ import androidx.room.Room
 import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.database.dao.BatchDao
 import com.kevinfreyap.database.dao.CategoryDao
+import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.LocationDao
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.dao.TransactionDao
+import com.kevinfreyap.database.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,6 +49,12 @@ class DatabaseModule {
 
     @Provides
     fun provideBatchDao(db: AppDatabase): BatchDao = db.batchDao()
+
+    @Provides
+    fun provideUserDao(db: AppDatabase): UserDao = db.userDao()
+
+    @Provides
+    fun provideGroupDao(db: AppDatabase): GroupDao = db.groupDao()
 
     @Provides
     @Singleton

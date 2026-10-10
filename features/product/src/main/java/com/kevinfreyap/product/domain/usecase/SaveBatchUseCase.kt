@@ -1,21 +1,26 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
+import com.kevinfreyap.domain.model.GroupId
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.model.BatchId
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.StockBatch
 import com.kevinfreyap.product.domain.model.error.DatabaseError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.repository.IStockBatchRepository
+import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 
 class SaveBatchUseCase @Inject constructor(
     private val repository: IStockBatchRepository,
     private val syncManager: ISyncManager,
+    private val activeGroupSession: IActiveGroupSession,
     private val validateBatchQuantity: ValidateBatchQuantityUseCase,
     private val validateBatchLocation: ValidateBatchLocationUseCase,
     private val validateBatchPrice: ValidateBatchPriceUseCase,
@@ -34,6 +39,13 @@ class SaveBatchUseCase @Inject constructor(
         batchExpiration: Long?,
         batchSupplier: String?
     ): Result<Unit, ProductFormError> {
+        val session = activeGroupSession.currentGroupId.first()
+            ?: return Result.Error(
+                ProductFormError(sessionError = SessionError.MISSING_GROUP)
+            )
+
+        val groupId = GroupId(session)
+
         val quantityResult = validateBatchQuantity(batchQuantity, isQuantityConfirmed)
         val locationResult = validateBatchLocation(batchLocation)
         val priceResult = validateBatchPrice(batchPrice, isPriceConfirmed)
@@ -62,11 +74,12 @@ class SaveBatchUseCase @Inject constructor(
         val validPrice = priceResult.getOrNull() ?: 0.0
 
         val validLocation = locationResult.getOrNull()!!
-        val locationDomain = createOrGetLocation(validLocation)
+        val locationDomain = createOrGetLocation(validLocation, groupId)
 
         val batch = StockBatch(
             batchId = batchId ?: BatchId("batch-${UUID.randomUUID()}"),
             productId = productId,
+            groupId = groupId,
             location = locationDomain,
             quantity = validBatchQuantity,
             price = validPrice,
@@ -80,11 +93,13 @@ class SaveBatchUseCase @Inject constructor(
 
         if (batchId == null) {
             repository.insertBatchToProduct(
+                groupId = groupId,
                 stockBatch = batch,
                 timestamp = timestamp
             )
         } else {
             val rowUpdated = repository.updateBatch(
+                groupId = groupId,
                 stockBatch = batch,
                 timestamp = timestamp
             )

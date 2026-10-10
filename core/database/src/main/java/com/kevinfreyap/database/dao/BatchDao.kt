@@ -19,55 +19,55 @@ interface BatchDao {
     suspend fun insertBatch(batch: StockBatchEntity)
 
     @Transaction
-    @Query("SELECT * FROM stock_batch WHERE batchId = :id AND syncState != 'DELETED'")
-    fun getBatchById(id: String): Flow<BatchWithProductAndLocation?>
+    @Query("SELECT * FROM stock_batch WHERE batchId = :id AND syncState != 'DELETED' AND groupId = :groupId")
+    fun getBatchById(id: String, groupId: String): Flow<BatchWithProductAndLocation?>
 
     @Transaction
-    @Query("SELECT * FROM stock_batch WHERE batchId = :id")
-    suspend fun getBatchSnapshot(id: String): BatchWithProductAndLocation?
+    @Query("SELECT * FROM stock_batch WHERE batchId = :id AND groupId = :groupId")
+    suspend fun getBatchSnapshot(id: String, groupId: String): BatchWithProductAndLocation?
 
     @Transaction
-    @Query("SELECT * FROM stock_batch WHERE productId = :id")
-    suspend fun getBatchesByProductId(id: String): List<BatchWithProductAndLocation>
+    @Query("SELECT * FROM stock_batch WHERE productId = :id AND groupId = :groupId")
+    suspend fun getBatchesByProductId(id: String, groupId: String): List<BatchWithProductAndLocation>
 
-    @Query("SELECT * FROM stock_batch WHERE expirationDate IS NOT NULL AND syncState != 'DELETED' ORDER BY expirationDate ASC LIMIT :limit")
-    fun getExpiringBatches(limit: Int = 10): Flow<List<StockBatchEntity>>
+    @Query("SELECT * FROM stock_batch WHERE expirationDate IS NOT NULL AND syncState != 'DELETED' AND groupId = :groupId ORDER BY expirationDate ASC LIMIT :limit")
+    fun getExpiringBatches(limit: Int = 10, groupId: String): Flow<List<StockBatchEntity>>
 
-    @Query("SELECT * FROM stock_batch WHERE locationId = :locationId AND syncState != 'DELETED'")
-    fun getBatchesByLocation(locationId: String): Flow<List<StockBatchEntity>>
+    @Query("SELECT * FROM stock_batch WHERE locationId = :locationId AND syncState != 'DELETED' AND groupId = :groupId")
+    fun getBatchesByLocation(locationId: String, groupId: String): Flow<List<StockBatchEntity>>
 
     @Query("""
         SELECT 
-            (SELECT COUNT(*) FROM product WHERE syncState != 'DELETED') AS totalProduct,
+            (SELECT COUNT(*) FROM product WHERE syncState != 'DELETED' AND groupId = :groupId) AS totalProduct,
             COALESCE(SUM(quantity), 0) AS totalItem,
             COALESCE(SUM(quantity * COALESCE(price, 0)), 0.0) AS totalValue
         FROM stock_batch
-        WHERE syncState != 'DELETED'
+        WHERE syncState != 'DELETED' AND groupId = :groupId
     """)
-    fun getInventorySummary(): Flow<InventorySummaryDb>
+    fun getInventorySummary(groupId: String): Flow<InventorySummaryDb>
 
     @Update
     suspend fun updateBatch(batch: StockBatchEntity): Int
 
-    @Query("DELETE FROM stock_batch WHERE batchId = :id")
-    suspend fun deleteBatch(id: String)
+    @Query("DELETE FROM stock_batch WHERE batchId = :id AND groupId = :groupId")
+    suspend fun deleteBatch(id: String, groupId: String)
 
     // Sync
     @Upsert
     suspend fun upsertAll(batches: List<StockBatchEntity>)
 
-    @Query("DELETE FROM stock_batch WHERE batchId IN (:ids)")
-    suspend fun deleteByIds(ids: List<String>)
+    @Query("DELETE FROM stock_batch WHERE batchId IN (:ids) AND groupId = :groupId")
+    suspend fun deleteByIds(ids: List<String>, groupId: String)
 
-    @Query("SELECT * FROM stock_batch WHERE syncState != 'SYNCED'")
-    suspend fun getUnsyncedBatches(): List<StockBatchEntity>
+    @Query("SELECT * FROM stock_batch WHERE syncState != 'SYNCED' AND groupId = :groupId")
+    suspend fun getUnsyncedBatches(groupId: String): List<StockBatchEntity>
 
-    @Query("DELETE FROM stock_batch WHERE batchId IN (:ids) AND syncState = 'DELETED'")
-    suspend fun clearTombstones(ids: List<String>)
+    @Query("DELETE FROM stock_batch WHERE batchId IN (:ids) AND syncState = 'DELETED' AND groupId = :groupId")
+    suspend fun clearTombstones(ids: List<String>, groupId: String)
 
-    @Query("UPDATE stock_batch SET syncState = 'SYNCED' WHERE batchId IN (:ids)")
-    suspend fun markAsSynced(ids: List<String>)
+    @Query("UPDATE stock_batch SET syncState = 'SYNCED' WHERE batchId IN (:ids) AND groupId = :groupId")
+    suspend fun markAsSynced(ids: List<String>, groupId: String)
 
-    @Query("UPDATE stock_batch SET syncState = :state WHERE batchId = :id")
-    suspend fun markAsDeleted(id: String, state: SyncState)
+    @Query("UPDATE stock_batch SET syncState = :state WHERE batchId = :id AND groupId = :groupId")
+    suspend fun markAsDeleted(id: String, state: SyncState, groupId: String)
 }

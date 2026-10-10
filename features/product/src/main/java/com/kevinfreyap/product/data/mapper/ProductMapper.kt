@@ -3,6 +3,7 @@ package com.kevinfreyap.product.data.mapper
 import com.kevinfreyap.database.entity.ProductEntity
 import com.kevinfreyap.database.entity.relation.ProductWithDetails
 import com.kevinfreyap.database.model.SyncState
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.data.network.dto.sync.SyncProductDto
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
@@ -10,6 +11,7 @@ import com.kevinfreyap.product.domain.model.ProductId
 fun ProductWithDetails.toDomain(): Product {
     return Product(
         productId = ProductId(this.product.productId),
+        groupId = GroupId(this.product.groupId),
         category = this.category.toDomain(),
         name = this.product.name,
         description = this.product.description,
@@ -28,6 +30,7 @@ fun ProductWithDetails.toDomain(): Product {
 fun Product.toEntity(syncState: SyncState): ProductEntity {
     return ProductEntity(
         productId = this.productId.value,
+        groupId = this.groupId.value,
         categoryId = this.category.categoryId.value,
         name = this.name,
         description = this.description,
@@ -52,6 +55,7 @@ fun SyncProductDto.toEntity(): ProductEntity {
     return ProductEntity(
         productId = this.productId,
         categoryId = this.categoryId,
+        groupId = this.groupId,
         name = this.name,
         description = this.description,
         barcode = this.barcode,
@@ -70,6 +74,7 @@ fun ProductEntity.toRequest(): SyncProductDto {
     return SyncProductDto(
         productId = this.productId,
         categoryId = this.categoryId,
+        groupId = this.groupId,
         name = this.name,
         description = this.description,
         barcode = this.barcode,

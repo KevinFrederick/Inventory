@@ -1,15 +1,20 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
 import com.kevinfreyap.product.domain.model.Product
 import com.kevinfreyap.product.domain.model.ProductId
 import com.kevinfreyap.product.domain.model.error.DatabaseError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
-import com.kevinfreyap.product.domain.manager.IImageManager
-import com.kevinfreyap.product.domain.manager.ISyncManager
+import com.kevinfreyap.domain.manager.IImageManager
+import com.kevinfreyap.domain.session.IActiveGroupSession
+import com.kevinfreyap.domain.validation.ValidateImageUseCase
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.domain.repository.IProductRepository
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import kotlin.text.startsWith
@@ -18,16 +23,18 @@ class UpdateProductUseCase @Inject constructor(
     private val repository: IProductRepository,
     private val imageManager: IImageManager,
     private val syncManager: ISyncManager,
+    private val activeGroupSession: IActiveGroupSession,
     private val validateProductName: ValidateProductNameUseCase,
     private val validateProductCategory: ValidateProductCategoryUseCase,
     private val validateProductDescription: ValidateProductDescriptionUseCase,
     private val validateProductBarcode: ValidateProductBarcodeUseCase,
     private val validateProductSku: ValidateProductSkuUseCase,
-    private val validateProductImage: ValidateProductImageUseCase,
+    private val validateProductImage: ValidateImageUseCase,
     private val validateProductMinimumQuantity: ValidateProductMinimumQuantityUseCase,
     private val createOrGetCategory: CreateOrGetCategoryUseCase,
 ) {
     suspend operator fun invoke(
+        groupId: GroupId,
         productId: ProductId,
         productName: String,
         productCategoryName: String,
@@ -39,11 +46,18 @@ class UpdateProductUseCase @Inject constructor(
         productMinQuantity: String,
         isMinQuantityConfirmed: Boolean,
     ): Result<Unit, ProductFormError> {
+        val session = activeGroupSession.currentGroupId.first()
+            ?: return Result.Error(
+                ProductFormError(sessionError = SessionError.MISSING_GROUP)
+            )
+
+        val groupId = GroupId(session)
+
         val nameResult = validateProductName(productName)
         val categoryResult = validateProductCategory(productCategoryName)
         val descriptionResult = validateProductDescription(productDescription)
-        val barcodeResult = validateProductBarcode(productBarcode)
-        val skuResult = validateProductSku(productSku)
+        val barcodeResult = validateProductBarcode(productBarcode, groupId)
+        val skuResult = validateProductSku(productSku, groupId)
         val imageResult = validateProductImage(productImageUriString)
         val minQuantityResult = validateProductMinimumQuantity(productMinQuantity, isMinQuantityConfirmed)
 
@@ -70,9 +84,9 @@ class UpdateProductUseCase @Inject constructor(
         }
 
         val validCategoryName = categoryResult.getOrNull()!!
-        val categoryDomain = createOrGetCategory(validCategoryName)
+        val categoryDomain = createOrGetCategory(validCategoryName, groupId)
 
-        val existingProduct = repository.getProductById(productId).firstOrNull()
+        val existingProduct = repository.getProductById(productId, groupId).firstOrNull()
             ?: return Result.Error(
                 ProductFormError(
                     databaseError = DatabaseError.NOT_FOUND
@@ -97,6 +111,7 @@ class UpdateProductUseCase @Inject constructor(
         repository.updateProduct(
             Product(
                 productId = productId,
+                groupId = groupId,
                 category = categoryDomain,
                 name = nameResult.getOrNull()!!,
                 description = descriptionResult.getOrNull(),
@@ -109,7 +124,8 @@ class UpdateProductUseCase @Inject constructor(
                 batches = existingProduct.batches,
                 createdAt = existingProduct.createdAt,
                 lastUpdated = System.currentTimeMillis(),
-            )
+            ),
+            groupId = groupId
         )
 
         syncManager.triggerSync()

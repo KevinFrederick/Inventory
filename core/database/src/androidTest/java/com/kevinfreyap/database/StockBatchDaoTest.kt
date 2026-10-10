@@ -41,14 +41,14 @@ class StockBatchDaoTest {
         database.populateWithData()
 
         // Initial batches
-        val initialBatches = stockBatchDao.getBatchesByLocation("loc-01").first()
+        val initialBatches = stockBatchDao.getBatchesByLocation("loc-01", "group1").first()
         assertEquals(4, initialBatches.size)
 
         // Delete the Product
-        productDao.deleteProduct("prod-01")
+        productDao.deleteProduct("prod-01", "group1")
 
         // Verify the cascade delete worked
-        val remainingBatches = stockBatchDao.getBatchesByLocation("loc-01").first()
+        val remainingBatches = stockBatchDao.getBatchesByLocation("loc-01", "group1").first()
         assertEquals(2, remainingBatches.size)
     }
 
@@ -56,7 +56,7 @@ class StockBatchDaoTest {
     fun fetchProduct_returnsProductWithAllRelatedBatchesAndLocations() = runTest {
         database.populateWithData()
 
-        val productWithDetails = requireNotNull(productDao.getProduct("prod-03").first()) {
+        val productWithDetails = requireNotNull(productDao.getProduct("prod-03", "group1").first()) {
             "Product prod-03 should exist in the database but returned null"
         }
 

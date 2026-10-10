@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.ProductId
@@ -126,15 +127,23 @@ class ProductDetailViewModel @Inject constructor(
     fun deleteProduct() {
         viewModelScope.launch {
             try {
-                deleteProductById(productId)
+                when(
+                    val result = deleteProductById(productId)
+                ) {
+                    is Result.Success -> {
+                        _uiEvent.send(
+                            UiEvent.ShowToast(R.string.success_product_deleted)
+                        )
 
-                _uiEvent.send(
-                    UiEvent.ShowToast(R.string.success_product_deleted)
-                )
+                        _uiEvent.send(
+                            UiEvent.Navigate(ProductDetailNavigation.NavigateUp)
+                        )
+                    }
+                    is Result.Error -> {
+                        _uiEvent.send(UiEvent.ShowToast(R.string.error_session_missing))
+                    }
+                }
 
-                _uiEvent.send(
-                    UiEvent.Navigate(ProductDetailNavigation.NavigateUp)
-                )
 
             } catch (_: Exception) {
                 _uiEvent.send(

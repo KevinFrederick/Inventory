@@ -1,10 +1,12 @@
 package com.kevinfreyap.auth.domain.usecase
 
+import com.kevinfreyap.auth.domain.error.AuthPasswordError
 import com.kevinfreyap.auth.domain.error.LoginError
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.util.errorOrNull
 import com.kevinfreyap.domain.util.getOrNull
+import com.kevinfreyap.domain.validation.ValidateEmailUseCase
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
@@ -17,23 +19,24 @@ class LoginUseCase @Inject constructor(
         pass: String
     ): Result<Unit, LoginError> {
         val emailResult = validateEmail(email)
-        val passResult = validatePass(pass)
+
+        val isPasswordEmpty = pass.trim().isEmpty()
 
         if (
             emailResult is Result.Error ||
-            passResult is Result.Error
+            isPasswordEmpty
         ) {
             return Result.Error(
                 LoginError(
                     emailError = emailResult.errorOrNull(),
-                    passError = passResult.errorOrNull(),
+                    passError = if (isPasswordEmpty) AuthPasswordError.EMPTY else null,
                 )
             )
         }
 
         val networkResult = authRepository.login(
             email = requireNotNull(emailResult.getOrNull()),
-            pass = requireNotNull(passResult.getOrNull())
+            pass = pass
         )
 
         return when(networkResult) {

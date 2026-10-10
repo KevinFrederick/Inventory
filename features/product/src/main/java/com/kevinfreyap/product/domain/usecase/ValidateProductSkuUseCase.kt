@@ -1,6 +1,7 @@
 package com.kevinfreyap.product.domain.usecase
 
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.domain.model.error.ProductSkuError
 import com.kevinfreyap.product.domain.repository.IProductRepository
 import javax.inject.Inject
@@ -8,7 +9,7 @@ import javax.inject.Inject
 class ValidateProductSkuUseCase @Inject constructor(
     private val repository: IProductRepository
 ) {
-    suspend operator fun invoke(rawSKU: String?): Result<String?, ProductSkuError> {
+    suspend operator fun invoke(rawSKU: String?, groupId: GroupId): Result<String?, ProductSkuError> {
         if (rawSKU.isNullOrBlank()) return Result.Success(null)
 
         val sanitizedSku = rawSKU
@@ -21,7 +22,7 @@ class ValidateProductSkuUseCase @Inject constructor(
             sanitizedSku.matches(Regex("^[A-Z0-9_\\-]+$")) -> return Result.Error(ProductSkuError.INVALID_CHARACTERS)
         }
 
-        val isDuplicate = repository.isSkuDuplicate(sanitizedSku)
+        val isDuplicate = repository.isSkuDuplicate(sanitizedSku, groupId)
         if (isDuplicate) return Result.Error(ProductSkuError.ALREADY_EXISTS)
 
         return Result.Success(sanitizedSku)

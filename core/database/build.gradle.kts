@@ -42,8 +42,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
     implementation(libs.androidx.datastore)
     implementation(libs.crypto.tink)
+
+    implementation(libs.exifinterface)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

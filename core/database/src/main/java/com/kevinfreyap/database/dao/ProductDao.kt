@@ -3,6 +3,7 @@ package com.kevinfreyap.database.dao
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
@@ -24,11 +25,11 @@ interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: ProductEntity)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE sku = :sku AND syncState != 'DELETED') ")
-    suspend fun isSkuDuplicate(sku: String): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE sku = :sku AND syncState != 'DELETED' AND groupId = :groupId) ")
+    suspend fun isSkuDuplicate(sku: String, groupId: String): Boolean
 
-    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE barcode = :barcode AND syncState != 'DELETED')")
-    suspend fun isBarcodeDuplicate(barcode: String): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM product WHERE barcode = :barcode AND syncState != 'DELETED' AND groupId = :groupId)")
+    suspend fun isBarcodeDuplicate(barcode: String, groupId: String): Boolean
 
     @Transaction
     @RawQuery(observedEntities = [
@@ -49,77 +50,78 @@ interface ProductDao {
     fun getDynamicProductCount(query: SupportSQLiteQuery): Flow<Int>
 
     @Transaction
-    @Query("SELECT * FROM product WHERE syncState != 'DELETED' ORDER BY lastUpdated DESC LIMIT :limit")
-    fun getRecentProduct(limit: Int): Flow<List<ProductWithDetails>>
+    @Query("SELECT * FROM product WHERE syncState != 'DELETED' AND groupId = :groupId ORDER BY lastUpdated DESC LIMIT :limit")
+    fun getRecentProduct(limit: Int, groupId: String): Flow<List<ProductWithDetails>>
 
     @Transaction
     @Query("""
         SELECT p.*
         FROM product as p
         LEFT JOIN stock_batch as b ON p.productId = b.productId
-        WHERE p.syncState != 'DELETED'
+        WHERE p.syncState != 'DELETED' AND p.groupId = :groupId
         GROUP BY p.productId
         HAVING COALESCE(SUM(b.quantity), 0) <= p.minimumQuantity
         ORDER BY 
             COALESCE(SUM(b.quantity), 0) ASC,
             p.createdAt DESC
     """)
-    fun getLowStockProducts(): Flow<List<ProductWithDetails>>
+    fun getLowStockProducts(groupId: String): Flow<List<ProductWithDetails>>
 
     @Transaction
-    @Query("SELECT * FROM product WHERE productId = :id AND syncState != 'DELETED'")
-    fun getProduct(id: String): Flow<ProductWithDetails?>
+    @Query("SELECT * FROM product WHERE productId = :id AND syncState != 'DELETED' AND groupId = :groupId")
+    fun getProduct(id: String, groupId: String): Flow<ProductWithDetails?>
 
     @Transaction
-    @Query("SELECT * FROM product WHERE productId = :id LIMIT 1")
-    suspend fun getProductSnapshot(id: String): ProductWithDetails?
+    @Query("SELECT * FROM product WHERE productId = :id AND groupId = :groupId LIMIT 1")
+    suspend fun getProductSnapshot(id: String, groupId: String): ProductWithDetails?
 
     @Transaction
-    @Query("SELECT * FROM product WHERE barcode = :barcode AND syncState != 'DELETED' LIMIT 1")
-    suspend fun getProductByBarcode(barcode: String): ProductWithDetails?
+    @Query("SELECT * FROM product WHERE barcode = :barcode AND syncState != 'DELETED' AND groupId = :groupId LIMIT 1")
+    suspend fun getProductByBarcode(barcode: String, groupId: String): ProductWithDetails?
 
-    @Query("SELECT COUNT(*) FROM product WHERE syncState != 'DELETED'")
-    fun getProductCount(): Flow<Int>
+    @Query("SELECT groupId, COUNT(*) as productCount FROM product WHERE groupId IN (:groupIds) AND syncState != 'DELETED' GROUP BY groupId")
+    fun getProductCount(groupIds: List<String>): Flow<Map<@MapColumn(columnName= "groupId") String, @MapColumn(columnName = "productCount") Int >>
 
     @Query("""
         SELECT * FROM product
         WHERE localImagePath IS NOT NULL
         AND remoteImageUrl IS NULL
         AND syncState != 'DELETED'
+        AND groupId = :groupId
     """)
-    suspend fun getProductWithUnsyncedImage(): List<ProductEntity>
+    suspend fun getProductWithUnsyncedImage(groupId: String): List<ProductEntity>
 
-    @Query("SELECT productId, localImagePath FROM product WHERE productId IN (:ids)")
-    suspend fun getLocalImagePaths(ids: List<String>): List<ProductImagePath>
+    @Query("SELECT productId, localImagePath FROM product WHERE productId IN (:ids) AND groupId = :groupId")
+    suspend fun getLocalImagePaths(ids: List<String>, groupId: String): List<ProductImagePath>
 
     @Update
     suspend fun updateProduct(product: ProductEntity)
 
-    @Query("UPDATE product SET remoteImageUrl = :remoteUrl WHERE productId = :productId")
-    suspend fun updateRemoteImageUrl(productId: String, remoteUrl: String)
+    @Query("UPDATE product SET remoteImageUrl = :remoteUrl WHERE productId = :productId AND groupId = :groupId")
+    suspend fun updateRemoteImageUrl(productId: String, remoteUrl: String, groupId: String)
 
-    @Query("UPDATE product SET lastUpdated = :timestamp WHERE productId = :productId")
-    suspend fun updateProductTimestamp(productId: String, timestamp: Long)
+    @Query("UPDATE product SET lastUpdated = :timestamp WHERE productId = :productId AND groupId = :groupId")
+    suspend fun updateProductTimestamp(productId: String, timestamp: Long, groupId: String)
 
-    @Query("DELETE FROM product WHERE productId = :id")
-    suspend fun deleteProduct(id: String)
+    @Query("DELETE FROM product WHERE productId = :id AND groupId = :groupId")
+    suspend fun deleteProduct(id: String, groupId: String)
 
     // Sync
     @Upsert
     suspend fun upsertAll(products: List<ProductEntity>)
 
-    @Query("DELETE FROM product WHERE productId IN (:ids)")
-    suspend fun deleteByIds(ids: List<String>)
+    @Query("DELETE FROM product WHERE productId IN (:ids) AND groupId = :groupId")
+    suspend fun deleteByIds(ids: List<String>, groupId: String)
 
-    @Query("SELECT * FROM product WHERE syncState != 'SYNCED'")
-    suspend fun getUnsyncedProducts(): List<ProductEntity>
+    @Query("SELECT * FROM product WHERE syncState != 'SYNCED' AND groupId = :groupId")
+    suspend fun getUnsyncedProducts(groupId: String): List<ProductEntity>
 
-    @Query("DELETE FROM product WHERE productId IN (:ids) AND syncState = 'DELETED'")
-    suspend fun clearTombstones(ids: List<String>)
+    @Query("DELETE FROM product WHERE productId IN (:ids) AND syncState = 'DELETED' AND groupId = :groupId")
+    suspend fun clearTombstones(ids: List<String>, groupId: String)
 
-    @Query("UPDATE product SET syncState = 'SYNCED' WHERE productId IN (:ids)")
-    suspend fun markAsSynced(ids: List<String>)
+    @Query("UPDATE product SET syncState = 'SYNCED' WHERE productId IN (:ids) AND groupId = :groupId")
+    suspend fun markAsSynced(ids: List<String>, groupId: String)
 
-    @Query("UPDATE product SET syncState = :state WHERE productId = :id")
-    suspend fun markAsDeleted(id: String, state: SyncState)
+    @Query("UPDATE product SET syncState = :state WHERE productId = :id AND groupId = :groupId")
+    suspend fun markAsDeleted(id: String, state: SyncState, groupId: String)
 }

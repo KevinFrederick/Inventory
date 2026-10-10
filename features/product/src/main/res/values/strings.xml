@@ -4,7 +4,6 @@
     <string name="title_filter_sort">Filter &amp; Sort</string>
     <string name="title_add_product">Add Product</string>
     <string name="title_edit_product">Edit Product</string>
-    <string name="title_image_picker">Select Image Source</string>
     <string name="title_product_detail">Product Detail</string>
     <string name="title_add_batch">Add Batch</string>
     <string name="title_batch_detail">Batch Detail</string>
@@ -54,9 +53,6 @@
     <string name="label_field_batch_price">Unit Cost (Optional)</string>
     <string name="label_field_batch_supplier">Supplier</string>
     <string name="label_field_batch_expiration">Expiration Date</string>
-    
-    <string name="label_image_picker_camera">Take a photo</string>
-    <string name="label_image_picker_gallery">Choose from gallery</string>
     
     <string name="label_showing_search_filter_result">Showing %1$d results</string>
     <string name="label_total_search_filter">Total: %1$d products</string>
@@ -188,10 +184,6 @@
     <string name="warning_product_not_found">No product found! create new product!</string>
 
     <!--  ERROR  -->
-    <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
-    <string name="error_product_image_path_too_long">The image file path or name is too long</string>
-    <string name="error_product_image_file_too_large">This image is too large\nMax file size is 2 MB</string>
-
     <string name="error_product_name_empty">Product name is required</string>
     <string name="error_product_name_too_long">Product name cannot exceed 255 characters</string>
     <string name="error_product_name_contains_newline">Product name must be on a single line</string>
@@ -233,4 +225,6 @@
 
     <string name="error_delete_product">Unable to delete product</string>
     <string name="error_delete_batch">Unable to delete batch</string>
+
+    <string name="error_session_missing">Please select or create an active group</string>
 </resources>

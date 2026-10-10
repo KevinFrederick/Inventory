@@ -10,8 +10,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.kevinfreyap.domain.manager.ISyncManager
 import com.kevinfreyap.product.data.worker.SyncWorker
-import com.kevinfreyap.product.domain.manager.ISyncManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -62,5 +62,11 @@ class SyncManager @Inject constructor(
             ExistingPeriodicWorkPolicy.KEEP,
             periodicSyncWork
         )
+    }
+
+    override fun cancelAllWork() {
+        workManager.cancelUniqueWork("immediate_sync")
+        workManager.cancelUniqueWork("periodic_sync")
+        workManager.cancelAllWork()
     }
 }

@@ -23,7 +23,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.auth.R
-import com.kevinfreyap.auth.domain.error.AuthEmailError
+import com.kevinfreyap.domain.error.EmailError
 import com.kevinfreyap.auth.domain.error.AuthPasswordError
 import com.kevinfreyap.auth.presentation.action.AuthAction
 import com.kevinfreyap.auth.presentation.state.ScreenAuthState
@@ -60,13 +60,14 @@ fun EmailPasswordInput(
                     onAction(AuthAction.CredentialAction.OnEmailChanged(it))
                 },
                 placeholder = stringResource(R.string.placeholder_email),
+                keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next,
                 isError = state.emailError != null,
                 errorMessage = if (state.emailError != null) {
                     when(state.emailError) {
-                        AuthEmailError.EMPTY -> stringResource(R.string.error_email_empty)
-                        AuthEmailError.TOO_LONG -> stringResource(R.string.error_email_too_long)
-                        AuthEmailError.INVALID_FORMAT -> stringResource(R.string.error_email_invalid)
+                        EmailError.EMPTY -> stringResource(R.string.error_email_empty)
+                        EmailError.TOO_LONG -> stringResource(R.string.error_email_too_long)
+                        EmailError.INVALID_FORMAT -> stringResource(R.string.error_email_invalid)
                     }
                 } else null
             )

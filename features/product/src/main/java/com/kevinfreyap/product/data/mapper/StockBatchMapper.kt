@@ -4,6 +4,7 @@ import com.kevinfreyap.database.entity.StockBatchEntity
 import com.kevinfreyap.database.entity.relation.BatchWithLocation
 import com.kevinfreyap.database.entity.relation.BatchWithProductAndLocation
 import com.kevinfreyap.database.model.SyncState
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.data.network.dto.sync.SyncStockBatchDto
 import com.kevinfreyap.product.domain.model.BatchId
 import com.kevinfreyap.product.domain.model.ProductId
@@ -15,6 +16,7 @@ fun BatchWithLocation.toDomain(): StockBatch {
     return StockBatch(
         batchId = BatchId(this.batch.batchId),
         productId = ProductId(this.batch.productId),
+        groupId = GroupId(this.batch.groupId),
         location = this.location.toDomain(),
         quantity = this.batch.quantity,
         price = this.batch.price,
@@ -30,6 +32,7 @@ fun StockBatch.toEntity(syncState: SyncState): StockBatchEntity {
         batchId = this.batchId.value,
         productId = this.productId.value,
         locationId = this.location.locationId.value,
+        groupId = this.groupId.value,
         quantity = this.quantity,
         expirationDate = this.expirationDate,
         price = this.price,
@@ -52,6 +55,7 @@ fun BatchWithProductAndLocation.toDomain(): StockBatchDetails{
         batch = StockBatch(
             batchId = BatchId(this.batch.batchId),
             productId = ProductId(this.batch.productId),
+            groupId = GroupId(this.batch.groupId),
             location = this.location.toDomain(),
             quantity = this.batch.quantity,
             price = this.batch.price,
@@ -70,6 +74,7 @@ fun SyncStockBatchDto.toEntity(): StockBatchEntity {
         batchId = this.batchId,
         productId = this.productId,
         locationId = this.locationId,
+        groupId = this.groupId,
         quantity = this.quantity,
         expirationDate = this.expirationDate,
         price = this.price,
@@ -85,6 +90,7 @@ fun StockBatchEntity.toRequest(): SyncStockBatchDto {
         batchId = this.batchId,
         productId = this.productId,
         locationId = this.locationId,
+        groupId = this.groupId,
         quantity = this.quantity,
         price = this.price,
         expirationDate = this.expirationDate,

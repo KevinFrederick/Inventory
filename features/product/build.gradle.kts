@@ -64,8 +64,6 @@ dependencies {
     implementation(libs.work.runtime)
     ksp(libs.androidx.hilt.compiler)
 
-    implementation(libs.exifinterface)
-
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)

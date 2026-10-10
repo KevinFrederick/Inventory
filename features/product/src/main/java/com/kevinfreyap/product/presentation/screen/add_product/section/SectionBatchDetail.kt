@@ -22,7 +22,7 @@ import com.kevinfreyap.product.domain.model.error.BatchPriceError
 import com.kevinfreyap.product.domain.model.error.BatchQuantityError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.presentation.action.ProductFormAction
-import com.kevinfreyap.product.presentation.components.CurrencyTextField
+import com.kevinfreyap.ui.components.AppSymbolTextField
 import com.kevinfreyap.product.presentation.components.FieldListHeader
 import com.kevinfreyap.product.presentation.components.QuantitySelector
 import com.kevinfreyap.product.presentation.state.BatchFormDetailState
@@ -132,11 +132,11 @@ fun SectionBatchDetail(
                     } else null,
                 )
 
-                CurrencyTextField(
-                    price = batchFormDetailState.batchPrice,
+                AppSymbolTextField(
+                    value = batchFormDetailState.batchPrice,
                     placeholder = stringResource(R.string.label_field_batch_price),
-                    currencySymbol = stringResource(R.string.currency_idr_rp),
-                    onPriceChange = { newPrice ->
+                    symbol = stringResource(R.string.currency_idr_rp),
+                    onValueChange = { newPrice ->
                         val onlyDigit = newPrice.filter { it.isDigit() }
                         onAction(ProductFormAction.BatchDetailAction.OnBatchPriceChanged(onlyDigit))
                     },

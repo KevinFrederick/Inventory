@@ -2,6 +2,7 @@ package com.kevinfreyap.product.data.mapper
 
 import com.kevinfreyap.database.entity.CategoryEntity
 import com.kevinfreyap.database.model.SyncState
+import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.data.network.dto.request.CategoryRequest
 import com.kevinfreyap.product.data.network.dto.response.CategoryResponse
 import com.kevinfreyap.product.domain.model.Category
@@ -10,6 +11,7 @@ import com.kevinfreyap.product.domain.model.CategoryId
 fun CategoryEntity.toDomain(): Category {
     return Category(
         categoryId = CategoryId(this.categoryId),
+        groupId = GroupId(this.groupId),
         name = this.name,
         description = this.description,
         createdAt = this.createdAt,
@@ -26,6 +28,7 @@ fun List<CategoryEntity>.toDomain(): List<Category> {
 fun Category.toEntity(syncState: SyncState): CategoryEntity {
     return CategoryEntity(
         categoryId = this.categoryId.value,
+        groupId = this.groupId.value,
         name = this.name,
         description = this.description,
         createdAt = this.createdAt,
@@ -38,6 +41,7 @@ fun Category.toEntity(syncState: SyncState): CategoryEntity {
 fun CategoryResponse.toEntity(): CategoryEntity {
     return CategoryEntity(
         categoryId = this.categoryId,
+        groupId = this.groupId,
         name = this.name,
         description = this.description,
         createdAt = this.createdAt,

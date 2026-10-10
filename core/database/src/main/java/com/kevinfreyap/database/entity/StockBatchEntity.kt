@@ -20,11 +20,18 @@ import com.kevinfreyap.database.model.SyncState
             parentColumns = ["locationId"],
             childColumns = ["locationId"],
             onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey(
+            entity = GroupEntity::class,
+            parentColumns = ["groupId"],
+            childColumns = ["groupId"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = ["productId"]),
-        Index(value = ["locationId"])
+        Index(value = ["groupId","batchId"], unique = true),
+        Index(value = ["groupId", "productId"]),
+        Index(value = ["groupId", "locationId"]),
     ]
 )
 data class StockBatchEntity(
@@ -32,6 +39,7 @@ data class StockBatchEntity(
     val batchId: String,
     val productId: String,
     val locationId: String,
+    val groupId: String,
     val quantity: Int,
     val expirationDate: Long?,
     val price: Double,

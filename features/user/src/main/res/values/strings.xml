@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TITLE  -->
+    <string name="title_edit_profile">Edit Profile</string>
+    <string name="title_account_profile">Account Profile</string>
+
+    <!--  LABELS  -->
+    <string name="label_inventory_groups">Inventory Groups</string>
+
+    <string name="label_profile_detail">Profile Detail</string>
+    <string name="label_phone_number">Phone Number</string>
+    <string name="label_job_title">Job Title</string>
+    <string name="label_upload_profile_pic">Upload Profile \n(optional)</string>
+
+    <string name="label_field_name">Name</string>
+    <string name="label_field_email">Email</string>
+    <string name="label_field_phone_number">Phone Number (optional)</string>
+    <string name="label_field_job_title">Job Title (optional)</string>
+
+    <string name="label_phone_code">+62</string>
+
+    <string name="btn_label_edit_profile">Edit Profile</string>
+    <string name="btn_label_add_group">Add Inventory Group</string>
+    <string name="btn_label_update_profile">Update Profile</string>
+    <string name="btn_label_confirm">Confirm</string>
+    <string name="btn_label_cancel">Cancel</string>
+    <string name="btn_label_discard">Discard</string>
+    <string name="btn_label_keep_edit">Keep Editing</string>
+    <string name="btn_label_logout">Log out</string>
+
+    <string name="dialog_label_title_remove_image">Remove Image?</string>
+    <string name="dialog_label_title_discard_changes">Discard Changes?</string>
+    <string name="dialog_label_title_logout">Log Out?</string>
+
+    <string name="dialog_label_subtitle_remove_image">Are you sure to remove this profile picture?</string>
+    <string name="dialog_label_subtitle_discard_changes">You have unsaved changes. If you go back now, all your progress will be lost.</string>
+    <string name="dialog_label_subtitle_logout">Are you sure you want to log out?</string>
+
+    <string name="text_btn_manage">Manage</string>
+
+    <string name="format_label_group_list">%1$d products · %2$d member</string>
+
+    <!--  Default Value  -->
+    <string name="default_phone_number">Phone number not set</string>
+    <string name="default_job_title">Job title not set</string>
+
+    <!--  ERRORS  -->
+    <string name="error_user_name_empty">User name is required</string>
+    <string name="error_user_name_too_long">User name cannot exceed 255 characters</string>
+    <string name="error_user_name_contains_newline">User name must be on a single line</string>
+
+    <string name="error_user_phone_too_long">Phone number cannot exceed 32 characters</string>
+    <string name="error_user_phone_invalid">Enter valid digit number</string>
+
+    <string name="error_user_job_title_too_long">Job title cannot exceed 128 characters</string>
+    <string name="error_user_job_title_contains_newline">Job title must be on a single line</string>
+
+    <string name="error_no_internet">Check your internet connection and try again.</string>
+    <string name="error_missing_file">Profile picture file not found or corrupted.</string>
+    <string name="error_unknown">Something went wrong. Please try again.</string>
+
+    <!--  SUCCESS  -->
+    <string name="success_profile_update">Profile updated successfully!</string>
+    <string name="success_logout">Successfully signed out</string>
+</resources>

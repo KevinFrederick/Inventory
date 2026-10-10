@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.kevinfreyap.database.dao.ProductDao
 import com.kevinfreyap.database.query.ProductDbFilter
 import com.kevinfreyap.database.query.ProductQueryBuilder
+import com.kevinfreyap.domain.model.GroupId
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -42,7 +43,7 @@ class ProductDaoTest {
         val filter = ProductDbFilter(
             categoryList = listOf("electronic", "food")
         )
-        val query = queryBuilder.build(filter)
+        val query = queryBuilder.build("group1", filter)
 
         val pagingSource = productDao.getAllProduct(query)
         val loadResult = pagingSource.load(
@@ -61,16 +62,16 @@ class ProductDaoTest {
     fun countProduct_returnCorrectCount() = runTest {
         database.populateWithData()
 
-        val result = productDao.getProductCount()
+        val result = productDao.getProductCount(listOf("group1"))
 
-        assertEquals(3, result.first())
+        assertEquals(mapOf(Pair("group1", 3)), result.first())
     }
 
     @Test
     fun countLowStockProduct_returnCorrectCount() = runTest {
         database.populateWithData()
 
-        val result = productDao.getLowStockProducts()
+        val result = productDao.getLowStockProducts("group1")
 
         assertEquals(1, result.first().size)
     }

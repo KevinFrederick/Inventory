@@ -36,10 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import coil3.request.error
 import com.kevinfreyap.ui.R
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -50,7 +49,9 @@ fun AppBaseListItem(
     itemName: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconBackground: Color = Theme.custom.shimmer,
     imageUri: String? = null,
+    icon: @Composable (() -> Unit)? = null,
     subtitle: @Composable (() -> Unit)? = null,
     trailingData: @Composable (() -> Unit)? = null
 ) {
@@ -76,20 +77,33 @@ fun AppBaseListItem(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(Theme.custom.shimmer)
+                    .background(iconBackground)
             ) {
                 if (!imageUri.isNullOrBlank()){
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(imageUri)
                             .crossfade(true)
-                            .error(R.drawable.image_24)
                             .build(),
-                        contentDescription = "Product Image",
+                        contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        error = {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.image_24),
+                                    contentDescription = "Error Profile Picture",
+                                    tint =  Theme.custom.hint,
+                                    modifier = Modifier.size(64.dp)
+                                )
+                            }
+                        }
                     )
+                } else if (icon != null) {
+                    icon()
                 } else {
                     Icon(
                         painter = painterResource(R.drawable.image_24),

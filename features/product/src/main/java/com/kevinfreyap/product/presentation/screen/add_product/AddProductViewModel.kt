@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.SessionError
 import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.model.error.BatchPriceError
@@ -43,7 +44,7 @@ class AddProductViewModel @Inject constructor(
     private val getAllLocations: GetAllLocationUseCase,
     private val validateCategory: ValidateProductCategoryUseCase,
     private val validateLocation: ValidateBatchLocationUseCase,
-    private val insertNewProduct: InsertNewProductUseCase
+    private val insertNewProduct: InsertNewProductUseCase,
 ): ViewModel() {
     private val route = savedStateHandle.toRoute<ProductScreen.AddProduct>()
     private val initialBarcode = if (!route.barcodeValue.isNullOrBlank() && route.barcodeFormat != null) {
@@ -311,6 +312,14 @@ class AddProductViewModel @Inject constructor(
                                 null
                             } else errors.priceError
                         )
+
+                        if (errors.sessionError != null) {
+                            when(errors.sessionError) {
+                                SessionError.MISSING_GROUP -> {
+                                    _uiEvent.send(UiEvent.ShowToast(R.string.error_session_missing))
+                                }
+                            }
+                        }
 
                         _formState.update {
                             it.copy(

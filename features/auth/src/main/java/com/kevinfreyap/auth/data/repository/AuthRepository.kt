@@ -1,13 +1,19 @@
 package com.kevinfreyap.auth.data.repository
 
-import api.dto.request.LoginRequest
-import api.dto.request.LogoutRequest
-import api.dto.request.RegisterRequest
+import com.kevinfreyap.auth.data.mapper.toEntity
+import com.kevinfreyap.auth.data.network.dto.request.LoginRequest
+import com.kevinfreyap.auth.data.network.dto.request.LogoutRequest
+import com.kevinfreyap.auth.data.network.dto.request.RegisterRequest
 import com.kevinfreyap.auth.data.network.service.AuthApiService
-import com.kevinfreyap.auth.domain.repository.IAuthRepository
+import com.kevinfreyap.domain.repository.IAuthRepository
+import com.kevinfreyap.database.dao.GroupDao
+import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
-import com.kevinfreyap.network.error.NetworkError
+import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.manager.ISyncManager
+import com.kevinfreyap.domain.model.GroupId
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import kotlinx.io.IOException
@@ -15,7 +21,11 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val api: AuthApiService,
-    private val tokenManager: IAuthTokenManager
+    private val userDao: UserDao,
+    private val groupDao: GroupDao,
+    private val tokenManager: IAuthTokenManager,
+    private val activeGroupSession: IActiveGroupSession,
+    private val syncManager: ISyncManager
 ): IAuthRepository {
     override suspend fun register(
         name: String,
@@ -38,7 +48,10 @@ class AuthRepository @Inject constructor(
                 refreshToken = response.refreshToken
             )
 
-            // Save User
+            activeGroupSession.setActiveGroup(response.groups[0].group.groupId)
+
+            userDao.insertOrUpdate(response.user.toEntity())
+            groupDao.insertOrUpdateGroups(response.groups.map { it.toEntity() })
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -70,7 +83,7 @@ class AuthRepository @Inject constructor(
                 refreshToken = response.refreshToken
             )
 
-            // Save User
+            userDao.insertOrUpdate(response.user.toEntity())
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -89,15 +102,17 @@ class AuthRepository @Inject constructor(
         return try {
             val refreshToken = tokenManager.fetchRefreshToken() ?: return Result.Success(Unit)
 
-            api.logout(
-                LogoutRequest(
-                    refreshToken = refreshToken
-                )
-            )
-
-            // Clear User
-
             tokenManager.clearToken()
+            activeGroupSession.clear()
+
+            syncManager.cancelAllWork()
+
+            try {
+                api.logout(LogoutRequest(refreshToken = refreshToken))
+            } catch (_: Exception) { }
+
+            userDao.clearUser()
+            groupDao.clearGroups()
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -113,6 +128,6 @@ class AuthRepository @Inject constructor(
     }
 
     override suspend fun isUserLoggedIn(): Boolean {
-        return tokenManager.fetchRefreshToken() != null
+        return tokenManager.awaitRefreshToken() != null
     }
 }
