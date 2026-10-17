@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.data.repository
 
+import android.util.Log
 import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
@@ -8,6 +9,7 @@ import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
 import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.manager.IAuthTokenManager
+import com.kevinfreyap.domain.repository.IUserGroupRepository
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.mapper.toRequest
@@ -31,7 +33,7 @@ class GroupRepository @Inject constructor(
     private val userDao: UserDao,
     private val api: GroupApiService,
     private val tokenManager: IAuthTokenManager
-): IGroupRepository {
+): IGroupRepository, IUserGroupRepository {
     override fun getGroupById(groupId: GroupId): Flow<Group?> {
         return groupDao.observeGroup(groupId.value).map { it?.toDomain() }
     }
@@ -208,6 +210,8 @@ class GroupRepository @Inject constructor(
         try {
             val response = api.getGroupMembers(groupId)
             groupDao.replaceGroupMembers(groupId.value, response.map { it.toEntity(groupId) })
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.e("GroupRepository", "Failed to fetch members: ${e.message}", e)
+        }
     }
 }

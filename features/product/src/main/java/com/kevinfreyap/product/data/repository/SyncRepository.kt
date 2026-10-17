@@ -13,6 +13,7 @@ import com.kevinfreyap.product.data.network.source.SyncRemoteDataSource
 import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.product.domain.repository.ISyncRepository
+import kotlinx.coroutines.flow.onStart
 import java.io.File
 import javax.inject.Inject
 
@@ -40,9 +41,13 @@ class SyncRepository @Inject constructor(
     }
 
     override suspend fun observeRealTimeUpdates(groupId: GroupId) {
-        remoteDataSource.observeSyncPings(groupId.value).collect {
-            sync(groupId)
-        }
+        remoteDataSource.observeSyncPings(groupId.value)
+            .onStart {
+                sync(groupId)
+            }
+            .collect {
+                sync(groupId)
+            }
     }
 
     private suspend fun pushLocalChanges(groupId: GroupId): Result<Unit, NetworkError> {
@@ -117,7 +122,7 @@ class SyncRepository @Inject constructor(
     }
 
     private suspend fun pullRemoteChanges(groupId: GroupId): Result<Unit, NetworkError> {
-        val lastSync = preference.getLastSyncTimestamp()
+        val lastSync = preference.getLastSyncTimestamp(groupId.value)
 
         return when(
             val response = remoteDataSource.pullSync(
@@ -152,7 +157,7 @@ class SyncRepository @Inject constructor(
                     db.batchDao().upsertAll(data.batches.map { it.toEntity() })
                 }
 
-                preference.saveLastSyncTimestamp(data.serverTimeStamp)
+                preference.saveLastSyncTimestamp(groupId.value, data.serverTimeStamp)
                 Result.Success(Unit)
             }
             is Result.Error -> response

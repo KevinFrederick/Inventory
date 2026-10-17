@@ -28,9 +28,11 @@ import com.kevinfreyap.scanner.navigation.ScannerNavigation
 import com.kevinfreyap.scanner.navigation.ScannerScreens
 import com.kevinfreyap.scanner.ui.ScannerScreen
 import com.kevinfreyap.user.presentation.navigation.EditProfileNavigation
+import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
 import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.screen.edit_profile.EditProfileScreen
+import com.kevinfreyap.user.presentation.screen.group_detail.GroupDetailScreen
 import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
 
 fun NavGraphBuilder.mainGraph(
@@ -269,7 +271,11 @@ fun NavGraphBuilder.mainGraph(
                                 UserScreens.EditProfileScreen
                             )
                         }
-                        is ProfileNavigation.GroupDetail -> {}
+                        is ProfileNavigation.GroupDetail -> {
+                            navController.navigate(
+                                UserScreens.GroupDetailScreen(destination.groupId)
+                            )
+                        }
                         ProfileNavigation.ManageGroups -> {}
                     }
                 },
@@ -281,6 +287,18 @@ fun NavGraphBuilder.mainGraph(
                 onNavigate = {destination ->
                     when(destination) {
                         EditProfileNavigation.NavigateUp -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
+            )
+        }
+
+        composable<UserScreens.GroupDetailScreen> {
+            GroupDetailScreen(
+                onNavigate = {destination ->
+                    when(destination) {
+                        GroupDetailNavigation.NavigateUp -> {
                             navController.navigateUp()
                         }
                     }

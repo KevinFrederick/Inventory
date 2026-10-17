@@ -2,38 +2,38 @@ package com.kevinfreyap.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kevinfreyap.auth.domain.usecase.CheckUserLoggedInUseCase
+import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.product.domain.usecase.ObserveRealTimeUpdateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val observerRealTimeUpdate: ObserveRealTimeUpdateUseCase,
-    private val checkUserLoggedIn: CheckUserLoggedInUseCase
+    tokenManager: IAuthTokenManager,
+    private val observerRealTimeUpdate: ObserveRealTimeUpdateUseCase
 ): ViewModel() {
 
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = tokenManager.tokenState
+        .map { false }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn = _isLoggedIn.asStateFlow()
-
-    init {
-        verifySession()
-    }
+    val isLoggedIn: StateFlow<Boolean> = tokenManager.tokenState
+        .map { token -> !token.isNullOrBlank() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = tokenManager.fetchAccessToken() != null
+        )
 
     suspend fun startListeningForSync() {
         observerRealTimeUpdate()
-    }
-
-    private fun verifySession() {
-        viewModelScope.launch {
-            _isLoggedIn.value = checkUserLoggedIn()
-            _isLoading.value = false
-        }
     }
 }

@@ -2,9 +2,7 @@ package com.kevinfreyap.database.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.MapColumn
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Transaction
@@ -22,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertProduct(product: ProductEntity)
 
     @Query("SELECT EXISTS(SELECT 1 FROM product WHERE sku = :sku AND syncState != 'DELETED' AND groupId = :groupId) ")

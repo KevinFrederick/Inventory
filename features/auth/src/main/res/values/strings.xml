@@ -34,7 +34,6 @@
     <string name="text_btn_sign_in">Sign In</string>
 
     <!--  PLACEHOLDER  -->
-    <string name="placeholder_email">User@example.com</string>
     <string name="placeholder_password">Password (Min. 8 characters)</string>
     <string name="placeholder_name">Name</string>
     <string name="placeholder_confirm_password">Confirm Password</string>

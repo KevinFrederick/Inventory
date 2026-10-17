@@ -4,7 +4,6 @@ import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.user.domain.model.GroupMember
 import com.kevinfreyap.user.domain.repository.IGroupRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class ObserveGroupMembersUseCase @Inject constructor(
@@ -12,8 +11,5 @@ class ObserveGroupMembersUseCase @Inject constructor(
 ) {
     operator fun invoke(groupId: GroupId): Flow<List<GroupMember>> {
         return groupRepository.getMembersInGroup(groupId)
-            .onStart {
-                groupRepository.refreshGroupMembers(groupId)
-            }
     }
 }

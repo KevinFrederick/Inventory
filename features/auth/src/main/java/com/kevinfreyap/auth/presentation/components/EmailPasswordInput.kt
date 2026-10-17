@@ -59,7 +59,7 @@ fun EmailPasswordInput(
                 onValueChange = {
                     onAction(AuthAction.CredentialAction.OnEmailChanged(it))
                 },
-                placeholder = stringResource(R.string.placeholder_email),
+                placeholder = stringResource(coreR.string.placeholder_email),
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next,
                 isError = state.emailError != null,

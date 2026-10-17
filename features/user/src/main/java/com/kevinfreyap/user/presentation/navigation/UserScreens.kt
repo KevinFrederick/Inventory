@@ -8,4 +8,7 @@ sealed interface UserScreens {
 
     @Serializable
     data object  EditProfileScreen: UserScreens
+
+    @Serializable
+    data class GroupDetailScreen(val groupId: String): UserScreens
 }

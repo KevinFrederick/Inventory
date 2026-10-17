@@ -276,18 +276,21 @@ fun ProfileScreenPreview() {
                     totalGroups = 5,
                     groups = listOf(
                         GroupListItemState(
+                            isActive = true,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,
                             totalMember = 5
                         ),
                         GroupListItemState(
+                            isActive = false,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,
                             totalMember = 5
                         ),
                         GroupListItemState(
+                            isActive = false,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,

@@ -5,6 +5,7 @@ import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.product.domain.repository.ISyncRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -17,6 +18,7 @@ class ObserveRealTimeUpdateUseCase @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke() {
         activeGroupSession.currentGroupId
+            .distinctUntilChanged()
             .flatMapLatest { session ->
                 if (session.isNullOrBlank()) {
                     emptyFlow()

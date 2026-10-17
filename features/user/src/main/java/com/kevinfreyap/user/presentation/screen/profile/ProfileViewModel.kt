@@ -4,13 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.user.R
 import com.kevinfreyap.user.domain.usecase.auth.LogoutUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupProfileSummaryUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupWithStatsUseCase
+import com.kevinfreyap.user.domain.usecase.group.RefreshGroupMembersUseCase
+import com.kevinfreyap.user.domain.usecase.group.RefreshGroupsUseCase
 import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
+import com.kevinfreyap.user.domain.usecase.user.RefreshUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toGroupItem
 import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.state.ProfileScreenState
@@ -22,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -33,22 +38,39 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     observeUser: ObserveUserUseCase,
-    observeGroupProfileSummary: ObserveGroupProfileSummaryUseCase,
+    activeGroupSession: IActiveGroupSession,
     private val logoutUser: LogoutUseCase,
-    private val observeGroupWithStats: ObserveGroupWithStatsUseCase
+    private val observeGroupProfileSummary: ObserveGroupProfileSummaryUseCase,
+    private val observeGroupWithStats: ObserveGroupWithStatsUseCase,
+    private val refreshUser: RefreshUserUseCase,
+    private val refreshGroups: RefreshGroupsUseCase,
+    private val refreshGroupMembers: RefreshGroupMembersUseCase,
 ): ViewModel(){
 
     private val _uiEvent = Channel<UiEvent<ProfileNavigation>>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<UiState<ProfileScreenState>> = combine(
+    private val profileAndStatsFlow = combine(
         flow = observeUser().distinctUntilChanged(),
-        flow2 = observeGroupProfileSummary().distinctUntilChanged(),
-    ) { user, groupSummary ->
+        flow2 = observeGroupProfileSummary().distinctUntilChanged()
+    ) {user, groupSummary ->
         Pair(user, groupSummary)
     }.flatMapLatest { (user, groupSummary) ->
-        if (user == null) return@flatMapLatest flowOf(UiState.Empty)
+        if (user == null) return@flatMapLatest flowOf(null)
+
+        observeGroupWithStats(groupSummary.previewGroups).map { stats ->
+            Triple(user, groupSummary.totalCount, stats)
+        }
+    }
+
+    val uiState: StateFlow<UiState<ProfileScreenState>> = combine(
+        flow = profileAndStatsFlow,
+        flow2 = activeGroupSession.currentGroupId,
+    ) { profileData, activeId ->
+        if (profileData == null) return@combine UiState.Empty
+
+        val (user, totalGroups, stats) = profileData
 
         val userDetail = UserDetailState(
             name = user.name,
@@ -58,21 +80,38 @@ class ProfileViewModel @Inject constructor(
             jobTitle = user.jobTitle
         )
 
-        observeGroupWithStats(groupSummary.previewGroups).map { stats ->
-            UiState.Success(
-                ProfileScreenState(
-                    userDetail = userDetail,
-                    totalGroups = groupSummary.totalCount,
-                    groups = stats.map { it.toGroupItem() }
-                )
+        UiState.Success(
+            ProfileScreenState(
+                userDetail = userDetail,
+                totalGroups = totalGroups,
+                groups = stats.map { it.toGroupItem(activeId) }
             )
-        }
+        )
     }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UiState.Loading
         )
+
+    init {
+        triggerBackgroundSync()
+    }
+
+    private fun triggerBackgroundSync()  {
+        viewModelScope.launch {
+            launch { refreshUser() }
+            launch {
+                refreshGroups()
+
+                val currentGroups = observeGroupProfileSummary().first()
+
+                currentGroups.previewGroups.forEach { group ->
+                    launch { refreshGroupMembers(group.groupId) }
+                }
+            }
+        }
+    }
 
     fun logout() {
         viewModelScope.launch {

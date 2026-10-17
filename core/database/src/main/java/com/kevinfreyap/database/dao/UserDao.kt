@@ -1,9 +1,8 @@
 package com.kevinfreyap.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.kevinfreyap.database.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +12,7 @@ interface UserDao {
     @Query("SELECT userId FROM user LIMIT 1")
     suspend fun getLoggedInUserId(): String?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertOrUpdate(user: UserEntity)
 
     @Query("SELECT * FROM user LIMIT 1")

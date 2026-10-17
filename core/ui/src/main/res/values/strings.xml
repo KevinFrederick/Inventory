@@ -13,6 +13,9 @@
     <string name="label_image_picker_camera">Take a photo</string>
     <string name="label_image_picker_gallery">Choose from gallery</string>
 
+    <!--  PLACEHOLDER  -->
+    <string name="placeholder_email">User@example.com</string>
+
     <!--  BUTTON  -->
     <string name="btn_label_cancel">Cancel</string>
     <string name="btn_label_confirm">Confirm</string>

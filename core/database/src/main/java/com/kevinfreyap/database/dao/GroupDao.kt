@@ -1,11 +1,10 @@
 package com.kevinfreyap.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.MapColumn
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.kevinfreyap.database.entity.GroupEntity
 import com.kevinfreyap.database.entity.GroupMemberEntity
 import kotlinx.coroutines.flow.Flow
@@ -13,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GroupDao {
     // Group management
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertOrUpdateGroups(groups: List<GroupEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertOrUpdateGroupMembers(members: List<GroupMemberEntity>)
 
     @Query("SELECT COUNT(*) FROM `groups`")
@@ -46,18 +45,28 @@ interface GroupDao {
     @Query("DELETE FROM `groups`")
     suspend fun clearGroups()
 
+    @Query("DELETE FROM `groups` WHERE groupId NOT IN (:activeGroupIds)")
+    suspend fun deleteGroupsNotInList(activeGroupIds: List<String>)
+
     @Transaction
     suspend fun replaceAllGroups(newGroups: List<GroupEntity>) {
-        clearGroups()
         insertOrUpdateGroups(newGroups)
+
+        val incomingGroupIds = newGroups.map { it.groupId }
+        deleteGroupsNotInList(incomingGroupIds)
     }
+
+    @Query("DELETE FROM group_members WHERE groupId = :groupId AND userId NOT IN (:activeUserIds)")
+    suspend fun deleteMembersNotInList(groupId: String, activeUserIds: List<String>)
 
     @Query("DELETE FROM group_members WHERE groupId = :groupId")
     suspend fun clearGroupMembers(groupId: String)
 
     @Transaction
     suspend fun replaceGroupMembers(groupId: String, newMembers: List<GroupMemberEntity>) {
-        clearGroupMembers(groupId)
         insertOrUpdateGroupMembers(newMembers)
+
+        val incomingMemberIds = newMembers.map { it.userId }
+        deleteMembersNotInList(groupId, incomingMemberIds)
     }
 }

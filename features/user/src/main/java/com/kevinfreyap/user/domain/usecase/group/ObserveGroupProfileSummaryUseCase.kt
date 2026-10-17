@@ -4,7 +4,6 @@ import com.kevinfreyap.user.domain.model.GroupProfileSummary
 import com.kevinfreyap.user.domain.repository.IGroupRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class ObserveGroupProfileSummaryUseCase @Inject constructor(
@@ -19,8 +18,6 @@ class ObserveGroupProfileSummaryUseCase @Inject constructor(
                 totalCount = totalCount,
                 previewGroups = groups
             )
-        }.onStart {
-            groupRepository.refreshGroups()
         }
     }
 }

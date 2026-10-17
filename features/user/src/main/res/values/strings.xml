@@ -3,14 +3,30 @@
     <!-- TITLE  -->
     <string name="title_edit_profile">Edit Profile</string>
     <string name="title_account_profile">Account Profile</string>
+    <string name="title_invite_member">Invite Member</string>
+
+    <string name="subtitle_invite_member">Give your team the right access to this group</string>
 
     <!--  LABELS  -->
     <string name="label_inventory_groups">Inventory Groups</string>
-
     <string name="label_profile_detail">Profile Detail</string>
     <string name="label_phone_number">Phone Number</string>
     <string name="label_job_title">Job Title</string>
     <string name="label_upload_profile_pic">Upload Profile \n(optional)</string>
+    <string name="label_products_in_inventory">Products in inventory</string>
+    <string name="label_group_member">Group member</string>
+    <string name="label_group_information">Group Information</string>
+    <string name="label_group_address">Address</string>
+    <string name="label_group_owner">Group Owner</string>
+    <string name="label_group_created">Created</string>
+    <string name="label_group_members">Members</string>
+    <string name="label_active">Active</string>
+
+    <string name="label_title_has_access">You have administrator access</string>
+    <string name="label_title_no_access">You don\'t have administrator access</string>
+
+    <string name="label_subtitle_has_access">Manage items, edit group details and invite or remove members.</string>
+    <string name="label_subtitle_no_access">Only administrators can edit group details, invite new members, or change settings.</string>
 
     <string name="label_field_name">Name</string>
     <string name="label_field_email">Email</string>
@@ -27,6 +43,12 @@
     <string name="btn_label_discard">Discard</string>
     <string name="btn_label_keep_edit">Keep Editing</string>
     <string name="btn_label_logout">Log out</string>
+    <string name="btn_label_edit_group">Edit Group</string>
+    <string name="btn_label_browse_inventory">Browse Inventory</string>
+    <string name="btn_label_set_active">Set as Active and view all products</string>
+    <string name="btn_label_view_products">View all products</string>
+    <string name="btn_label_invite_member">Invite Member</string>
+    <string name="btn_label_send_invitation">Send Invitation</string>
 
     <string name="dialog_label_title_remove_image">Remove Image?</string>
     <string name="dialog_label_title_discard_changes">Discard Changes?</string>
@@ -37,12 +59,14 @@
     <string name="dialog_label_subtitle_logout">Are you sure you want to log out?</string>
 
     <string name="text_btn_manage">Manage</string>
+    <string name="text_btn_view_all_member">View all member</string>
 
     <string name="format_label_group_list">%1$d products · %2$d member</string>
 
     <!--  Default Value  -->
     <string name="default_phone_number">Phone number not set</string>
     <string name="default_job_title">Job title not set</string>
+    <string name="default_group_address">Address not set</string>
 
     <!--  ERRORS  -->
     <string name="error_user_name_empty">User name is required</string>

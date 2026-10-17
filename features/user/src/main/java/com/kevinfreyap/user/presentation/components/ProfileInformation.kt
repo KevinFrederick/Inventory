@@ -34,7 +34,7 @@ fun ProfileInformation(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(25),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = Theme.custom.hint
@@ -115,7 +115,7 @@ fun ProfileInformationPlaceholder(
     shimmerColor: Color = Theme.custom.shimmer
 ) {
     Card(
-        shape = RoundedCornerShape(25),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = Theme.custom.hint

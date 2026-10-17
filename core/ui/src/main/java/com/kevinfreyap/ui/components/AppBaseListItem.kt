@@ -97,7 +97,7 @@ fun AppBaseListItem(
                                     painter = painterResource(id = R.drawable.image_24),
                                     contentDescription = "Error Profile Picture",
                                     tint =  Theme.custom.hint,
-                                    modifier = Modifier.size(64.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }

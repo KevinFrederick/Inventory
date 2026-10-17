@@ -5,6 +5,7 @@ import com.kevinfreyap.auth.data.network.dto.request.LoginRequest
 import com.kevinfreyap.auth.data.network.dto.request.LogoutRequest
 import com.kevinfreyap.auth.data.network.dto.request.RegisterRequest
 import com.kevinfreyap.auth.data.network.service.AuthApiService
+import com.kevinfreyap.database.AppDatabase
 import com.kevinfreyap.domain.repository.IAuthRepository
 import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.UserDao
@@ -12,7 +13,7 @@ import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.manager.ISyncManager
-import com.kevinfreyap.domain.model.GroupId
+import com.kevinfreyap.domain.preferences.ISyncPreferences
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
@@ -23,9 +24,11 @@ class AuthRepository @Inject constructor(
     private val api: AuthApiService,
     private val userDao: UserDao,
     private val groupDao: GroupDao,
+    private val database: AppDatabase,
     private val tokenManager: IAuthTokenManager,
     private val activeGroupSession: IActiveGroupSession,
-    private val syncManager: ISyncManager
+    private val syncManager: ISyncManager,
+    private val syncPreferences: ISyncPreferences
 ): IAuthRepository {
     override suspend fun register(
         name: String,
@@ -85,6 +88,11 @@ class AuthRepository @Inject constructor(
 
             userDao.insertOrUpdate(response.user.toEntity())
 
+            if (response.groups.isNotEmpty()) {
+                activeGroupSession.setActiveGroup(response.groups[0].group.groupId)
+                groupDao.insertOrUpdateGroups(response.groups.map { it.toEntity() })
+            }
+
             Result.Success(Unit)
         } catch (e: ResponseException) {
             val serverMessage = e.response.bodyAsText()
@@ -105,6 +113,8 @@ class AuthRepository @Inject constructor(
             tokenManager.clearToken()
             activeGroupSession.clear()
 
+            syncPreferences.clearAll()
+
             syncManager.cancelAllWork()
 
             try {
@@ -113,6 +123,8 @@ class AuthRepository @Inject constructor(
 
             userDao.clearUser()
             groupDao.clearGroups()
+
+            database.clearAllTables()
 
             Result.Success(Unit)
         } catch (e: ResponseException) {

@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 interface IGroupRepository {
     fun getGroupById(groupId: GroupId): Flow<Group?>
     fun getTotalGroupCount(): Flow<Int>
-    fun getGroupsForUser(): Flow<List<Group>>
     fun getPreviewGroups(): Flow<List<Group>>
     fun getMemberCount(groupIds: List<GroupId>): Flow<Map<String, Int>>
     fun getMembersInGroup(groupId: GroupId): Flow<List<GroupMember>>
