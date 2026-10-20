@@ -33,7 +33,10 @@ interface GroupDao {
     @Query("SELECT groupId, COUNT(*) as memberCount FROM group_members WHERE groupId IN (:groupIds) GROUP BY groupId")
     fun observeMemberCount(groupIds: List<String>): Flow<Map<@MapColumn(columnName="groupId") String, @MapColumn(columnName = "memberCount") Int>>
 
-    @Query("SELECT * FROM group_members WHERE groupId = :groupId")
+    @Query("SELECT * FROM group_members WHERE groupId = :groupId AND status = 'PENDING'")
+    fun observePendingGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
+
+    @Query("SELECT * FROM group_members WHERE groupId = :groupId AND status = 'ACTIVE'")
     fun getGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
 
     @Query("DELETE FROM group_members WHERE groupId = :groupId AND userId = :userId")
@@ -68,5 +71,14 @@ interface GroupDao {
 
         val incomingMemberIds = newMembers.map { it.userId }
         deleteMembersNotInList(groupId, incomingMemberIds)
+    }
+
+    @Query("DELETE FROM group_members WHERE groupId = :groupId AND status = 'PENDING'")
+    suspend fun clearPendingGroupMembers(groupId: String)
+
+    @Transaction
+    suspend fun replacePendingGroupMembers(groupId: String, pendingMembers: List<GroupMemberEntity>) {
+        clearPendingGroupMembers(groupId)
+        insertOrUpdateGroupMembers(pendingMembers)
     }
 }

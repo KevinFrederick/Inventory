@@ -123,7 +123,8 @@ fun GroupDetailContent(
                 UiState.Idle -> {}
                 UiState.Loading -> GroupDetailLoading()
                 is UiState.Success -> GroupDetailSuccess(
-                    state = state.data
+                    state = state.data,
+                    onNavigate = onNavigate
                 )
                 is UiState.Error -> {}
             }
@@ -133,7 +134,8 @@ fun GroupDetailContent(
 
 @Composable
 fun GroupDetailSuccess(
-    state: GroupDetailScreenState
+    state: GroupDetailScreenState,
+    onNavigate: (GroupDetailNavigation) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -169,6 +171,9 @@ fun GroupDetailSuccess(
 
     AppOutlinedButton(
         text = stringResource(R.string.btn_label_edit_group),
+        onClick = {
+            onNavigate(GroupDetailNavigation.EditGroup(state.groupId))
+        },
         cornerRadiusPercentage = 30,
         icon = {
             Icon(
@@ -177,7 +182,6 @@ fun GroupDetailSuccess(
             )
         },
         borderColor = if (state.currentUserRole == AppRole.OWNER) Theme.custom.primaryText else Theme.custom.hint,
-        onClick = {},
         enabled = state.currentUserRole == AppRole.OWNER,
         modifier = Modifier
             .fillMaxWidth()
@@ -198,7 +202,9 @@ fun GroupDetailSuccess(
                 color = Theme.custom.secondaryText
             )
         },
-        onClick = {},
+        onClick = {
+            onNavigate(GroupDetailNavigation.BrowseInventory)
+        },
         iconBackground = MaterialTheme.colorScheme.primary.copy(0.3f),
         icon = {
             Icon(
@@ -218,13 +224,18 @@ fun GroupDetailSuccess(
     )
 
     GroupMembers(
+        currentUserRole = state.currentUserRole,
         totalMembers = state.groupDetail.totalMembers,
-        viewMemberClicked = {},
+        viewMemberClicked = {
+            onNavigate(GroupDetailNavigation.AllMember(groupId = state.groupId))
+        },
         members = state.members
     ) { member ->
         MemberListItem(
             memberItem = member,
-            onClick = {}
+            onClick = {
+                onNavigate(GroupDetailNavigation.MemberDetail(memberId = member.memberId))
+            }
         )
     }
 
@@ -265,22 +276,6 @@ fun GroupDetailSuccess(
                 color = Theme.custom.secondaryText
             )
         }
-    }
-
-    if (state.currentUserRole == AppRole.OWNER) {
-        AppPrimaryButton(
-            text = stringResource(R.string.btn_label_invite_member),
-            onClick = {},
-            cornerRadiusPercentage = 30,
-            icon = {
-                Icon(
-                    painter = painterResource(coreR.drawable.add_24),
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-        )
     }
 }
 
@@ -370,6 +365,7 @@ fun GroupDetailScreenPreview() {
         GroupDetailContent(
             onNavigate = {},
             state = UiState.Success(GroupDetailScreenState(
+                groupId = "",
                 isActive = true,
                 currentUserRole = AppRole.OWNER,
                 groupDetail = GroupDetailState(
@@ -383,18 +379,21 @@ fun GroupDetailScreenPreview() {
                 ),
                 members = listOf(
                     MemberListItemState(
+                        memberId = "",
                         username = "John Doe",
                         email = "JohnDoe@email.com",
                         role = "Owner",
                         profilePicture = null
                     ),
                     MemberListItemState(
+                        memberId = "",
                         username = "Bob",
                         email = "Bob@email.com",
                         role = "Admin",
                         profilePicture = null
                     ),
                     MemberListItemState(
+                        memberId = "",
                         username = "Cat",
                         email = "Cat@email.com",
                         role = "Member",

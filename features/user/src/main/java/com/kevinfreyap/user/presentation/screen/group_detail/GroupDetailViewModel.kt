@@ -15,7 +15,6 @@ import com.kevinfreyap.user.domain.usecase.group.ObserveGroupMembersUseCase
 import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toMemberItem
 import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
-import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.state.GroupDetailScreenState
 import com.kevinfreyap.user.presentation.state.GroupDetailState
@@ -73,6 +72,7 @@ class GroupDetailViewModel @Inject constructor(
 
         UiState.Success(
             GroupDetailScreenState(
+                groupId = group.group.groupId.value,
                 isActive = group.group.groupId.value == activeId,
                 currentUserRole = currentUserRole,
                 groupDetail = groupDetail,

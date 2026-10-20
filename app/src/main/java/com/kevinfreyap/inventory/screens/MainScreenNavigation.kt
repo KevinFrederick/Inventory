@@ -33,6 +33,7 @@ import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.screen.edit_profile.EditProfileScreen
 import com.kevinfreyap.user.presentation.screen.group_detail.GroupDetailScreen
+import com.kevinfreyap.user.presentation.screen.group_members.GroupMembersScreen
 import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
 
 fun NavGraphBuilder.mainGraph(
@@ -301,8 +302,23 @@ fun NavGraphBuilder.mainGraph(
                         GroupDetailNavigation.NavigateUp -> {
                             navController.navigateUp()
                         }
+
+                        is GroupDetailNavigation.AllMember -> {
+                            navController.navigate(
+                                UserScreens.GroupMembersScreen(destination.groupId)
+                            )
+                        }
+                        GroupDetailNavigation.BrowseInventory -> {}
+                        is GroupDetailNavigation.EditGroup -> {}
+                        is GroupDetailNavigation.MemberDetail -> {}
                     }
                 }
+            )
+        }
+
+        composable<UserScreens.GroupMembersScreen> {
+            GroupMembersScreen(
+
             )
         }
     }

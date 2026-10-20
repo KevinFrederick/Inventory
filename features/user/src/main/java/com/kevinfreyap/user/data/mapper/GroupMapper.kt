@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.data.mapper
 
+import api.dto.response.PendingMemberResponse
 import com.kevinfreyap.database.entity.GroupEntity
 import com.kevinfreyap.database.entity.GroupMemberEntity
 import com.kevinfreyap.domain.model.AppRole
@@ -15,6 +16,7 @@ import com.kevinfreyap.user.domain.model.GroupAddUserParams
 import com.kevinfreyap.user.domain.model.GroupMember
 import com.kevinfreyap.user.domain.model.GroupParams
 import com.kevinfreyap.user.domain.model.GroupUpdateRoleParams
+import model.MembershipStatus
 
 fun GroupEntity.toDomain(): Group =
     Group(
@@ -74,5 +76,18 @@ fun GroupMemberResponse.toEntity(groupId: GroupId): GroupMemberEntity =
         name = this.name,
         email = this.email,
         role = this.role,
+        status = this.status,
         joinedAt = this.joinedAt
+    )
+
+fun PendingMemberResponse.toEntity(groupId: GroupId): GroupMemberEntity =
+    GroupMemberEntity(
+        groupId = groupId.value,
+        userId = this.userId,
+        avatarUrl = null,
+        name = this.name,
+        email = this.email,
+        role = AppRole.MEMBER.name,
+        status = MembershipStatus.PENDING.name,
+        joinedAt = this.requestedAt
     )

@@ -5,6 +5,7 @@ import com.kevinfreyap.domain.model.Group
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.user.domain.model.GroupAddUserParams
 import com.kevinfreyap.user.domain.model.GroupMember
 import com.kevinfreyap.user.domain.model.GroupParams
@@ -17,6 +18,7 @@ interface IGroupRepository {
     fun getPreviewGroups(): Flow<List<Group>>
     fun getMemberCount(groupIds: List<GroupId>): Flow<Map<String, Int>>
     fun getMembersInGroup(groupId: GroupId): Flow<List<GroupMember>>
+    fun observePendingMembers(groupId: GroupId): Flow<List<GroupMember>>
 
     suspend fun createGroup(newGroup: GroupParams): Result<Unit, NetworkError>
     suspend fun updateGroup(groupId: GroupId, newGroup: GroupParams): Result<Unit, NetworkError>
@@ -26,6 +28,12 @@ interface IGroupRepository {
     suspend fun updateMemberRole(targetUserId: UserId, groupId: GroupId, req: GroupUpdateRoleParams): Result<Unit, NetworkError>
     suspend fun removeMember(groupId: GroupId, targetUserId: UserId): Result<Unit, NetworkError>
 
+    suspend fun requestJoinGroup(inviteCode: String): Result<Unit, NetworkError>
+    suspend fun createInviteCode(groupId: GroupId, validityInDays: Int): Result<String, NetworkError>
+    suspend fun approveMember(groupId: GroupId, memberId: UserId, role: AppRole): Result<Unit, NetworkError>
+    suspend fun rejectMember(groupId: GroupId, memberId: UserId): Result<Unit, NetworkError>
+
     suspend fun refreshGroups()
     suspend fun refreshGroupMembers(groupId: GroupId)
+    suspend fun refreshPendingMembers(groupId: GroupId)
 }

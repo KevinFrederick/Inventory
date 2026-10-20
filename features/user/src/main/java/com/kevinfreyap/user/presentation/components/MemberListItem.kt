@@ -79,6 +79,7 @@ fun MemberListItemPreview() {
         MemberListItem(
             onClick = {},
             memberItem = MemberListItemState(
+                memberId = "",
                 username = "John",
                 email = "JohnDoe@email.com",
                 role = "Owner",

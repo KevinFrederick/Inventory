@@ -30,10 +30,10 @@ fun <T> AppOptionSelection(
     options: List<T>,
     selectedOption: T?,
     onOptionSelected: (T) -> Unit,
-    titleText: (T) -> String,
+    titleText: @Composable (T) -> String,
     modifier: Modifier = Modifier,
     groupTitle: String? = null,
-    descriptionText: (T) -> String? = { null },
+    descriptionText: @Composable (T) -> String? = { null },
 ) {
     Column(modifier = modifier.selectableGroup()) {
         if (groupTitle != null) {

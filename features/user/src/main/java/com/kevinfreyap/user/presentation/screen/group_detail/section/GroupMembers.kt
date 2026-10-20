@@ -23,6 +23,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.ui.components.AppBaseListItemPlaceholder
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -33,6 +34,7 @@ import com.kevinfreyap.user.presentation.state.MemberListItemState
 
 @Composable
 fun GroupMembers(
+    currentUserRole: AppRole,
     totalMembers: Int,
     members: List<MemberListItemState>,
     viewMemberClicked: () -> Unit,
@@ -69,7 +71,11 @@ fun GroupMembers(
                 onClick = viewMemberClicked
             ) {
                 Text(
-                    text = stringResource(R.string.text_btn_view_all_member),
+                    text = if (currentUserRole == AppRole.MEMBER) {
+                        stringResource(R.string.text_btn_view_all_member)
+                    } else {
+                        stringResource(R.string.text_btn_manage_member)
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -145,22 +151,26 @@ fun GroupMembersPlaceholder(
 fun GroupMembersPreview() {
     InventoryTheme {
         GroupMembers(
+            currentUserRole = AppRole.OWNER,
             totalMembers = 5,
             viewMemberClicked = {},
             members = listOf(
                 MemberListItemState(
+                    memberId = "",
                     username = "John Doe",
                     email = "JohnDoe@email.com",
                     role = "Owner",
                     profilePicture = null
                 ),
                 MemberListItemState(
+                    memberId = "",
                     username = "Bob",
                     email = "Bob@email.com",
                     role = "Admin",
                     profilePicture = null
                 ),
                 MemberListItemState(
+                    memberId = "",
                     username = "Cat",
                     email = "Cat@email.com",
                     role = "Member",
