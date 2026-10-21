@@ -29,10 +29,13 @@ import com.kevinfreyap.scanner.navigation.ScannerScreens
 import com.kevinfreyap.scanner.ui.ScannerScreen
 import com.kevinfreyap.user.presentation.navigation.EditProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
+import com.kevinfreyap.user.presentation.navigation.GroupListNavigation
+import com.kevinfreyap.user.presentation.navigation.GroupMemberNavigation
 import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.screen.edit_profile.EditProfileScreen
 import com.kevinfreyap.user.presentation.screen.group_detail.GroupDetailScreen
+import com.kevinfreyap.user.presentation.screen.group_list.GroupListScreen
 import com.kevinfreyap.user.presentation.screen.group_members.GroupMembersScreen
 import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
 
@@ -277,7 +280,11 @@ fun NavGraphBuilder.mainGraph(
                                 UserScreens.GroupDetailScreen(destination.groupId)
                             )
                         }
-                        ProfileNavigation.ManageGroups -> {}
+                        ProfileNavigation.ManageGroups -> {
+                            navController.navigate(
+                                UserScreens.GroupListScreen
+                            )
+                        }
                     }
                 },
             )
@@ -318,7 +325,31 @@ fun NavGraphBuilder.mainGraph(
 
         composable<UserScreens.GroupMembersScreen> {
             GroupMembersScreen(
+                onNavigate = { destination ->
+                    when(destination) {
+                        GroupMemberNavigation.NavigateUp -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
+            )
+        }
 
+        composable<UserScreens.GroupListScreen> {
+            GroupListScreen(
+                onNavigate = { destination ->
+                    when(destination) {
+                        is GroupListNavigation.GroupDetail -> {
+                            navController.navigate(
+                                UserScreens.GroupDetailScreen(destination.groupId)
+                            )
+                        }
+                        GroupListNavigation.AddGroup -> {}
+                        GroupListNavigation.NavigateUp -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
             )
         }
     }

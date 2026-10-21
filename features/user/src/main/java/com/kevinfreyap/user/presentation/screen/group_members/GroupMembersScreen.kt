@@ -47,6 +47,7 @@ import com.kevinfreyap.user.presentation.action.MembersAction
 import com.kevinfreyap.user.presentation.components.MemberListItem
 import com.kevinfreyap.user.presentation.components.PendingMemberListItem
 import com.kevinfreyap.user.presentation.components.PendingMemberListItemPlaceholder
+import com.kevinfreyap.user.presentation.navigation.GroupMemberNavigation
 import com.kevinfreyap.user.presentation.screen.bottom_sheet.RoleAssignmentBottomSheet
 import com.kevinfreyap.user.presentation.screen.bottom_sheet.ShareCodeBottomSheet
 import com.kevinfreyap.user.presentation.state.GroupMembersScreenState
@@ -56,6 +57,7 @@ import com.kevinfreyap.user.presentation.state.PendingMemberListItemState
 @Composable
 fun GroupMembersScreen(
     modifier: Modifier = Modifier,
+    onNavigate: (GroupMemberNavigation) -> Unit,
     viewModel: GroupMembersViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -84,6 +86,7 @@ fun GroupMembersScreen(
                 }
             }
         },
+        onNavigate = onNavigate,
         onSelectPendingMember = { memberId ->
             selectedPendingMemberId = memberId
         },
@@ -96,6 +99,7 @@ fun GroupMembersContent(
     uiState: UiState<GroupMembersScreenState>,
     selectedPendingMemberId: String?,
     onAction: (MembersAction) -> Unit,
+    onNavigate: (GroupMemberNavigation) -> Unit,
     onSelectPendingMember: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -110,6 +114,7 @@ fun GroupMembersContent(
             AppCenterTopBar(
                 title = "",
                 onBackClick = {
+                    onNavigate(GroupMemberNavigation.NavigateUp)
                 },
                 isLoading = uiState is UiState.Loading
             )
@@ -433,7 +438,8 @@ fun GroupMembersScreenPreview() {
             ),
             selectedPendingMemberId = null,
             onAction = {},
-            onSelectPendingMember = {}
+            onSelectPendingMember = {},
+            onNavigate = {}
         )
     }
 }
@@ -448,7 +454,8 @@ fun GroupMemberScreenPlaceholderPreview() {
             uiState = UiState.Loading,
             selectedPendingMemberId = null,
             onAction = {},
-            onSelectPendingMember = {}
+            onSelectPendingMember = {},
+            onNavigate = {}
         )
     }
 }

@@ -22,17 +22,21 @@
     <string name="label_group_code">Group Invite Code</string>
     <string name="label_share_code">Join my workspace! Code: %1$s</string>
     <string name="label_valid_days">Valid for %1$d days</string>
+    <string name="label_invite_code">Invite Code</string>
 
     <string name="label_title_has_access">You have administrator access</string>
     <string name="label_title_no_access">You don\'t have administrator access</string>
     <string name="label_title_member">Group Members</string>
     <string name="label_title_pending_member">Pending Members</string>
+    <string name="label_title_join_group">Join Group</string>
+    <string name="label_title_inventory_groups">Inventory Groups</string>
 
     <string name="label_subtitle_has_access">Manage items, edit group details and invite or remove members.</string>
     <string name="label_subtitle_no_access">Only administrators can edit group details, invite new members, or change settings.</string>
     <string name="label_subtitle_assign_role">Assign a role to approve access to this group</string>
     <string name="label_subtitle_members">%1$d active members</string>
     <string name="label_subtitle_pending_members">%1$d pending members</string>
+    <string name="label_subtitle_join_group">Enter invite code to join a group</string>
 
     <string name="label_field_name">Name</string>
     <string name="label_field_email">Email</string>
@@ -54,11 +58,12 @@
     <string name="btn_label_set_active">Set as Active and view all products</string>
     <string name="btn_label_view_products">View all products</string>
     <string name="btn_label_invite_member">Invite Member</string>
-    <string name="btn_label_reject_member">Reject Member</string>
-    <string name="btn_label_approve_member">Approve Member</string>
+    <string name="btn_label_reject_member">Reject</string>
+    <string name="btn_label_approve_member">Approve</string>
     <string name="btn_label_share_invite_code">Share Group Code</string>
     <string name="btn_label_copy_code">Copy code</string>
     <string name="btn_label_share_code">Share code</string>
+    <string name="btn_label_join">Join</string>
 
     <string name="dialog_label_title_remove_image">Remove Image?</string>
     <string name="dialog_label_title_discard_changes">Discard Changes?</string>
@@ -86,6 +91,9 @@
     <string name="default_job_title">Job title not set</string>
     <string name="default_group_address">Address not set</string>
 
+    <!--  PLACEHOLDER  -->
+    <string name="placeholder_invite_code">ex: ABCDEFG</string>
+
     <!--  ERRORS  -->
     <string name="error_user_name_empty">User name is required</string>
     <string name="error_user_name_too_long">User name cannot exceed 255 characters</string>
@@ -104,4 +112,5 @@
     <!--  SUCCESS  -->
     <string name="success_profile_update">Profile updated successfully!</string>
     <string name="success_logout">Successfully signed out</string>
+    <string name="success_request_sent">Join request sent!</string>
 </resources>
