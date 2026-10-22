@@ -1,13 +1,14 @@
 package com.kevinfreyap.user.presentation.mapper
 
-import com.kevinfreyap.user.domain.model.GroupWithStats
+import com.kevinfreyap.domain.model.Group
 import com.kevinfreyap.user.presentation.state.GroupListItemState
 
-fun GroupWithStats.toGroupItem(activeId: String?): GroupListItemState =
+fun Group.toGroupItem(activeId: String?): GroupListItemState =
     GroupListItemState(
-        isActive = group.groupId.value == activeId,
-        groupId = group.groupId.value,
-        name = group.name,
+        isActive = groupId.value == activeId,
+        groupId = groupId.value,
+        name = name,
         totalProduct = totalProducts,
-        totalMember = totalMembers
+        totalMember = totalMembers,
+        status = currentUserStatus
     )

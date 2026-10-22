@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kevinfreyap.domain.Result
+import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
+import com.kevinfreyap.user.R
 import com.kevinfreyap.user.domain.usecase.group.ApproveMemberUseCase
 import com.kevinfreyap.user.domain.usecase.group.CreateInviteCodeUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupByIdUseCase
@@ -24,10 +27,12 @@ import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.state.GroupMembersScreenState
 import com.kevinfreyap.user.presentation.util.AssignableRoles.getAssignableRoles
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,6 +52,9 @@ class GroupMembersViewModel @Inject constructor(
     private val route = savedStateHandle.toRoute<UserScreens.GroupDetailScreen>()
     private val groupId = GroupId(route.groupId)
 
+    private val _uiEvent = Channel<UiEvent<Unit>>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     private val _isLoading = MutableStateFlow(false)
     private val _generatedInviteCode = MutableStateFlow<String?>(null)
 
@@ -64,8 +72,8 @@ class GroupMembersViewModel @Inject constructor(
             GroupMembersScreenState(
                 activeMembers = groupMembers.map { it.toMemberItem() },
                 pendingMembers = pendingMembers.map { it.toPendingMember() },
-                loggedInUserRole = currentGroup.group.currentUserRole,
-                assignableRoles = getAssignableRoles(currentGroup.group.currentUserRole),
+                loggedInUserRole = currentGroup.currentUserRole,
+                assignableRoles = getAssignableRoles(currentGroup.currentUserRole),
                 generatedInviteCode = inviteCode
             )
         )
@@ -101,9 +109,25 @@ class GroupMembersViewModel @Inject constructor(
     private fun generateInviteCode() {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = generateInviteCode(groupId, 7)
-            if (result is Result.Success) {
-                _generatedInviteCode.value = result.data
+            when(
+                val result = generateInviteCode(groupId, 7)
+            ) {
+                is Result.Success -> {
+                    _generatedInviteCode.value = result.data
+                }
+                is Result.Error -> {
+                    when (val error = result.error) {
+                        NetworkError.Local.NO_INTERNET -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_no_internet))
+                        }
+                        is NetworkError.Server -> {
+                            _uiEvent.send(UiEvent.ShowToast(error.message))
+                        }
+                        else -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_unknown))
+                        }
+                    }
+                }
             }
             _isLoading.value = false
         }

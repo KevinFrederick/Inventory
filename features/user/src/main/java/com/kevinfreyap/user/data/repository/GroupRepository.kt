@@ -14,6 +14,7 @@ import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.domain.repository.IUserGroupRepository
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.mapper.toRequest
@@ -27,7 +28,9 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
 import javax.inject.Inject
@@ -36,7 +39,8 @@ class GroupRepository @Inject constructor(
     private val groupDao: GroupDao,
     private val userDao: UserDao,
     private val api: GroupApiService,
-    private val tokenManager: IAuthTokenManager
+    private val tokenManager: IAuthTokenManager,
+    private val activeGroupSession: IActiveGroupSession
 ): IGroupRepository, IUserGroupRepository {
     override fun getGroupById(groupId: GroupId): Flow<Group?> {
         return groupDao.observeGroup(groupId.value).map { it?.toDomain() }
@@ -50,8 +54,13 @@ class GroupRepository @Inject constructor(
         return groupDao.observeGroups().map { entities -> entities.map { it.toDomain() } }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getPreviewGroups(): Flow<List<Group>> {
-        return groupDao.observePreviewGroups().map { entities -> entities.map { it.toDomain() } }
+        return activeGroupSession.currentGroupId.flatMapLatest { activeId ->
+            groupDao.observePreviewGroups(activeId.orEmpty()).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
     }
 
     override fun getMemberCount(groupIds: List<GroupId>): Flow<Map<String, Int>> {
@@ -60,6 +69,13 @@ class GroupRepository @Inject constructor(
 
     override fun getMembersInGroup(groupId: GroupId): Flow<List<GroupMember>> {
         return groupDao.getGroupMembers(groupId.value).map { entities -> entities.map { it.toDomain() } }
+    }
+
+    override fun getMembersPreview(groupId: GroupId): Flow<List<GroupMember>> {
+        return groupDao.getGroupMembers(
+            groupId = groupId.value,
+            limit = 3
+        ).map { entities -> entities.map { it.toDomain() } }
     }
 
     override fun observePendingMembers(groupId: GroupId): Flow<List<GroupMember>> {

@@ -19,17 +19,20 @@ import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.user.R
 import com.kevinfreyap.user.presentation.state.GroupListItemState
+import model.MembershipStatus
 import com.kevinfreyap.ui.R as coreR
 
 @Composable
 fun GroupListItem(
     groupItem: GroupListItemState,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     AppBaseListItem(
         itemName = groupItem.name,
         onClick = onClick,
+        enabled = enabled,
         iconBackground = MaterialTheme.colorScheme.primary.copy(0.3f),
         icon = {
             Icon(
@@ -59,11 +62,13 @@ fun GroupListItem(
                     GroupActiveLabel()
                 }
 
-                Icon(
-                    painter = painterResource(coreR.drawable.arrow_right_24),
-                    contentDescription = null,
-                    tint = Theme.custom.hint
-                )
+                if (enabled) {
+                    Icon(
+                        painter = painterResource(coreR.drawable.arrow_right_24),
+                        contentDescription = null,
+                        tint = Theme.custom.hint
+                    )
+                }
             }
         },
         modifier = modifier
@@ -80,7 +85,8 @@ fun GroupListItemPreview() {
                 groupId = "",
                 name = "Main Warehouse",
                 totalProduct = 128,
-                totalMember = 5
+                totalMember = 5,
+                status = MembershipStatus.ACTIVE
             ),
             onClick = {}
         )

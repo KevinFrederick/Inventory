@@ -152,7 +152,7 @@ fun DashboardContent(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.custom_barcode_scanner),
+                    painter = painterResource(coreR.drawable.app_barcode_scanner),
                     contentDescription = "Barcode Scanner",
                     modifier = Modifier
                         .size(32.dp)
@@ -223,7 +223,7 @@ private fun DashboardEmpty(
     )
 
     AppStateBanner(
-        bannerIcon = R.drawable.custom_empty_storage_icon,
+        bannerIcon = coreR.drawable.app_empty_storage_icon,
         bannerTitle = stringResource(R.string.title_banner_empty_inventory),
         bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
         actionButton = {
@@ -342,7 +342,7 @@ private fun DashboardError(
     )
 
     AppStateBanner(
-        bannerIcon = R.drawable.custom_error_load_icon,
+        bannerIcon = coreR.drawable.app_error_load_icon,
         bannerTitle = stringResource(R.string.title_banner_load_error),
         bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
         actionButton = {

@@ -18,26 +18,51 @@ interface GroupDao {
     @Upsert
     suspend fun insertOrUpdateGroupMembers(members: List<GroupMemberEntity>)
 
-    @Query("SELECT COUNT(*) FROM `groups`")
+    @Query("SELECT COUNT(*) FROM `groups` WHERE currentUserStatus = 'ACTIVE'")
     fun observeTotalGroupsCount(): Flow<Int>
 
     @Query("SELECT * FROM `groups`")
     fun observeGroups(): Flow<List<GroupEntity>>
 
-    @Query("SELECT * FROM `groups` ORDER BY createdAt DESC LIMIT 3")
-    fun observePreviewGroups(): Flow<List<GroupEntity>>
+    @Query("""
+        SELECT * FROM `groups` 
+        WHERE currentUserStatus = 'ACTIVE' 
+        ORDER BY
+            (groupId = :activeGroupId) DESC,
+            CASE currentUserRole 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        lastUpdated DESC
+        LIMIT 3
+        """)
+    fun observePreviewGroups(activeGroupId: String): Flow<List<GroupEntity>>
 
     @Query("SELECT * FROM `groups` WHERE groupId = :groupId")
     fun observeGroup(groupId: String): Flow<GroupEntity?>
 
-    @Query("SELECT groupId, COUNT(*) as memberCount FROM group_members WHERE groupId IN (:groupIds) GROUP BY groupId")
+    @Query("SELECT groupId, COUNT(*) as memberCount FROM group_members WHERE groupId IN (:groupIds) AND status = 'ACTIVE' GROUP BY groupId")
     fun observeMemberCount(groupIds: List<String>): Flow<Map<@MapColumn(columnName="groupId") String, @MapColumn(columnName = "memberCount") Int>>
 
     @Query("SELECT * FROM group_members WHERE groupId = :groupId AND status = 'PENDING'")
     fun observePendingGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
 
-    @Query("SELECT * FROM group_members WHERE groupId = :groupId AND status = 'ACTIVE'")
-    fun getGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
+    @Query("""
+        SELECT * FROM group_members 
+        WHERE groupId = :groupId AND status = 'ACTIVE'
+        ORDER BY
+            CASE role 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        joinedAt DESC
+        LIMIT :limit
+        """)
+    fun getGroupMembers(groupId: String, limit: Int = -1): Flow<List<GroupMemberEntity>>
 
     @Query("DELETE FROM group_members WHERE groupId = :groupId AND userId = :userId")
     suspend fun removeMember(groupId: String, userId: String)

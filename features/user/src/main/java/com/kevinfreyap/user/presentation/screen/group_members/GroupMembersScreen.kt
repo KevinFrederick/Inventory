@@ -1,6 +1,7 @@
 package com.kevinfreyap.user.presentation.screen.group_members
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,11 +35,15 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.ui.components.AppBaseListItemPlaceholder
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppPrimaryButton
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -61,12 +67,31 @@ fun GroupMembersScreen(
     viewModel: GroupMembersViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var selectedPendingMemberId by rememberSaveable { mutableStateOf<String?>(null) }
 
     val shareCodeText = stringResource(R.string.label_share_code, "%s")
     val shareChooserTitle = stringResource(R.string.btn_label_share_invite_code)
+
+    LaunchedEffect(viewModel.uiEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(
+                            context,
+                            event.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
 
     GroupMembersContent(
         uiState = uiState,

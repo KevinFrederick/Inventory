@@ -58,6 +58,7 @@ import com.kevinfreyap.user.presentation.components.GroupListItem
 import com.kevinfreyap.user.presentation.navigation.GroupListNavigation
 import com.kevinfreyap.user.presentation.state.GroupListItemState
 import com.kevinfreyap.user.presentation.state.GroupListScreenState
+import model.MembershipStatus
 import com.kevinfreyap.ui.R as coreR
 
 @Composable
@@ -211,7 +212,9 @@ fun GroupListSuccess(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done,
                         modifier = Modifier
-                            .weight(0.7f)
+                            .weight(0.7f),
+                        isError = !state.errorMessage.isNullOrBlank(),
+                        errorMessage = state.errorMessage,
                     )
 
                     AppPrimaryButton(
@@ -228,6 +231,34 @@ fun GroupListSuccess(
             }
         }
 
+        if (state.pendingGroups.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(12.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(R.string.label_title_pending_groups),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Theme.custom.primaryText
+                    )
+
+                    Text(
+                        text = stringResource(R.string.label_subtitle_pending_groups),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Theme.custom.secondaryText
+                    )
+                }
+            }
+
+            items(state.pendingGroups, key = { it.groupId }) { group ->
+                GroupListItem(
+                    groupItem = group,
+                    onClick = {},
+                    enabled = false
+                )
+            }
+        }
+
         item {
             Spacer(Modifier.height(8.dp))
 
@@ -238,7 +269,7 @@ fun GroupListSuccess(
             )
         }
 
-        items(state.groups, key = { it.groupId }) {group ->
+        items(state.activeGroups, key = { it.groupId }) {group ->
             GroupListItem(
                 groupItem = group,
                 onClick = {
@@ -345,20 +376,58 @@ fun GroupListPlaceholder(
             }
         }
 
-        Text(
-            text = "",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.Transparent,
-            modifier = Modifier
-                .clearAndSetSemantics {}
-                .fillMaxWidth(0.6f)
-                .clip(RoundedCornerShape(50))
-                .shimmerEffect(shimmerColor)
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Transparent,
+                    modifier = Modifier
+                        .clearAndSetSemantics {}
+                        .fillMaxWidth(0.6f)
+                        .clip(RoundedCornerShape(50))
+                        .shimmerEffect(shimmerColor)
+                )
+
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Transparent,
+                    modifier = Modifier
+                        .clearAndSetSemantics {}
+                        .fillMaxWidth(0.8f)
+                        .clip(RoundedCornerShape(50))
+                        .shimmerEffect(shimmerColor)
+                )
+            }
+
+            AppBaseListItemPlaceholder(
+                isTrailingDataLabelExist = false,
+                isTrailingDataExist = false
+            )
+        }
+
 
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(
+                text = "",
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.Transparent,
+                modifier = Modifier
+                    .clearAndSetSemantics {}
+                    .fillMaxWidth(0.6f)
+                    .clip(RoundedCornerShape(50))
+                    .shimmerEffect(shimmerColor)
+            )
+
             repeat(5) {
                 AppBaseListItemPlaceholder(
                     isTrailingDataLabelExist = false,
@@ -387,27 +456,40 @@ fun GroupListScreenPreview() {
         GroupListContent(
             uiState = UiState.Success(
                 GroupListScreenState(
-                    groups = listOf(
+                    activeGroups = listOf(
                         GroupListItemState(
                             isActive = true,
                             groupId = "1",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
                         ),
                         GroupListItemState(
                             isActive = false,
                             groupId = "2",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
                         ),
                         GroupListItemState(
                             isActive = false,
                             groupId = "3",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
+                        ),
+                    ),
+                    pendingGroups = listOf(
+                        GroupListItemState(
+                            isActive = false,
+                            groupId = "4",
+                            name = "Main Warehouse",
+                            totalProduct = 128,
+                            totalMember = 5,
+                            status = MembershipStatus.PENDING
                         ),
                     ),
                     inviteCode = "",

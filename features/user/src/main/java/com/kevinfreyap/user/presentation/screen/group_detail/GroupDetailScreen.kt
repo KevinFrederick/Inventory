@@ -37,7 +37,6 @@ import com.kevinfreyap.ui.components.AppBaseListItem
 import com.kevinfreyap.ui.components.AppBaseListItemPlaceholder
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppOutlinedButton
-import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -70,6 +69,9 @@ fun GroupDetailScreen(
     GroupDetailContent(
         state = uiState,
         onNavigate = onNavigate,
+        onSetActive = {
+            viewModel.setGroupAsActive()
+        },
         modifier = modifier
     )
 }
@@ -78,6 +80,7 @@ fun GroupDetailScreen(
 fun GroupDetailContent(
     state: UiState<GroupDetailScreenState>,
     onNavigate: (GroupDetailNavigation) -> Unit,
+    onSetActive: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -124,7 +127,8 @@ fun GroupDetailContent(
                 UiState.Loading -> GroupDetailLoading()
                 is UiState.Success -> GroupDetailSuccess(
                     state = state.data,
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
+                    onSetActive = onSetActive
                 )
                 is UiState.Error -> {}
             }
@@ -135,7 +139,8 @@ fun GroupDetailContent(
 @Composable
 fun GroupDetailSuccess(
     state: GroupDetailScreenState,
-    onNavigate: (GroupDetailNavigation) -> Unit
+    onNavigate: (GroupDetailNavigation) -> Unit,
+    onSetActive: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -194,7 +199,7 @@ fun GroupDetailSuccess(
     )
 
     AppBaseListItem(
-        itemName = stringResource(R.string.btn_label_browse_inventory),
+        itemName = if (state.isActive) stringResource(R.string.btn_label_browse_inventory) else stringResource(R.string.btn_label_set_as_active),
         subtitle = {
             Text(
                 text = if (state.isActive) stringResource(R.string.btn_label_view_products) else stringResource(R.string.btn_label_set_active),
@@ -203,7 +208,11 @@ fun GroupDetailSuccess(
             )
         },
         onClick = {
-            onNavigate(GroupDetailNavigation.BrowseInventory)
+            if (state.isActive) {
+                onNavigate(GroupDetailNavigation.BrowseInventory)
+            } else {
+                onSetActive()
+            }
         },
         iconBackground = MaterialTheme.colorScheme.primary.copy(0.3f),
         icon = {
@@ -364,6 +373,7 @@ fun GroupDetailScreenPreview() {
     InventoryTheme {
         GroupDetailContent(
             onNavigate = {},
+            onSetActive = {},
             state = UiState.Success(GroupDetailScreenState(
                 groupId = "",
                 isActive = true,
@@ -414,6 +424,7 @@ fun GroupDetailScreenPlaceholderPreview() {
     InventoryTheme {
         GroupDetailContent(
             onNavigate = {},
+            onSetActive = {},
             state = UiState.Loading
         )
     }

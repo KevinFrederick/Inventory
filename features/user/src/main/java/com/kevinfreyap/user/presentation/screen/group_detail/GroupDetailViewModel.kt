@@ -10,8 +10,10 @@ import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.util.toFullDateString
+import com.kevinfreyap.user.R
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupByIdUseCase
-import com.kevinfreyap.user.domain.usecase.group.ObserveGroupMembersUseCase
+import com.kevinfreyap.user.domain.usecase.group.ObserveGroupMembersPreviewUseCase
+import com.kevinfreyap.user.domain.usecase.group.SelectGroupUseCase
 import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toMemberItem
 import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
@@ -26,15 +28,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GroupDetailViewModel @Inject constructor(
     observeGroupById: ObserveGroupByIdUseCase,
-    observeGroupMembers: ObserveGroupMembersUseCase,
+    observeGroupMembersPreview: ObserveGroupMembersPreviewUseCase,
     observeUser: ObserveUserUseCase,
+    savedStateHandle: SavedStateHandle,
     activeGroupSession: IActiveGroupSession,
-    savedStateHandle: SavedStateHandle
+    private val selectGroup: SelectGroupUseCase
 ): ViewModel(){
     private val route = savedStateHandle.toRoute<UserScreens.GroupDetailScreen>()
     private val groupId = GroupId(route.groupId) 
@@ -44,7 +48,7 @@ class GroupDetailViewModel @Inject constructor(
 
     val uiState: StateFlow<UiState<GroupDetailScreenState>> = combine(
         flow = observeGroupById(groupId).distinctUntilChanged(),
-        flow2 = observeGroupMembers(groupId).distinctUntilChanged(),
+        flow2 = observeGroupMembersPreview(groupId).distinctUntilChanged(),
         flow3 = observeUser().distinctUntilChanged(),
         flow4 = activeGroupSession.currentGroupId
     ) {group, members, currentUser, activeId ->
@@ -59,21 +63,21 @@ class GroupDetailViewModel @Inject constructor(
             ?.role ?: AppRole.MEMBER
 
         val groupDetail = GroupDetailState(
-            name = group.group.name,
-            description = group.group.description,
+            name = group.name,
+            description = group.description,
             totalProducts = group.totalProducts,
             totalMembers = group.totalMembers,
-            address = group.group.address,
+            address = group.address,
             owner = owner,
-            created = group.group.createdAt.toFullDateString()
+            created = group.createdAt.toFullDateString()
         )
 
         val memberItems = members.map { it.toMemberItem() }
 
         UiState.Success(
             GroupDetailScreenState(
-                groupId = group.group.groupId.value,
-                isActive = group.group.groupId.value == activeId,
+                groupId = group.groupId.value,
+                isActive = group.groupId.value == activeId,
                 currentUserRole = currentUserRole,
                 groupDetail = groupDetail,
                 members = memberItems
@@ -85,4 +89,12 @@ class GroupDetailViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UiState.Loading
         )
+
+    fun setGroupAsActive() {
+        viewModelScope.launch {
+            selectGroup(groupId)
+            _uiEvent.send(UiEvent.ShowToast(R.string.success_group_set_as_active))
+            _uiEvent.send(UiEvent.Navigate(GroupDetailNavigation.BrowseInventory))
+        }
+    }
 }

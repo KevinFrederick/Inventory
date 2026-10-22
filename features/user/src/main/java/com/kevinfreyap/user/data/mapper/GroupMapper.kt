@@ -24,7 +24,10 @@ fun GroupEntity.toDomain(): Group =
         name = name,
         description = description,
         address = address,
+        totalMembers = totalMembers,
+        totalProducts = totalProducts,
         currentUserRole = AppRole.valueOf(currentUserRole),
+        currentUserStatus = MembershipStatus.valueOf(currentUserStatus),
         createdAt = createdAt,
         lastUpdated = lastUpdated
     )
@@ -63,7 +66,10 @@ fun UserGroupResponse.toEntity(): GroupEntity =
         name = this.group.name,
         description = this.group.description,
         address = this.group.address,
+        totalMembers = this.group.totalMembers,
+        totalProducts = this.group.totalProducts,
         currentUserRole = this.role,
+        currentUserStatus = this.status,
         createdAt = this.group.createdAt,
         lastUpdated = this.group.lastUpdated
     )

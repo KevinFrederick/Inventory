@@ -49,6 +49,7 @@ fun AppBaseListItem(
     itemName: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     iconBackground: Color = Theme.custom.shimmer,
     imageUri: String? = null,
     icon: @Composable (() -> Unit)? = null,
@@ -57,8 +58,10 @@ fun AppBaseListItem(
 ) {
     Card(
         onClick = onClick,
+        enabled = enabled,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier

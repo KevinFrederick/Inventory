@@ -29,6 +29,7 @@ import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.ui.util.shimmerEffect
 import com.kevinfreyap.user.R
 import com.kevinfreyap.user.presentation.state.GroupListItemState
+import model.MembershipStatus
 
 @Composable
 fun UserGroupList(
@@ -146,21 +147,24 @@ fun UserGroupListPreview() {
                     groupId = "",
                     name = "Main Warehouse",
                     totalProduct = 128,
-                    totalMember = 5
+                    totalMember = 5,
+                    status = MembershipStatus.ACTIVE
                 ),
                 GroupListItemState(
                     isActive = false,
                     groupId = "",
                     name = "Main Warehouse",
                     totalProduct = 128,
-                    totalMember = 5
+                    totalMember = 5,
+                    status = MembershipStatus.ACTIVE
                 ),
                 GroupListItemState(
                     isActive = false,
                     groupId = "",
                     name = "Main Warehouse",
                     totalProduct = 128,
-                    totalMember = 5
+                    totalMember = 5,
+                    status = MembershipStatus.ACTIVE
                 ),
             )
         ) { group ->

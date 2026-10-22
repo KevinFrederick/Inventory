@@ -4,5 +4,4 @@ interface GroupListAction {
     data class OnInviteCodeChanged(val code: String) : GroupListAction
     data object OnJoinGroupClick : GroupListAction
     data object OnRefresh : GroupListAction
-    data object ClearError : GroupListAction
 }

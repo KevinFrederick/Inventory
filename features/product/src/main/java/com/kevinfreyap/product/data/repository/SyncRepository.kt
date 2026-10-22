@@ -3,7 +3,7 @@ package com.kevinfreyap.product.data.repository
 import android.util.Log
 import androidx.room.withTransaction
 import com.kevinfreyap.database.AppDatabase
-import com.kevinfreyap.database.datastore.SyncPreferences
+import com.kevinfreyap.database.preferences.SyncPreferences
 import com.kevinfreyap.database.model.SyncState
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.product.data.mapper.toEntity

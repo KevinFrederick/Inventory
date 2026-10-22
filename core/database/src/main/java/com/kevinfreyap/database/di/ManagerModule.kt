@@ -1,11 +1,9 @@
 package com.kevinfreyap.database.di
 
-import com.kevinfreyap.database.datastore.SyncPreferences
 import com.kevinfreyap.database.manager.AuthTokenManager
 import com.kevinfreyap.database.manager.ImageManager
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.manager.IImageManager
-import com.kevinfreyap.domain.preferences.ISyncPreferences
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -26,9 +24,4 @@ abstract class ManagerModule {
     abstract fun bindImageManager(
         impl: ImageManager
     ): IImageManager
-
-    @Binds
-    abstract fun provideSyncPreferences(
-        impl: SyncPreferences
-    ): ISyncPreferences
 }
