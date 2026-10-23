@@ -20,6 +20,7 @@ interface IGroupRepository {
     fun getMembersInGroup(groupId: GroupId): Flow<List<GroupMember>>
     fun getMembersPreview(groupId: GroupId): Flow<List<GroupMember>>
     fun observePendingMembers(groupId: GroupId): Flow<List<GroupMember>>
+    suspend fun getOwnedGroupCount(): Int
 
     suspend fun createGroup(newGroup: GroupParams): Result<Unit, NetworkError>
     suspend fun updateGroup(groupId: GroupId, newGroup: GroupParams): Result<Unit, NetworkError>

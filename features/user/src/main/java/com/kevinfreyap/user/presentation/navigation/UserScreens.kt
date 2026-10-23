@@ -17,4 +17,7 @@ sealed interface UserScreens {
 
     @Serializable
     data object GroupListScreen: UserScreens
+
+    @Serializable
+    data class GroupFormScreen(val groupId: String? = null): UserScreens
 }

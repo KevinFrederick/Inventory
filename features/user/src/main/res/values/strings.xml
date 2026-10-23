@@ -3,7 +3,8 @@
     <!-- TITLE  -->
     <string name="title_edit_profile">Edit Profile</string>
     <string name="title_account_profile">Account Profile</string>
-
+    <string name="title_add_group">Add Group</string>
+    <string name="title_edit_group">Edit Group</string>
 
     <!--  LABELS  -->
     <string name="label_inventory_groups">Inventory Groups</string>
@@ -23,6 +24,10 @@
     <string name="label_share_code">Join my workspace! Code: %1$s</string>
     <string name="label_valid_days">Valid for %1$d days</string>
     <string name="label_invite_code">Invite Code</string>
+    <string name="label_group_detail">Group Detail</string>
+    <string name="label_field_group_name">Group Name</string>
+    <string name="label_field_group_description">Description (optional)</string>
+    <string name="label_field_group_address">Address (optional)</string>
 
     <string name="label_title_has_access">You have administrator access</string>
     <string name="label_title_no_access">You don\'t have administrator access</string>
@@ -39,6 +44,9 @@
     <string name="label_subtitle_pending_members">%1$d pending members</string>
     <string name="label_subtitle_join_group">Enter invite code to join a group</string>
     <string name="label_subtitle_pending_groups">Groups waiting for administrator approval to grant access</string>
+    <string name="label_subtitle_edit_profile">Update your personal information and profile details</string>
+    <string name="label_subtitle_add_group">Enter details to create a new group for managing inventory with your team</string>
+    <string name="label_subtitle_edit_group">Update your group details and information</string>
 
     <string name="label_field_name">Name</string>
     <string name="label_field_email">Email</string>
@@ -68,14 +76,19 @@
     <string name="btn_label_share_code">Share code</string>
     <string name="btn_label_join">Join</string>
     <string name="btn_label_retry">Try Again</string>
+    <string name="btn_label_create_group">Create Group</string>
+    <string name="btn_label_update_group">Update Group</string>
+    <string name="btn_label_delete_group">Delete Group</string>
 
     <string name="dialog_label_title_remove_image">Remove Image?</string>
     <string name="dialog_label_title_discard_changes">Discard Changes?</string>
     <string name="dialog_label_title_logout">Log Out?</string>
+    <string name="dialog_label_title_delete_group">Delete this group?</string>
 
     <string name="dialog_label_subtitle_remove_image">Are you sure to remove this profile picture?</string>
     <string name="dialog_label_subtitle_discard_changes">You have unsaved changes. If you go back now, all your progress will be lost.</string>
     <string name="dialog_label_subtitle_logout">Are you sure you want to log out?</string>
+    <string name="dialog_label_subtitle_delete_group">This will permanently remove all inventory data, members, and settings. This action cannot be undone</string>
 
     <string name="text_btn_manage">Manage</string>
     <string name="text_btn_view_all_member">View all member</string>
@@ -113,6 +126,13 @@
     <string name="error_missing_file">Profile picture file not found or corrupted.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
 
+    <string name="error_group_name_empty">Group name is required</string>
+    <string name="error_group_name_too_long">Group name cannot exceed 255 characters</string>
+    <string name="error_group_name_contains_newline">Group name must be on a single line</string>
+    <string name="error_group_description_too_long">Group description cannot exceed 2000 characters</string>
+    <string name="error_group_address_too_long">Group address cannot exceed 500 characters</string>
+    <string name="error_group_last_cannot_delete">Cannot delete last owned group</string>
+
     <!--  ERROR BANNER  -->
     <string name="error_banner_title_profile">Failed to load profile</string>
     <string name="error_banner_subtitle_profile">We couldn\'t load your account details. Please check your connection and try again.</string>
@@ -122,4 +142,7 @@
     <string name="success_logout">Successfully signed out</string>
     <string name="success_request_sent">Join request sent!</string>
     <string name="success_group_set_as_active">Group set as active!</string>
+    <string name="success_group_created">Group created successfully!</string>
+    <string name="success_group_updated">Group updated successfully!</string>
+    <string name="success_group_deleted">Group deleted!</string>
 </resources>

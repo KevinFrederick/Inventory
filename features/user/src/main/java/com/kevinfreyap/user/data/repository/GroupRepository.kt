@@ -50,8 +50,11 @@ class GroupRepository @Inject constructor(
         return groupDao.observeTotalGroupsCount()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getGroupsForUser(): Flow<List<Group>> {
-        return groupDao.observeGroups().map { entities -> entities.map { it.toDomain() } }
+        return activeGroupSession.currentGroupId.flatMapLatest { activeId ->
+            groupDao.observeGroups(activeId.orEmpty()).map { entities -> entities.map { it.toDomain() } }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,11 +85,19 @@ class GroupRepository @Inject constructor(
         return groupDao.observePendingGroupMembers(groupId.value).map { entities -> entities.map { it.toDomain() } }
     }
 
+    override suspend fun getOwnedGroupCount(): Int {
+        return groupDao.getOwnedGroupCount()
+    }
+
     override suspend fun createGroup(newGroup: GroupParams): Result<Unit, NetworkError> {
         return try {
             val response = api.createGroup(newGroup.toRequest())
 
+            val groupId = GroupId(response.group.groupId)
+
             groupDao.insertOrUpdateGroups(listOf(response.toEntity()))
+
+            refreshGroupMembers(groupId)
 
             Result.Success(Unit)
         } catch (e: ResponseException) {

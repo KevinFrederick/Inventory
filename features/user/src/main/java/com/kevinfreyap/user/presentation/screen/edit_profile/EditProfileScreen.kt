@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -156,7 +158,7 @@ fun EditProfileContent(
     Scaffold(
         topBar = {
             AppCenterTopBar(
-                title = stringResource(R.string.title_edit_profile),
+                title = "",
                 onBackClick = onBackClicked,
                 isLoading = state.uiState is UiState.Loading,
             )
@@ -194,7 +196,7 @@ fun EditProfileContent(
             modifier = modifier
                 .padding(innerPadding)
                 .padding(
-                    top = 12.dp,
+                    top = 4.dp,
                     start = 16.dp,
                     end = 16.dp,
                     bottom = 16.dp
@@ -203,6 +205,24 @@ fun EditProfileContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .align(Alignment.Start)
+            ) {
+                Text(
+                    text = stringResource(R.string.title_edit_profile),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Theme.custom.primaryText
+                )
+
+                Text(
+                    text = stringResource(R.string.label_subtitle_edit_profile),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Theme.custom.secondaryText
+                )
+            }
+
             AppImageUpload(
                 icon = painterResource(coreR.drawable.add_a_photo_24),
                 label = stringResource(R.string.label_upload_profile_pic),

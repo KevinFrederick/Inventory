@@ -29,12 +29,14 @@ import com.kevinfreyap.scanner.navigation.ScannerScreens
 import com.kevinfreyap.scanner.ui.ScannerScreen
 import com.kevinfreyap.user.presentation.navigation.EditProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
+import com.kevinfreyap.user.presentation.navigation.GroupFormNavigation
 import com.kevinfreyap.user.presentation.navigation.GroupListNavigation
 import com.kevinfreyap.user.presentation.navigation.GroupMemberNavigation
 import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens
 import com.kevinfreyap.user.presentation.screen.edit_profile.EditProfileScreen
 import com.kevinfreyap.user.presentation.screen.group_detail.GroupDetailScreen
+import com.kevinfreyap.user.presentation.screen.group_form.GroupFormScreen
 import com.kevinfreyap.user.presentation.screen.group_list.GroupListScreen
 import com.kevinfreyap.user.presentation.screen.group_members.GroupMembersScreen
 import com.kevinfreyap.user.presentation.screen.profile.ProfileScreen
@@ -269,7 +271,11 @@ fun NavGraphBuilder.mainGraph(
                                 launchSingleTop = true
                             }
                         }
-                        ProfileNavigation.AddGroup -> {}
+                        ProfileNavigation.AddGroup -> {
+                            navController.navigate(
+                                UserScreens.GroupFormScreen()
+                            )
+                        }
                         ProfileNavigation.EditProfile -> {
                             navController.navigate(
                                 UserScreens.EditProfileScreen
@@ -315,8 +321,22 @@ fun NavGraphBuilder.mainGraph(
                                 UserScreens.GroupMembersScreen(destination.groupId)
                             )
                         }
-                        GroupDetailNavigation.BrowseInventory -> {}
-                        is GroupDetailNavigation.EditGroup -> {}
+                        GroupDetailNavigation.BrowseInventory -> {
+                            navController.navigate(
+                                ProductScreen.Dashboard
+                            ) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+
+                                launchSingleTop = true
+                            }
+                        }
+                        is GroupDetailNavigation.EditGroup -> {
+                            navController.navigate(
+                                UserScreens.GroupFormScreen(destination.groupId)
+                            )
+                        }
                         is GroupDetailNavigation.MemberDetail -> {}
                     }
                 }
@@ -344,8 +364,24 @@ fun NavGraphBuilder.mainGraph(
                                 UserScreens.GroupDetailScreen(destination.groupId)
                             )
                         }
-                        GroupListNavigation.AddGroup -> {}
+                        GroupListNavigation.AddGroup -> {
+                            navController.navigate(
+                                UserScreens.GroupFormScreen()
+                            )
+                        }
                         GroupListNavigation.NavigateUp -> {
+                            navController.navigateUp()
+                        }
+                    }
+                }
+            )
+        }
+
+        composable<UserScreens.GroupFormScreen> {
+            GroupFormScreen(
+                onNavigate = { destination ->
+                    when (destination) {
+                        GroupFormNavigation.NavigateUp -> {
                             navController.navigateUp()
                         }
                     }

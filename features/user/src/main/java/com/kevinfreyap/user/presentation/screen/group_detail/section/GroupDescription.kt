@@ -52,7 +52,7 @@ fun GroupDescription(
                 isExpanded = !isExpanded
             },
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -65,14 +65,14 @@ fun GroupDescription(
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .padding(8.dp)
-                    .size(32.dp)
+                    .size(24.dp)
             )
         }
 
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary,
+            color = Theme.custom.secondaryText,
             maxLines = if (isExpanded) Int.MAX_VALUE else 3,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier

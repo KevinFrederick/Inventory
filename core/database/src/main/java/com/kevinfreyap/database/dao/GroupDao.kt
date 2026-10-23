@@ -18,11 +18,25 @@ interface GroupDao {
     @Upsert
     suspend fun insertOrUpdateGroupMembers(members: List<GroupMemberEntity>)
 
+    @Query("SELECT COUNT(*) FROM `groups` WHERE currentUserRole = 'OWNER'")
+    suspend fun getOwnedGroupCount(): Int
+
     @Query("SELECT COUNT(*) FROM `groups` WHERE currentUserStatus = 'ACTIVE'")
     fun observeTotalGroupsCount(): Flow<Int>
 
-    @Query("SELECT * FROM `groups`")
-    fun observeGroups(): Flow<List<GroupEntity>>
+    @Query("""
+        SELECT * FROM `groups`
+        ORDER BY
+            (groupId = :activeGroupId) DESC,
+            CASE currentUserRole 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        lastUpdated DESC
+        """)
+    fun observeGroups(activeGroupId: String): Flow<List<GroupEntity>>
 
     @Query("""
         SELECT * FROM `groups` 

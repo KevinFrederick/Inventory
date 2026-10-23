@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.presentation.screen.group_detail
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -31,12 +37,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.domain.model.AppRole
 import com.kevinfreyap.ui.components.AppBaseListItem
 import com.kevinfreyap.ui.components.AppBaseListItemPlaceholder
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.components.AppOutlinedButton
+import com.kevinfreyap.ui.components.AppPrimaryButton
+import com.kevinfreyap.ui.components.AppTextIconDialog
+import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
@@ -64,13 +76,53 @@ fun GroupDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: GroupDetailViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel.uiEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.Navigate -> {
+                        onNavigate(event.destination)
+                    }
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(
+                            context,
+                            event.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
 
     GroupDetailContent(
         state = uiState,
+        showDeleteDialog = showDeleteDialog,
         onNavigate = onNavigate,
         onSetActive = {
             viewModel.setGroupAsActive()
+        },
+        onShowDeleteDialog = { isShow ->
+            if (isShow) {
+                viewModel.checkDeleteValidity(
+                    onValid = {
+                        showDeleteDialog = true
+                    }
+                )
+            } else {
+                showDeleteDialog = false
+            }
+        },
+        onDeleteClicked = {
+            showDeleteDialog = false
+            viewModel.deleteGroup()
         },
         modifier = modifier
     )
@@ -79,8 +131,11 @@ fun GroupDetailScreen(
 @Composable
 fun GroupDetailContent(
     state: UiState<GroupDetailScreenState>,
+    showDeleteDialog: Boolean,
     onNavigate: (GroupDetailNavigation) -> Unit,
     onSetActive: () -> Unit,
+    onShowDeleteDialog: (Boolean) -> Unit,
+    onDeleteClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -94,7 +149,7 @@ fun GroupDetailContent(
                     if (state is UiState.Success && state.data.currentUserRole == AppRole.OWNER) {
                         IconButton(
                             onClick = {
-
+                                onShowDeleteDialog(true)
                             }
                         ) {
                             Icon(
@@ -131,6 +186,38 @@ fun GroupDetailContent(
                     onSetActive = onSetActive
                 )
                 is UiState.Error -> {}
+            }
+
+            if (showDeleteDialog) {
+                AppTextIconDialog(
+                    icon = painterResource(coreR.drawable.app_warning_icon),
+                    title = stringResource(R.string.dialog_label_title_delete_group),
+                    subtitle = stringResource(R.string.dialog_label_subtitle_delete_group),
+                    iconColor = MaterialTheme.colorScheme.error,
+                    onDismissRequest = {
+                        onShowDeleteDialog(false)
+                    },
+                    negativeBtn = {
+                        AppOutlinedButton(
+                            text = stringResource(R.string.btn_label_cancel),
+                            onClick = {
+                                onShowDeleteDialog(false)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    },
+                    positiveBtn = {
+                        AppPrimaryButton(
+                            text = stringResource(R.string.btn_label_delete_group),
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                            onClick = onDeleteClicked,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                )
             }
         }
     }
@@ -374,6 +461,9 @@ fun GroupDetailScreenPreview() {
         GroupDetailContent(
             onNavigate = {},
             onSetActive = {},
+            onShowDeleteDialog = {},
+            onDeleteClicked = {},
+            showDeleteDialog = true,
             state = UiState.Success(GroupDetailScreenState(
                 groupId = "",
                 isActive = true,
@@ -425,7 +515,10 @@ fun GroupDetailScreenPlaceholderPreview() {
         GroupDetailContent(
             onNavigate = {},
             onSetActive = {},
-            state = UiState.Loading
+            onShowDeleteDialog = {},
+            onDeleteClicked = {},
+            state = UiState.Loading,
+            showDeleteDialog = false
         )
     }
 }
