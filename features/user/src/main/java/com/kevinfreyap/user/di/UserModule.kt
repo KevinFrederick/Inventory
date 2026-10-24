@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.di
 
+import com.kevinfreyap.domain.repository.IUserGroupRepository
 import com.kevinfreyap.user.data.repository.GroupRepository
 import com.kevinfreyap.user.data.repository.UserRepository
 import com.kevinfreyap.user.domain.repository.IGroupRepository
@@ -8,6 +9,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -21,4 +23,10 @@ abstract class UserModule {
     abstract fun bindGroupRepository(
         impl: GroupRepository
     ): IGroupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserGroupRepository(
+        impl: GroupRepository
+    ): IUserGroupRepository
 }

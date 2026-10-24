@@ -316,7 +316,7 @@ fun BatchFormContent(
 
     if (state.uiState is UiState.Error) {
         AppTextIconDialog(
-            icon = painterResource(R.drawable.custom_error_load_icon),
+            icon = painterResource(coreR.drawable.app_error_load_icon),
             title = stringResource(R.string.dialog_title_save_failed),
             subtitle = stringResource(R.string.dialog_subtitle_save_failed),
             iconColor = MaterialTheme.colorScheme.error,
@@ -338,7 +338,7 @@ fun BatchFormContent(
 
     if (showDeleteDialog) {
         AppTextIconDialog(
-            icon = painterResource(R.drawable.custom_warning_icon),
+            icon = painterResource(coreR.drawable.app_warning_icon),
             title = stringResource(R.string.dialog_title_delete_batch),
             subtitle = stringResource(R.string.dialog_subtitle_delete_batch),
             iconColor = MaterialTheme.colorScheme.error,

@@ -37,9 +37,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.ui.components.AppIconName
 import com.kevinfreyap.ui.components.AppOutlinedButton
 import com.kevinfreyap.ui.components.AppPrimaryButton
+import com.kevinfreyap.ui.components.AppStateBanner
 import com.kevinfreyap.ui.components.AppTextIconDialog
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
@@ -56,6 +58,7 @@ import com.kevinfreyap.user.presentation.navigation.ProfileNavigation
 import com.kevinfreyap.user.presentation.state.GroupListItemState
 import com.kevinfreyap.user.presentation.state.ProfileScreenState
 import com.kevinfreyap.user.presentation.state.UserDetailState
+import model.MembershipStatus
 
 @Composable
 fun ProfileScreen(
@@ -91,6 +94,7 @@ fun ProfileScreen(
         uiState = uiState,
         onNavigate = onNavigate,
         onLogout = { viewModel.logout() },
+        onRetry = { viewModel.onRetryClicked() },
         modifier = modifier
     )
 }
@@ -100,6 +104,7 @@ fun ProfileContent(
     uiState: UiState<ProfileScreenState>,
     onNavigate: (ProfileNavigation) -> Unit,
     onLogout: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
@@ -142,9 +147,8 @@ fun ProfileContent(
         ) {
             when(uiState) {
                 is UiState.Idle -> {}
-                is UiState.Loading -> ProfileShimmer()
-                is UiState.Empty -> {}
-                is UiState.Error -> {}
+                is UiState.Loading -> ProfilePlaceholder()
+                is UiState.Error, UiState.Empty -> ProfileError(onRetry)
                 is UiState.Success -> ProfileSuccess(uiState.data, onNavigate)
             }
         }
@@ -230,7 +234,7 @@ fun ProfileSuccess(
 }
 
 @Composable
-fun ProfileShimmer(
+fun ProfilePlaceholder(
     shimmerColor: Color = Theme.custom.shimmer
 ) {
     Text(
@@ -257,6 +261,32 @@ fun ProfileShimmer(
     )
 }
 
+@Composable
+fun ProfileError(
+    onRetry: () -> Unit
+) {
+    AppStateBanner(
+        bannerIcon = coreR.drawable.app_error_load_icon,
+        bannerTitle = stringResource(R.string.error_banner_title_profile),
+        bannerSubtitle = stringResource(R.string.error_banner_subtitle_profile),
+        actionButton = {
+            AppPrimaryButton(
+                text = stringResource(R.string.btn_label_retry),
+                onClick = onRetry,
+                icon = {
+                    Icon(
+                        painter = painterResource(coreR.drawable.refresh_24),
+                        contentDescription = stringResource(R.string.btn_label_retry)
+                    )
+                },
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    )
+}
+
 @Preview(
     showBackground = true
 )
@@ -276,28 +306,35 @@ fun ProfileScreenPreview() {
                     totalGroups = 5,
                     groups = listOf(
                         GroupListItemState(
+                            isActive = true,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
                         ),
                         GroupListItemState(
+                            isActive = false,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
                         ),
                         GroupListItemState(
+                            isActive = false,
                             groupId = "",
                             name = "Main Warehouse",
                             totalProduct = 128,
-                            totalMember = 5
+                            totalMember = 5,
+                            status = MembershipStatus.ACTIVE
                         ),
                     ),
                 )
             ),
             onNavigate = {},
-            onLogout = {}
+            onLogout = {},
+            onRetry = {}
         )
     }
 }
@@ -311,7 +348,23 @@ fun ProfileScreenPlaceholderPreview() {
         ProfileContent(
             uiState = UiState.Loading,
             onNavigate = {},
-            onLogout = {}
+            onLogout = {},
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true
+)
+@Composable
+fun ProfileScreenErrorPreview() {
+    InventoryTheme {
+        ProfileContent(
+            uiState = UiState.Error("Something went wrong"),
+            onNavigate = {},
+            onLogout = {},
+            onRetry = {}
         )
     }
 }

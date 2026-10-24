@@ -1,5 +1,9 @@
 package com.kevinfreyap.user.data.repository
 
+import android.util.Log
+import api.dto.request.ApproveMemberRequest
+import api.dto.request.GenerateInviteRequest
+import api.dto.request.JoinGroupRequest
 import com.kevinfreyap.database.dao.GroupDao
 import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
@@ -8,6 +12,9 @@ import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.model.UserId
 import com.kevinfreyap.domain.error.NetworkError
 import com.kevinfreyap.domain.manager.IAuthTokenManager
+import com.kevinfreyap.domain.model.AppRole
+import com.kevinfreyap.domain.repository.IUserGroupRepository
+import com.kevinfreyap.domain.session.IActiveGroupSession
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.mapper.toRequest
@@ -21,7 +28,9 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
 import javax.inject.Inject
@@ -30,8 +39,9 @@ class GroupRepository @Inject constructor(
     private val groupDao: GroupDao,
     private val userDao: UserDao,
     private val api: GroupApiService,
-    private val tokenManager: IAuthTokenManager
-): IGroupRepository {
+    private val tokenManager: IAuthTokenManager,
+    private val activeGroupSession: IActiveGroupSession
+): IGroupRepository, IUserGroupRepository {
     override fun getGroupById(groupId: GroupId): Flow<Group?> {
         return groupDao.observeGroup(groupId.value).map { it?.toDomain() }
     }
@@ -40,12 +50,20 @@ class GroupRepository @Inject constructor(
         return groupDao.observeTotalGroupsCount()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getGroupsForUser(): Flow<List<Group>> {
-        return groupDao.observeGroups().map { entities -> entities.map { it.toDomain() } }
+        return activeGroupSession.currentGroupId.flatMapLatest { activeId ->
+            groupDao.observeGroups(activeId.orEmpty()).map { entities -> entities.map { it.toDomain() } }
+        }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getPreviewGroups(): Flow<List<Group>> {
-        return groupDao.observePreviewGroups().map { entities -> entities.map { it.toDomain() } }
+        return activeGroupSession.currentGroupId.flatMapLatest { activeId ->
+            groupDao.observePreviewGroups(activeId.orEmpty()).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
     }
 
     override fun getMemberCount(groupIds: List<GroupId>): Flow<Map<String, Int>> {
@@ -56,11 +74,30 @@ class GroupRepository @Inject constructor(
         return groupDao.getGroupMembers(groupId.value).map { entities -> entities.map { it.toDomain() } }
     }
 
+    override fun getMembersPreview(groupId: GroupId): Flow<List<GroupMember>> {
+        return groupDao.getGroupMembers(
+            groupId = groupId.value,
+            limit = 3
+        ).map { entities -> entities.map { it.toDomain() } }
+    }
+
+    override fun observePendingMembers(groupId: GroupId): Flow<List<GroupMember>> {
+        return groupDao.observePendingGroupMembers(groupId.value).map { entities -> entities.map { it.toDomain() } }
+    }
+
+    override suspend fun getOwnedGroupCount(): Int {
+        return groupDao.getOwnedGroupCount()
+    }
+
     override suspend fun createGroup(newGroup: GroupParams): Result<Unit, NetworkError> {
         return try {
             val response = api.createGroup(newGroup.toRequest())
 
+            val groupId = GroupId(response.group.groupId)
+
             groupDao.insertOrUpdateGroups(listOf(response.toEntity()))
+
+            refreshGroupMembers(groupId)
 
             Result.Success(Unit)
         } catch (e: ResponseException) {
@@ -192,6 +229,95 @@ class GroupRepository @Inject constructor(
         }
     }
 
+    override suspend fun requestJoinGroup(inviteCode: String): Result<Unit, NetworkError> {
+        return try {
+            api.joinGroup(JoinGroupRequest(code = inviteCode))
+
+            Result.Success(Unit)
+        } catch (e: ResponseException) {
+            val serverMessage = e.response.bodyAsText()
+            Result.Error(NetworkError.Server(serverMessage))
+
+        } catch (_: IOException) {
+            Result.Error(NetworkError.Local.NO_INTERNET)
+
+        } catch (_: Exception) {
+            Result.Error(NetworkError.Local.UNKNOWN)
+        }
+    }
+
+    override suspend fun createInviteCode(groupId: GroupId, validityInDays: Int): Result<String, NetworkError> {
+        return try {
+            val response = api.generateInviteCode(
+                groupId = groupId,
+                request = GenerateInviteRequest(validityDays = validityInDays)
+            )
+
+            Result.Success(response.code)
+        } catch (e: ResponseException) {
+            val serverMessage = e.response.bodyAsText()
+            Result.Error(NetworkError.Server(serverMessage))
+
+        } catch (_: IOException) {
+            Result.Error(NetworkError.Local.NO_INTERNET)
+
+        } catch (_: Exception) {
+            Result.Error(NetworkError.Local.UNKNOWN)
+        }
+    }
+
+    override suspend fun approveMember(
+        groupId: GroupId,
+        memberId: UserId,
+        role: AppRole
+    ): Result<Unit, NetworkError> {
+        return try {
+            api.approvePendingMember(
+                groupId = groupId,
+                memberId = memberId,
+                request = ApproveMemberRequest(role = role.name)
+            )
+
+            refreshGroupMembers(groupId)
+
+            Result.Success(Unit)
+        } catch (e: ResponseException) {
+            val serverMessage = e.response.bodyAsText()
+            Result.Error(NetworkError.Server(serverMessage))
+
+        } catch (_: IOException) {
+            Result.Error(NetworkError.Local.NO_INTERNET)
+
+        } catch (_: Exception) {
+            Result.Error(NetworkError.Local.UNKNOWN)
+        }
+    }
+
+    override suspend fun rejectMember(
+        groupId: GroupId,
+        memberId: UserId
+    ): Result<Unit, NetworkError> {
+        return try {
+            api.rejectPendingMember(
+                groupId = groupId,
+                memberId = memberId
+            )
+
+            refreshGroupMembers(groupId)
+
+            Result.Success(Unit)
+        } catch (e: ResponseException) {
+            val serverMessage = e.response.bodyAsText()
+            Result.Error(NetworkError.Server(serverMessage))
+
+        } catch (_: IOException) {
+            Result.Error(NetworkError.Local.NO_INTERNET)
+
+        } catch (_: Exception) {
+            Result.Error(NetworkError.Local.UNKNOWN)
+        }
+    }
+
     override suspend fun refreshGroups() {
         try {
             val response = api.getGroups()
@@ -208,6 +334,20 @@ class GroupRepository @Inject constructor(
         try {
             val response = api.getGroupMembers(groupId)
             groupDao.replaceGroupMembers(groupId.value, response.map { it.toEntity(groupId) })
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.e("GroupRepository", "Failed to fetch members: ${e.message}", e)
+        }
+    }
+
+    override suspend fun refreshPendingMembers(groupId: GroupId) {
+        try {
+            val response = api.getPendingMembers(groupId)
+
+            val entities = response.map { it.toEntity(groupId) }
+
+            groupDao.replacePendingGroupMembers(groupId.value, entities)
+        } catch (e: Exception) {
+            Log.e("GroupRepository", "Failed to fetch pending members: ${e.message}", e)
+        }
     }
 }

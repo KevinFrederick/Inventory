@@ -1,11 +1,10 @@
 package com.kevinfreyap.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.MapColumn
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.kevinfreyap.database.entity.GroupEntity
 import com.kevinfreyap.database.entity.GroupMemberEntity
 import kotlinx.coroutines.flow.Flow
@@ -13,29 +12,71 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GroupDao {
     // Group management
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertOrUpdateGroups(groups: List<GroupEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertOrUpdateGroupMembers(members: List<GroupMemberEntity>)
 
-    @Query("SELECT COUNT(*) FROM `groups`")
+    @Query("SELECT COUNT(*) FROM `groups` WHERE currentUserRole = 'OWNER'")
+    suspend fun getOwnedGroupCount(): Int
+
+    @Query("SELECT COUNT(*) FROM `groups` WHERE currentUserStatus = 'ACTIVE'")
     fun observeTotalGroupsCount(): Flow<Int>
 
-    @Query("SELECT * FROM `groups`")
-    fun observeGroups(): Flow<List<GroupEntity>>
+    @Query("""
+        SELECT * FROM `groups`
+        ORDER BY
+            (groupId = :activeGroupId) DESC,
+            CASE currentUserRole 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        lastUpdated DESC
+        """)
+    fun observeGroups(activeGroupId: String): Flow<List<GroupEntity>>
 
-    @Query("SELECT * FROM `groups` ORDER BY createdAt DESC LIMIT 3")
-    fun observePreviewGroups(): Flow<List<GroupEntity>>
+    @Query("""
+        SELECT * FROM `groups` 
+        WHERE currentUserStatus = 'ACTIVE' 
+        ORDER BY
+            (groupId = :activeGroupId) DESC,
+            CASE currentUserRole 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        lastUpdated DESC
+        LIMIT 3
+        """)
+    fun observePreviewGroups(activeGroupId: String): Flow<List<GroupEntity>>
 
     @Query("SELECT * FROM `groups` WHERE groupId = :groupId")
     fun observeGroup(groupId: String): Flow<GroupEntity?>
 
-    @Query("SELECT groupId, COUNT(*) as memberCount FROM group_members WHERE groupId IN (:groupIds) GROUP BY groupId")
+    @Query("SELECT groupId, COUNT(*) as memberCount FROM group_members WHERE groupId IN (:groupIds) AND status = 'ACTIVE' GROUP BY groupId")
     fun observeMemberCount(groupIds: List<String>): Flow<Map<@MapColumn(columnName="groupId") String, @MapColumn(columnName = "memberCount") Int>>
 
-    @Query("SELECT * FROM group_members WHERE groupId = :groupId")
-    fun getGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
+    @Query("SELECT * FROM group_members WHERE groupId = :groupId AND status = 'PENDING'")
+    fun observePendingGroupMembers(groupId: String): Flow<List<GroupMemberEntity>>
+
+    @Query("""
+        SELECT * FROM group_members 
+        WHERE groupId = :groupId AND status = 'ACTIVE'
+        ORDER BY
+            CASE role 
+            WHEN 'OWNER' THEN 1
+            WHEN 'ADMIN' THEN 2
+            WHEN 'MEMBER' THEN 3
+            ELSE 4
+        END ASC,
+        joinedAt DESC
+        LIMIT :limit
+        """)
+    fun getGroupMembers(groupId: String, limit: Int = -1): Flow<List<GroupMemberEntity>>
 
     @Query("DELETE FROM group_members WHERE groupId = :groupId AND userId = :userId")
     suspend fun removeMember(groupId: String, userId: String)
@@ -46,18 +87,37 @@ interface GroupDao {
     @Query("DELETE FROM `groups`")
     suspend fun clearGroups()
 
+    @Query("DELETE FROM `groups` WHERE groupId NOT IN (:activeGroupIds)")
+    suspend fun deleteGroupsNotInList(activeGroupIds: List<String>)
+
     @Transaction
     suspend fun replaceAllGroups(newGroups: List<GroupEntity>) {
-        clearGroups()
         insertOrUpdateGroups(newGroups)
+
+        val incomingGroupIds = newGroups.map { it.groupId }
+        deleteGroupsNotInList(incomingGroupIds)
     }
+
+    @Query("DELETE FROM group_members WHERE groupId = :groupId AND userId NOT IN (:activeUserIds)")
+    suspend fun deleteMembersNotInList(groupId: String, activeUserIds: List<String>)
 
     @Query("DELETE FROM group_members WHERE groupId = :groupId")
     suspend fun clearGroupMembers(groupId: String)
 
     @Transaction
     suspend fun replaceGroupMembers(groupId: String, newMembers: List<GroupMemberEntity>) {
-        clearGroupMembers(groupId)
         insertOrUpdateGroupMembers(newMembers)
+
+        val incomingMemberIds = newMembers.map { it.userId }
+        deleteMembersNotInList(groupId, incomingMemberIds)
+    }
+
+    @Query("DELETE FROM group_members WHERE groupId = :groupId AND status = 'PENDING'")
+    suspend fun clearPendingGroupMembers(groupId: String)
+
+    @Transaction
+    suspend fun replacePendingGroupMembers(groupId: String, pendingMembers: List<GroupMemberEntity>) {
+        clearPendingGroupMembers(groupId)
+        insertOrUpdateGroupMembers(pendingMembers)
     }
 }

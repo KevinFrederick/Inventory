@@ -327,7 +327,7 @@ private fun ProductEmptyOrNoResultState(
         ) {
             if (isNoResultState) {
                 AppStateBanner(
-                    bannerIcon = R.drawable.custom_no_result_icon,
+                    bannerIcon = coreR.drawable.app_no_result_icon,
                     bannerTitle = stringResource(R.string.title_banner_no_result),
                     bannerSubtitle = stringResource(R.string.subtitle_banner_no_result),
                     actionButton = {
@@ -348,7 +348,7 @@ private fun ProductEmptyOrNoResultState(
                 )
             } else {
                 AppStateBanner(
-                    bannerIcon = R.drawable.custom_empty_storage_icon,
+                    bannerIcon = coreR.drawable.app_empty_storage_icon,
                     bannerTitle = stringResource(R.string.title_banner_empty_inventory),
                     bannerSubtitle = stringResource(R.string.subtitle_banner_empty_inventory),
                     actionButton = {
@@ -463,7 +463,7 @@ private fun ProductErrorState(
                 .heightIn(min = minHeight)
         ) {
             AppStateBanner(
-                bannerIcon = R.drawable.custom_error_load_icon,
+                bannerIcon = coreR.drawable.app_error_load_icon,
                 bannerTitle = stringResource(R.string.title_banner_load_error),
                 bannerSubtitle = stringResource(R.string.subtitle_banner_load_error),
                 actionButton = {

@@ -100,7 +100,7 @@ fun ForgotPasswordDialogContent(
                 AppTextField(
                     value = email,
                     onValueChange = onEmailChange,
-                    placeholder = stringResource(R.string.placeholder_email),
+                    placeholder = stringResource(coreR.string.placeholder_email),
                     imeAction = ImeAction.Next
                 )
             }

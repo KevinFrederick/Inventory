@@ -13,6 +13,9 @@
     <string name="label_image_picker_camera">Take a photo</string>
     <string name="label_image_picker_gallery">Choose from gallery</string>
 
+    <!--  PLACEHOLDER  -->
+    <string name="placeholder_email">User@example.com</string>
+
     <!--  BUTTON  -->
     <string name="btn_label_cancel">Cancel</string>
     <string name="btn_label_confirm">Confirm</string>
@@ -25,4 +28,7 @@
     <string name="error_product_image_invalid_format">Invalid image format\nPlease use JPG or PNG</string>
     <string name="error_product_image_path_too_long">The image file path or name is too long</string>
     <string name="error_product_image_file_too_large">This image is too large\nMax file size is 5 MB</string>
+
+    <!--  OFFLINE  -->
+    <string name="label_offline_banner">You are currently offline. Check your internet connection.</string>
 </resources>

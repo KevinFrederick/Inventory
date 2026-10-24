@@ -11,6 +11,7 @@ import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import com.kevinfreyap.database.di.SessionDataStore
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,7 @@ import kotlin.jvm.java
 
 class AuthTokenManager @Inject constructor(
     @ApplicationContext context: Context,
-    private val dataStore: DataStore<Preferences>,
+    @param:SessionDataStore private val dataStore: DataStore<Preferences>,
 ): IAuthTokenManager {
 
     private val accessTokenKey = stringPreferencesKey("access_token")

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +32,7 @@ import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.ui.util.shimmerEffect
 import com.kevinfreyap.user.R
+import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.user.presentation.state.UserDetailState
 
 @Composable
@@ -86,6 +89,12 @@ fun UserProfileDetail(
 
         AppOutlinedButton(
             onClick = onButtonClicked,
+            icon = {
+                Icon(
+                    painter = painterResource(coreR.drawable.edit_24),
+                    contentDescription = null
+                )
+            },
             text = stringResource(R.string.btn_label_edit_profile),
             cornerRadiusPercentage = 30,
             modifier = Modifier

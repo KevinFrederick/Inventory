@@ -10,7 +10,10 @@ data class GroupEntity(
     val name: String,
     val description: String?,
     val address: String?,
+    val totalMembers: Int,
+    val totalProducts: Int,
     val currentUserRole: String,
+    val currentUserStatus: String,
     val createdAt: Long,
     val lastUpdated: Long
 )

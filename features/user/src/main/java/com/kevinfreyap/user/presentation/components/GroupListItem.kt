@@ -1,10 +1,12 @@
 package com.kevinfreyap.user.presentation.components
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -17,17 +19,20 @@ import com.kevinfreyap.ui.theme.InventoryTheme
 import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.user.R
 import com.kevinfreyap.user.presentation.state.GroupListItemState
+import model.MembershipStatus
 import com.kevinfreyap.ui.R as coreR
 
 @Composable
 fun GroupListItem(
     groupItem: GroupListItemState,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     AppBaseListItem(
         itemName = groupItem.name,
         onClick = onClick,
+        enabled = enabled,
         iconBackground = MaterialTheme.colorScheme.primary.copy(0.3f),
         icon = {
             Icon(
@@ -50,11 +55,21 @@ fun GroupListItem(
             )
         },
         trailingData = {
-            Icon(
-                painter = painterResource(coreR.drawable.arrow_right_24),
-                contentDescription = null,
-                tint = Theme.custom.hint
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (groupItem.isActive) {
+                    GroupActiveLabel()
+                }
+
+                if (enabled) {
+                    Icon(
+                        painter = painterResource(coreR.drawable.arrow_right_24),
+                        contentDescription = null,
+                        tint = Theme.custom.hint
+                    )
+                }
+            }
         },
         modifier = modifier
     )
@@ -66,10 +81,12 @@ fun GroupListItemPreview() {
     InventoryTheme {
         GroupListItem(
             groupItem = GroupListItemState(
+                isActive = true,
                 groupId = "",
                 name = "Main Warehouse",
                 totalProduct = 128,
-                totalMember = 5
+                totalMember = 5,
+                status = MembershipStatus.ACTIVE
             ),
             onClick = {}
         )

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.kevinfreyap.database.di.SessionDataStore
 import com.kevinfreyap.domain.session.IActiveGroupSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ActiveGroupSession @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    @param:SessionDataStore private val dataStore: DataStore<Preferences>
 ): IActiveGroupSession {
     private val GROUP_ID_KEY = stringPreferencesKey("active_group_id")
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kevinfreyap.domain.model.InventoryBarcode
 import com.kevinfreyap.product.R
+import com.kevinfreyap.ui.R as coreR
 import com.kevinfreyap.product.domain.model.error.ProductBarcodeError
 import com.kevinfreyap.product.domain.model.error.ProductFormError
 import com.kevinfreyap.product.domain.model.error.ProductSkuError
@@ -102,7 +103,7 @@ fun SectionProductIdentification(
                                 .padding(end = 8.dp)
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.custom_barcode_scanner),
+                                painter = painterResource(coreR.drawable.app_barcode_scanner),
                                 contentDescription = "Barcode Scanner"
                             )
                         }

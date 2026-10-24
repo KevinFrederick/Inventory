@@ -1,8 +1,6 @@
 package com.kevinfreyap.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -15,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BatchDao {
-    @Insert(onConflict = REPLACE)
+    @Upsert
     suspend fun insertBatch(batch: StockBatchEntity)
 
     @Transaction

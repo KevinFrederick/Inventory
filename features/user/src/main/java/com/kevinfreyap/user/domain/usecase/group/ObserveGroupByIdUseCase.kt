@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ObserveGroupByIdUseCase @Inject constructor(
-    private val groupRepository: IGroupRepository
+    private val groupRepository: IGroupRepository,
 ) {
     operator fun invoke(groupId: GroupId): Flow<Group?> {
         return groupRepository.getGroupById(groupId)

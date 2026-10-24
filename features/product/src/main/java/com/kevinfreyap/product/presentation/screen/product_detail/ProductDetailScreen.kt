@@ -223,7 +223,7 @@ fun ProductDetailContent(
 
                     if (showDeleteDialog) {
                         AppTextIconDialog(
-                            icon = painterResource(R.drawable.custom_warning_icon),
+                            icon = painterResource(coreR.drawable.app_warning_icon),
                             title = stringResource(R.string.dialog_title_delete_product, uiState.data.productName),
                             subtitle = stringResource(R.string.dialog_subtitle_delete_product),
                             iconColor = MaterialTheme.colorScheme.error,
@@ -342,7 +342,7 @@ private fun ProductDetailEmptyOrError(
     onNavigate: (ProductDetailNavigation) -> Unit,
     onRetry: (() -> Unit)? = null
 ) {
-    val icon = if (isError) R.drawable.custom_error_load_icon else R.drawable.custom_no_result_icon
+    val icon = if (isError) coreR.drawable.app_error_load_icon else coreR.drawable.app_no_result_icon
     val title = if (isError) R.string.title_banner_something_wrong else R.string.title_banner_not_found
     val subtitle = if (isError) R.string.subtitle_banner_something_wrong else R.string.subtitle_banner_not_found
 
