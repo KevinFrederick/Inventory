@@ -12,7 +12,7 @@ import com.kevinfreyap.user.domain.usecase.auth.LogoutUseCase
 import com.kevinfreyap.user.domain.usecase.group.ObserveGroupProfileSummaryUseCase
 import com.kevinfreyap.user.domain.usecase.group.RefreshGroupMembersUseCase
 import com.kevinfreyap.user.domain.usecase.group.RefreshGroupsUseCase
-import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
+import com.kevinfreyap.domain.usecases.ObserveUserUseCase
 import com.kevinfreyap.user.domain.usecase.user.RefreshUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toGroupItem
 import com.kevinfreyap.user.presentation.navigation.ProfileNavigation

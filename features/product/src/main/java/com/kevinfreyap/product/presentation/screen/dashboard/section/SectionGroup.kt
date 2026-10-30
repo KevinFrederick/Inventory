@@ -19,7 +19,7 @@ import com.kevinfreyap.ui.theme.Theme
 import com.kevinfreyap.ui.util.shimmerEffect
 
 @Composable
-fun SectionGreetings(
+fun SectionGroup(
     title: String,
     subtitle: String,
     modifier: Modifier = Modifier
@@ -44,7 +44,7 @@ fun SectionGreetings(
 }
 
 @Composable
-fun SectionGreetingsPlaceholder(
+fun SectionGroupPlaceholder(
     shimmerColor: Color = Theme.custom.shimmer
 ) {
     Column(
@@ -84,9 +84,9 @@ fun SectionGreetingsPlaceholder(
     showBackground = true
 )
 @Composable
-fun SectionGreetingsPreview() {
+fun SectionGroupPreview() {
     InventoryTheme {
-        SectionGreetings(
+        SectionGroup(
             title = "Good Morning, User",
             subtitle = "Data last synced at 09:11"
         )
@@ -97,8 +97,8 @@ fun SectionGreetingsPreview() {
     showBackground = true
 )
 @Composable
-fun SectionGreetingsPlaceholderPreview() {
+fun SectionGroupPlaceholderPreview() {
     InventoryTheme {
-        SectionGreetingsPlaceholder()
+        SectionGroupPlaceholder()
     }
 }

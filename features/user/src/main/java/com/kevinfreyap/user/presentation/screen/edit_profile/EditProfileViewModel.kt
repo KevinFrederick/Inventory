@@ -8,7 +8,7 @@ import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.user.R
 import com.kevinfreyap.user.domain.model.UserUpdateParams
-import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
+import com.kevinfreyap.domain.usecases.ObserveUserUseCase
 import com.kevinfreyap.user.domain.usecase.user.UpdateUserProfileUseCase
 import com.kevinfreyap.user.presentation.action.EditProfileAction
 import com.kevinfreyap.user.presentation.navigation.EditProfileNavigation

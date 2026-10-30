@@ -17,6 +17,9 @@
     <string name="placeholder_total_product">%1$s product(s)</string>
 
     <!--  LABELS  -->
+    <string name="label_header_no_group">My Inventory</string>
+    <string name="label_subtitle_no_group">Let\'s set up your inventory</string>
+
     <string name="label_sort_by">Sort By</string>
     <string name="label_category">Category</string>
     <string name="label_location">Location</string>
