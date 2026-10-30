@@ -5,6 +5,7 @@ import com.kevinfreyap.database.dao.UserDao
 import com.kevinfreyap.domain.Result
 import com.kevinfreyap.domain.model.User
 import com.kevinfreyap.domain.error.NetworkError
+import com.kevinfreyap.domain.repository.ICoreUserRepository
 import com.kevinfreyap.user.data.mapper.toDomain
 import com.kevinfreyap.user.data.mapper.toEntity
 import com.kevinfreyap.user.data.network.dto.request.UpdateProfileRequest
@@ -27,7 +28,7 @@ class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val groupDao: GroupDao,
     private val api: UserApiService
-): IUserRepository {
+): IUserRepository, ICoreUserRepository {
     override fun getUser(): Flow<User?> {
         return userDao.observeUser().map { it?.toDomain() }
     }

@@ -3,11 +3,13 @@ package com.kevinfreyap.product.presentation.screen.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kevinfreyap.domain.model.InventoryBarcode
+import com.kevinfreyap.domain.usecases.ObserveUserUseCase
 import com.kevinfreyap.product.R
 import com.kevinfreyap.product.domain.usecase.GetLowStockProductUseCase
 import com.kevinfreyap.product.domain.usecase.GetRecentProductListUseCase
 import com.kevinfreyap.product.domain.usecase.GetInventorySummaryUseCase
 import com.kevinfreyap.product.domain.usecase.GetProductByBarcodeUseCase
+import com.kevinfreyap.product.domain.usecase.ObserveActiveGroupUseCase
 import com.kevinfreyap.product.presentation.mapper.toUiModel
 import com.kevinfreyap.product.presentation.model.AlertListUi
 import com.kevinfreyap.product.presentation.navigation.DashboardNavigation
@@ -39,6 +41,8 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     getLowStockProduct: GetLowStockProductUseCase,
     getRecentProductList: GetRecentProductListUseCase,
+    observeActiveGroup: ObserveActiveGroupUseCase,
+    observeUser: ObserveUserUseCase,
     private val getProductByBarcodeUseCase: GetProductByBarcodeUseCase,
     private val getInventorySummary: GetInventorySummaryUseCase,
 ): ViewModel() {
@@ -84,12 +88,21 @@ class DashboardViewModel @Inject constructor(
             combine(
                 flow = getInventorySummary(),
                 flow2 = lowStockFlow,
-                flow3 = recentProductFlow
-            ) { inventorySummary, lowStock, recentProduct ->
-                if (inventorySummary.totalProduct == 0) return@combine UiState.Empty
+                flow3 = recentProductFlow,
+                flow4 = observeActiveGroup(),
+                flow5 = observeUser()
+            ) { inventorySummary, lowStock, recentProduct, activeGroup, user ->
 
-                UiState.Success(
+                val userRoleFormatted = activeGroup?.currentUserRole?.name
+                    ?.lowercase()
+                    ?.replaceFirstChar { it.uppercase() }
+                    .orEmpty()
+
+                val successState: UiState<ScreenDashboardState> = UiState.Success(
                     ScreenDashboardState(
+                        groupName = activeGroup?.name.orEmpty(),
+                        userName = user?.name.orEmpty(),
+                        userRole = userRoleFormatted,
                         totalProductRaw = inventorySummary.totalProduct,
                         totalProductCount = inventorySummary.totalProduct.toFormattedNumber(),
                         totalItemsCount = inventorySummary.totalItem.toFormattedNumber(),
@@ -98,6 +111,8 @@ class DashboardViewModel @Inject constructor(
                         recentProduct = recentProduct
                     )
                 )
+
+                successState
             }
                 .onStart { emit(UiState.Loading) }
                 .catch { exception ->

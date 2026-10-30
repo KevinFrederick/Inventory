@@ -3,7 +3,7 @@ package com.kevinfreyap.user.domain.usecase.group
 import com.kevinfreyap.domain.model.GroupId
 import com.kevinfreyap.domain.preferences.IDevicePreferences
 import com.kevinfreyap.domain.session.IActiveGroupSession
-import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
+import com.kevinfreyap.domain.usecases.ObserveUserUseCase
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 

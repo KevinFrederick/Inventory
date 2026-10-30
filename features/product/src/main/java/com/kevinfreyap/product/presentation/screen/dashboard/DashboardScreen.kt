@@ -16,8 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,8 +46,8 @@ import com.kevinfreyap.product.presentation.model.ProductListItemUi
 import com.kevinfreyap.product.presentation.model.StockLevel
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionDashboardSummary
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionDashboardSummaryPlaceholder
-import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetings
-import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGreetingsPlaceholder
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGroup
+import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionGroupPlaceholder
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeader
 import com.kevinfreyap.product.presentation.screen.dashboard.section.SectionListWithHeaderPlaceholder
 import com.kevinfreyap.product.presentation.state.ScreenDashboardState
@@ -61,7 +58,6 @@ import com.kevinfreyap.ui.components.AppStateBanner
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
-import com.kevinfreyap.ui.theme.Theme
 
 @Composable
 fun DashboardScreen(
@@ -128,19 +124,6 @@ fun DashboardContent(
                     .padding(horizontal = 16.dp)
             ) {
                 AppIconName()
-
-                IconButton(
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    onClick = {}
-                ) {
-                    Icon(
-                        painter = painterResource(coreR.drawable.search_24),
-                        contentDescription = "Search Icon",
-                        tint = Theme.custom.primaryText
-                    )
-                }
             }
         },
         floatingActionButton = {
@@ -176,7 +159,14 @@ fun DashboardContent(
             when (state) {
                 UiState.Idle -> {}
                 UiState.Empty -> {
-                    DashboardEmpty (
+                    DashboardEmpty(
+                        state = ScreenDashboardState(
+                            recentProduct = AlertListUi(
+                                R.string.label_recently_updated,
+                                R.string.btn_label_view_all_product,
+                                emptyList()
+                            )
+                        ),
                         onNavigate = onNavigate
                     )
                 }
@@ -189,10 +179,17 @@ fun DashboardContent(
                     )
                 }
                 is UiState.Success -> {
-                    DashboardSuccess(
-                        state = state.data,
-                        onNavigate = onNavigate
-                    ) 
+                    if (state.data.totalProductRaw == 0) {
+                        DashboardEmpty(
+                            state = state.data,
+                            onNavigate = onNavigate
+                        )
+                    } else {
+                        DashboardSuccess(
+                            state = state.data,
+                            onNavigate = onNavigate
+                        )
+                    }
                 }
             }
         }
@@ -201,7 +198,7 @@ fun DashboardContent(
 
 @Composable
 private fun DashboardShimmer() {
-    SectionGreetingsPlaceholder()
+    SectionGroupPlaceholder()
     SectionDashboardSummaryPlaceholder()
     SectionListWithHeaderPlaceholder()
     SectionListWithHeaderPlaceholder()
@@ -209,11 +206,26 @@ private fun DashboardShimmer() {
 
 @Composable
 private fun DashboardEmpty(
+    state: ScreenDashboardState,
     onNavigate: (DashboardNavigation) -> Unit
 ) {
-    SectionGreetings(
-        title = "Good Morning, User",
-        subtitle = "Let's set up your inventory"
+    val title = state.groupName.ifBlank {
+        stringResource(R.string.label_header_no_group)
+    }
+
+    val subtitle = buildString {
+        if (state.userName.isNotBlank()) append(state.userName)
+        if (state.userRole.isNotBlank()) {
+            if (isNotEmpty()) append(" | ")
+            append(state.userRole)
+        }
+    }.ifBlank {
+        stringResource(R.string.label_subtitle_no_group)
+    }
+
+    SectionGroup(
+        title = title,
+        subtitle = subtitle
     )
 
     SectionDashboardSummary(
@@ -251,9 +263,21 @@ private fun DashboardSuccess(
     state: ScreenDashboardState,
     onNavigate: (DashboardNavigation) -> Unit,
 ) {
-    SectionGreetings(
-        title = "Good Morning, User",
-        subtitle = ""
+    val title = state.groupName.ifBlank {
+        stringResource(R.string.label_header_no_group)
+    }
+
+    val subtitle = buildString {
+        if (state.userName.isNotBlank()) append(state.userName)
+        if (state.userRole.isNotBlank()) {
+            if (isNotEmpty()) append(" | ")
+            append(state.userRole)
+        }
+    }
+
+    SectionGroup(
+        title = title,
+        subtitle = subtitle
     )
 
     SectionDashboardSummary(
@@ -283,7 +307,6 @@ private fun DashboardSuccess(
                             }
                             .padding(
                                 top = 4.dp,
-                                bottom = 8.dp
                             )
                     )
                 }
@@ -297,7 +320,7 @@ private fun DashboardSuccess(
             )
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(8.dp))
     }
 
 
@@ -336,9 +359,9 @@ private fun DashboardSuccess(
 private fun DashboardError(
     onRetryClicked: () -> Unit
 ) {
-    SectionGreetings(
-        title = "Good Morning, User",
-        subtitle = ""
+    SectionGroup(
+        title = stringResource(R.string.label_header_no_group),
+        subtitle = stringResource(R.string.label_subtitle_no_group)
     )
 
     AppStateBanner(
@@ -373,6 +396,9 @@ fun DashboardScreenPreview() {
         DashboardContent(
             state = UiState.Success(
                 ScreenDashboardState(
+                    groupName = "Test 1's Inventory",
+                    userName = "Test 1",
+                    userRole = "Admin",
                     totalProductCount = "1.000",
                     totalItemsCount = "1.700",
                     estimatedValue = "Rp 1.200.000.000",

@@ -19,7 +19,7 @@ import com.kevinfreyap.user.domain.usecase.group.ObserveGroupMembersPreviewUseCa
 import com.kevinfreyap.user.domain.usecase.group.OwnedGroupCountUseCase
 import com.kevinfreyap.user.domain.usecase.group.RefreshGroupMembersUseCase
 import com.kevinfreyap.user.domain.usecase.group.SelectGroupUseCase
-import com.kevinfreyap.user.domain.usecase.user.ObserveUserUseCase
+import com.kevinfreyap.domain.usecases.ObserveUserUseCase
 import com.kevinfreyap.user.presentation.mapper.toMemberItem
 import com.kevinfreyap.user.presentation.navigation.GroupDetailNavigation
 import com.kevinfreyap.user.presentation.navigation.UserScreens

@@ -1,5 +1,6 @@
 package com.kevinfreyap.user.di
 
+import com.kevinfreyap.domain.repository.ICoreUserRepository
 import com.kevinfreyap.domain.repository.IUserGroupRepository
 import com.kevinfreyap.user.data.repository.GroupRepository
 import com.kevinfreyap.user.data.repository.UserRepository
@@ -29,4 +30,10 @@ abstract class UserModule {
     abstract fun bindUserGroupRepository(
         impl: GroupRepository
     ): IUserGroupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCoreUserRepository(
+        impl: UserRepository
+    ): ICoreUserRepository
 }

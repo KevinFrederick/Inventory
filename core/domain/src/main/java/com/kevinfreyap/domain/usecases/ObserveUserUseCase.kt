@@ -1,12 +1,12 @@
-package com.kevinfreyap.user.domain.usecase.user
+package com.kevinfreyap.domain.usecases
 
 import com.kevinfreyap.domain.model.User
-import com.kevinfreyap.user.domain.repository.IUserRepository
+import com.kevinfreyap.domain.repository.ICoreUserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ObserveUserUseCase @Inject constructor(
-    private val userRepository: IUserRepository
+    private val userRepository: ICoreUserRepository
 ) {
     operator fun invoke(): Flow<User?> {
         return userRepository.getUser()
