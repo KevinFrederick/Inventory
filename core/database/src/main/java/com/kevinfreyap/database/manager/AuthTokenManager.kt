@@ -13,6 +13,7 @@ import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import com.kevinfreyap.database.di.SessionDataStore
 import com.kevinfreyap.domain.manager.IAuthTokenManager
+import com.kevinfreyap.domain.manager.ISessionCleaner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ import kotlin.jvm.java
 class AuthTokenManager @Inject constructor(
     @ApplicationContext context: Context,
     @param:SessionDataStore private val dataStore: DataStore<Preferences>,
+    private val sessionCleaner: ISessionCleaner
 ): IAuthTokenManager {
 
     private val accessTokenKey = stringPreferencesKey("access_token")
@@ -80,6 +82,8 @@ class AuthTokenManager @Inject constructor(
         }
         _tokenState.value = null
         _refreshTokenState.value = null
+
+        sessionCleaner.clearSessionData()
     }
 
     override fun fetchAccessToken(): String? = _tokenState.value

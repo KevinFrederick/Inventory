@@ -110,6 +110,8 @@ fun AppTextField(
             disabledTrailingIconColor = unfocusedColor,
             disabledTextColor = disabledTextColor,
 
+            focusedTextColor = Theme.custom.primaryText,
+
             unfocusedTrailingIconColor = unfocusedColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             errorTrailingIconColor = MaterialTheme.colorScheme.error

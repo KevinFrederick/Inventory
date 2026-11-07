@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -50,6 +52,7 @@ import com.kevinfreyap.auth.R
 import com.kevinfreyap.auth.domain.error.AuthConfirmPasswordError
 import com.kevinfreyap.auth.domain.error.AuthNameError
 import com.kevinfreyap.auth.presentation.action.AuthAction
+import com.kevinfreyap.auth.presentation.client.GoogleAuthClient
 import com.kevinfreyap.auth.presentation.components.AuthHeaderText
 import com.kevinfreyap.auth.presentation.components.EmailPasswordInput
 import com.kevinfreyap.auth.presentation.components.GoogleButton
@@ -63,6 +66,7 @@ import com.kevinfreyap.ui.components.AppTextField
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
@@ -74,6 +78,9 @@ fun RegisterScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val state by viewModel.authState.collectAsStateWithLifecycle()
+
+    val coroutineScope = rememberCoroutineScope()
+    val googleAuthClient = remember { GoogleAuthClient(context) }
 
     LaunchedEffect(viewModel.uiEvent, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -100,6 +107,14 @@ fun RegisterScreen(
         state = state,
         onAction = viewModel::onAction,
         onNavigate = onNavigate,
+        onGoogleClicked = {
+            coroutineScope.launch {
+                val idToken = googleAuthClient.getGoogleIdToken()
+                if (idToken != null) {
+                    viewModel.onAction(AuthAction.GoogleBtn(idToken))
+                }
+            }
+        },
         modifier = modifier
     )
 }
@@ -109,6 +124,7 @@ fun RegisterContent(
     state: ScreenAuthState,
     onAction: (AuthAction) -> Unit,
     onNavigate: (RegisterNavigation) -> Unit,
+    onGoogleClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -288,9 +304,7 @@ fun RegisterContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             GoogleButton(
-                onClick = {
-                    onAction(AuthAction.GoogleBtn)
-                },
+                onClick = onGoogleClicked,
                 cornerRadius = 32,
                 modifier = Modifier
                     .height(56.dp)
@@ -309,7 +323,8 @@ fun RegisterScreenPreview() {
         RegisterContent(
             state = ScreenAuthState(),
             onAction = {},
-            onNavigate = {}
+            onNavigate = {},
+            onGoogleClicked = {},
         )
     }
 }

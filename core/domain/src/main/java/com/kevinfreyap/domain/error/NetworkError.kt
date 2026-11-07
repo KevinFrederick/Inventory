@@ -4,6 +4,7 @@ sealed interface NetworkError: RootError {
     enum class Local: NetworkError{
         MISSING_FILE,
         NO_INTERNET,
+        SERVER_DOWN,
         UNKNOWN
     }
 

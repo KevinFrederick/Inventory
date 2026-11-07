@@ -1,9 +1,9 @@
 [versions]
 # Build & Plugins
 agp = "9.2.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 ksp = "2.3.9"
-kotlinxSerialization = "1.11.0"
+kotlinxSerialization = "1.12.0"
 
 # Hilt
 hilt = "2.60.1"
@@ -27,7 +27,7 @@ composeBom = "2026.09.00"
 
 # Database
 room = "2.8.5"
-paging = "3.5.2"
+paging = "3.5.3"
 
 # Desugar
 desugar_jdk_libs = "2.1.5"
@@ -48,10 +48,10 @@ camerax = "1.6.2"
 barcodeScan = "17.3.0"
 
 # Network (Ktor)
-ktorVersion = "3.6.0"
+ktorVersion = "3.6.1"
 
 # Datastore
-datastore = "1.2.1"
+datastore = "1.3.0"
 
 # WorkManager
 work = "2.12.0"
@@ -61,10 +61,14 @@ hiltWorker = "1.4.0"
 exifinterface = "1.4.2"
 
 # Security
-cryptoTink = "1.23.0"
+cryptoTink = "1.24.0"
 
 # Splash
 splashScreen = "1.2.0"
+
+# Credentials
+credentials = "1.6.0"
+googleId = "1.2.1"
 
 [libraries]
 # Core Android
@@ -162,6 +166,11 @@ crypto-tink = { group = "com.google.crypto.tink", name = "tink-android", version
 
 # Splash
 splash-screen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashScreen" }
+
+# Credentials
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleId" }
 
 [plugins]
 # Project Plugins

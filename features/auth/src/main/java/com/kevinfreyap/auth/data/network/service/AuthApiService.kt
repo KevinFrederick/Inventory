@@ -1,5 +1,6 @@
 package com.kevinfreyap.auth.data.network.service
 
+import com.kevinfreyap.auth.data.network.dto.request.GoogleAuthRequest
 import com.kevinfreyap.auth.data.network.dto.request.LoginRequest
 import com.kevinfreyap.auth.data.network.dto.request.LogoutRequest
 import com.kevinfreyap.auth.data.network.dto.request.RegisterRequest
@@ -17,6 +18,14 @@ class AuthApiService @Inject constructor(
 ) {
     suspend fun login(request: LoginRequest): AuthResponse {
         return client.post(AuthResource.Login(
+            parent = AuthResource()
+        )) {
+            setBody(request)
+        }.body()
+    }
+
+    suspend fun authWithGoogle(request: GoogleAuthRequest): AuthResponse {
+        return client.post(AuthResource.Google(
             parent = AuthResource()
         )) {
             setBody(request)

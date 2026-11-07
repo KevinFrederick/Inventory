@@ -2,8 +2,10 @@ package com.kevinfreyap.database.di
 
 import com.kevinfreyap.database.manager.AuthTokenManager
 import com.kevinfreyap.database.manager.ImageManager
+import com.kevinfreyap.database.manager.SessionCleaner
 import com.kevinfreyap.domain.manager.IAuthTokenManager
 import com.kevinfreyap.domain.manager.IImageManager
+import com.kevinfreyap.domain.manager.ISessionCleaner
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,4 +26,10 @@ abstract class ManagerModule {
     abstract fun bindImageManager(
         impl: ImageManager
     ): IImageManager
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionCleaner(
+        impl: SessionCleaner
+    ): ISessionCleaner
 }

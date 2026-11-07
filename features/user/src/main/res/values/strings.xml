@@ -125,6 +125,7 @@
     <string name="error_no_internet">Check your internet connection and try again.</string>
     <string name="error_missing_file">Profile picture file not found or corrupted.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
+    <string name="error_server_down">Server down. Please try again later</string>
 
     <string name="error_group_name_empty">Group name is required</string>
     <string name="error_group_name_too_long">Group name cannot exceed 255 characters</string>
