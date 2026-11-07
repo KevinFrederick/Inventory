@@ -27,9 +27,9 @@ android {
         if (localFile.exists()) {
             localProperties.load(localFile.inputStream())
         }
-        val webClient = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
+        val webClient = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: "placeholder-id"
 
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", webClient)
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$webClient\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
