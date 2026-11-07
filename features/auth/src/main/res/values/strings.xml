@@ -63,4 +63,5 @@
 
     <string name="error_network_no_connection">No network connection. Please check your connection</string>
     <string name="error_network_unknown">Something went wrong. Please try again</string>
+    <string name="error_network_server_down">Server down. Please try again later</string>
 </resources>

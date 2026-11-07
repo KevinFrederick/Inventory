@@ -137,6 +137,9 @@ class ProfileViewModel @Inject constructor(
                         NetworkError.Local.UNKNOWN -> {
                             _uiEvent.send(UiEvent.ShowToast(R.string.error_unknown))
                         }
+                        NetworkError.Local.SERVER_DOWN -> {
+                            _uiEvent.send(UiEvent.ShowToast(R.string.error_server_down))
+                        }
                         is NetworkError.Server -> {
                             _uiEvent.send(UiEvent.ShowToast(error.message))
                         }

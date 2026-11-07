@@ -11,8 +11,7 @@ import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
     private val authRepository: IAuthRepository,
-    private val validateEmail: ValidateEmailUseCase,
-    private val validatePass: ValidatePasswordUseCase
+    private val validateEmail: ValidateEmailUseCase
 ) {
     suspend operator fun invoke(
         email: String,

@@ -16,14 +16,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -45,12 +42,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.kevinfreyap.auth.R
 import com.kevinfreyap.auth.presentation.action.AuthAction
+import com.kevinfreyap.auth.presentation.client.GoogleAuthClient
 import com.kevinfreyap.auth.presentation.components.AuthHeaderText
 import com.kevinfreyap.auth.presentation.components.EmailPasswordInput
 import com.kevinfreyap.auth.presentation.components.GoogleButton
 import com.kevinfreyap.auth.presentation.components.HorizontalDividerOr
 import com.kevinfreyap.auth.presentation.navigation.LoginNavigation
-import com.kevinfreyap.auth.presentation.screen.auth.dialog.ForgotPasswordDialog
 import com.kevinfreyap.auth.presentation.state.ScreenAuthState
 import com.kevinfreyap.ui.components.AppCenterTopBar
 import com.kevinfreyap.ui.R as coreR
@@ -58,6 +55,7 @@ import com.kevinfreyap.ui.components.AppPrimaryButton
 import com.kevinfreyap.ui.event.UiEvent
 import com.kevinfreyap.ui.state.UiState
 import com.kevinfreyap.ui.theme.InventoryTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -69,7 +67,9 @@ fun LoginScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val state by viewModel.authState.collectAsStateWithLifecycle()
-    var showForgotDialog by rememberSaveable { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    val googleAuthClient = remember { GoogleAuthClient(context) }
 
     LaunchedEffect(viewModel.uiDialogEvent, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -111,12 +111,16 @@ fun LoginScreen(
 
     LoginContent(
         state = state,
-        showForgotDialog = showForgotDialog,
-        forgotDialogToggle = { isShow ->
-            showForgotDialog = isShow
-        },
         onAction = viewModel::onAction,
         onNavigate = onNavigate,
+        onGoogleClicked = {
+            coroutineScope.launch {
+                val idToken = googleAuthClient.getGoogleIdToken()
+                if (idToken != null) {
+                    viewModel.onAction(AuthAction.GoogleBtn(idToken))
+                }
+            }
+        },
         modifier = modifier
     )
 }
@@ -124,10 +128,9 @@ fun LoginScreen(
 @Composable
 fun LoginContent(
     state: ScreenAuthState,
-    showForgotDialog: Boolean,
-    forgotDialogToggle: (Boolean) -> Unit,
     onAction: (AuthAction) -> Unit,
     onNavigate: (LoginNavigation) -> Unit,
+    onGoogleClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -200,21 +203,7 @@ fun LoginContent(
                 lastFieldImeAction = ImeAction.Done
             )
 
-            TextButton(
-                onClick = {
-                    forgotDialogToggle(true)
-                },
-                modifier = Modifier
-                    .align(
-                        Alignment.End
-                    )
-            ) {
-                Text(
-                    text = stringResource(R.string.text_btn_forgot_password)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             AppPrimaryButton(
                 text = stringResource(R.string.btn_label_sign_in),
@@ -241,29 +230,12 @@ fun LoginContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             GoogleButton(
-                onClick = {
-                    onAction(AuthAction.GoogleBtn)
-                },
+                onClick = onGoogleClicked,
                 cornerRadius = 32,
                 modifier = Modifier
                     .height(56.dp)
             )
         }
-    }
-
-    if (showForgotDialog) {
-        ForgotPasswordDialog(
-            email = state.resetEmail,
-            onEmailChange = {
-                onAction(AuthAction.CredentialAction.OnResetEmailChanged(it))
-            },
-            onSendDialog = {
-                onAction(AuthAction.SendResetEmail)
-            },
-            onDismissDialog = {
-                forgotDialogToggle(false)
-            },
-        )
     }
 }
 
@@ -275,10 +247,9 @@ fun LoginScreenPreview() {
     InventoryTheme {
         LoginContent(
             state = ScreenAuthState(),
-            showForgotDialog = false,
-            forgotDialogToggle = {},
             onAction = {},
-            onNavigate = {}
+            onNavigate = {},
+            onGoogleClicked = {}
         )
     }
 }

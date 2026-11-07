@@ -9,8 +9,8 @@ sealed interface AuthAction {
         data class OnResetEmailChanged(val resetEmail: String): CredentialAction
     }
 
+    data class GoogleBtn(val token: String): AuthAction
     object SendResetEmail: AuthAction
-    object GoogleBtn: AuthAction
     object SignIn: AuthAction
     object Register: AuthAction
 }
